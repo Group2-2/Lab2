@@ -7,7 +7,7 @@ public class User {
     private String name;
     private String login;
     private String password;
-    private List<User> listBan;
+    private boolean online;
 
     public User(String name, String login, String password) {
         this.name = name;
@@ -39,22 +39,12 @@ public class User {
         this.password = password;
     }
 
-    public List<User> getListBan() {
-        return listBan;
+    public boolean isOnline() {
+        return online;
     }
 
-    public void setListBan(List<User> listBan) {
-        this.listBan = listBan;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(name, user.name) &&
-                Objects.equals(login, user.login) &&
-                Objects.equals(password, user.password);
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 
     @Override
@@ -70,5 +60,15 @@ public class User {
                 ", login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(name, user.name) &&
+                Objects.equals(login, user.login) &&
+                Objects.equals(password, user.password);
     }
 }
