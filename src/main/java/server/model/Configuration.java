@@ -1,7 +1,15 @@
 package server.model;
 
 import com.thoughtworks.xstream.XStream;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -11,10 +19,16 @@ import java.util.Map;
 public class Configuration {
 
     private Map<String, List<Message>> chats;
+    private Map<String, List<User>> group;
     private List<User> listUsers;
+    private Admin admin = null;
     private static XStream xstream = new XStream();
 
     private Configuration() {
+        admin = read(FilePath.ADMIN.getPath());
+        if (admin == null) {
+            admin = new Admin("admin", "pass", "1");
+        }
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();
@@ -34,6 +48,39 @@ public class Configuration {
     }
 
     public String configuration(Command command) {
+        String value = command.getValue();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(value)));
+            NodeList nodes = document.getElementsByTagName("command");
+            Element element = (Element) nodes.item(0);
+            String type = element.getAttribute("type");
+            switch (type) {
+                case "all_users": {
+                    return getListUsers();
+                }
+                case "online_users": {
+                    return getOnlineListUsers();
+                }
+                case "сhats": {
+                    return getChats();
+                }
+                case "get_message": {
+                    String id = element.getAttribute("chat_id");
+                    return getMessages(id);
+                }
+                case "ban": {
+                    String id = element.getAttribute("user");
+                    listUsers.forEach(user -> {
+                        //if (user.getLogin().equals(id))
+
+                    });
+                }
+            }
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
         return "";
     }
 
@@ -93,6 +140,15 @@ public class Configuration {
     private String getListUsers() {
         final List<String> list = new ArrayList<>();
         listUsers.forEach(item -> list.add(item.getName()));
+        return xstream.toXML(listUsers);
+    }
+
+    private String getOnlineListUsers() {
+        final List<String> list = new ArrayList<>();
+        listUsers.forEach(item -> {
+            if (item.isOnline())
+                list.add(item.getName());
+        });
         return xstream.toXML(listUsers);
     }
 }
