@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * Created by SviatoslavHavrilo on 17.02.2018.
@@ -18,11 +19,16 @@ public class OnlineUsersView extends JFrame {
     private JButton cancelButton;
     private JPanel mainPanel;
     private ClientController controller;
+    private String command;
+    private DefaultListModel listModel;
 
-    public OnlineUsersView(ClientController controller, String titile) {
+    public OnlineUsersView(ClientController controller, String titile, String command) {
         super(titile);
         this.controller = controller;
+        this.command = command;
         createGUI();
+        ArrayList<String> arrList = controller.getOnlineUserslist();
+        setOnlineUsersList(arrList);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
@@ -34,6 +40,8 @@ public class OnlineUsersView extends JFrame {
         final JScrollPane scrollPane1 = new JScrollPane();
         mainPanel.add(scrollPane1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         onlineUsersList = new JList();
+        listModel = new DefaultListModel();
+        onlineUsersList.setModel(listModel);
         scrollPane1.setViewportView(onlineUsersList);
         selectUsersButton = new JButton();
         selectUsersButton.setText("Select users");
@@ -56,9 +64,16 @@ public class OnlineUsersView extends JFrame {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                setVisible(false);
+                dispose();
             }
         });
+    }
+
+    public void setOnlineUsersList(ArrayList<String> arrList){
+        for (String userName: arrList) {
+            listModel.addElement(userName);
+        }
     }
 
 }
