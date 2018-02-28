@@ -10,6 +10,12 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -18,11 +24,10 @@ import java.util.Map;
 
 public class Configuration {
 
-    private Map<String, List<Message>> chats;
-    private Map<String, List<User>> group;
+    private Map<Long, List<Message>> chats;
+    private Map<Long, List<User>> group;
     private List<User> listUsers;
     private Admin admin = null;
-    private static XStream xstream = new XStream();
 
     private Configuration() {
         admin = read(FilePath.ADMIN.getPath());
@@ -66,16 +71,30 @@ public class Configuration {
                 case "сhats": {
                     return getChats();
                 }
-                case "get_message": {
-                    String id = element.getAttribute("chat_id");
+                case "get_messages": {
+                    Long id = Long.parseLong(element.getAttribute("chat_id"));
                     return getMessages(id);
                 }
                 case "ban": {
                     String id = element.getAttribute("user");
                     listUsers.forEach(user -> {
                         //if (user.getLogin().equals(id))
-
                     });
+                }
+                case "login" : {
+                    String login = element.getAttribute("login");
+                    String password = element.getAttribute("password");
+                    for (User user: listUsers) {
+                        if (user.getLogin().equals(login) && user.getPassword().equals(password)) {
+                            return String.format("<command type=\"login\" result = \"ACCEPTED\" name= \"%s\" />", user.getName());
+                        }
+                    }
+                    return "<command type=\"login\" result = \"NOTACCEPTED\"/>";
+                }
+                case "registration": {
+                    String login = element.getAttribute("login");
+                    String password = element.getAttribute("password");
+                    String name = element.getAttribute("name");
                 }
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -84,7 +103,9 @@ public class Configuration {
         return "";
     }
 
-    public void addMessage(String id, Message message) {
+
+
+    public void addMessage(Long id, Message message) {
         if (!chats.containsKey(id)) {
             chats.put(id, new ArrayList<>());
         }
@@ -124,26 +145,42 @@ public class Configuration {
 
     }
 
-    private String getMessages(String id) {
+    private String getMessages(long id) {
         if (!chats.containsKey(id)) {
             chats.put(id, new ArrayList<>());
         }
+        XStream xstream = new XStream();
+        xstream.alias("message", Message.class);
+        xstream.useAttributeFor(Message.class, "sender");
+        xstream.useAttributeFor(Message.class, "text");
+        xstream.aliasField("sender", Message.class, "sender");
+        xstream.aliasField("text", Message.class, "text");
+        xstream.alias("messages", List.class);
         return xstream.toXML(chats.get(id));
     }
 
     private String getChats() {
-        List<String> list = new ArrayList<>();
+        XStream xstream = new XStream();
+        xstream.alias("chats", List.class);
+        xstream.alias("chat", Long.class);
+        List<Long> list = new ArrayList<>();
         chats.forEach((key, value) -> list.add(key));
         return xstream.toXML(list);
     }
 
     private String getListUsers() {
+        XStream xstream = new XStream();
+        xstream.alias("users", List.class);
+        xstream.alias("user", String.class);
         final List<String> list = new ArrayList<>();
         listUsers.forEach(item -> list.add(item.getName()));
         return xstream.toXML(listUsers);
     }
 
     private String getOnlineListUsers() {
+        XStream xstream = new XStream();
+        xstream.alias("users", List.class);
+        xstream.alias("user", String.class);
         final List<String> list = new ArrayList<>();
         listUsers.forEach(item -> {
             if (item.isOnline())

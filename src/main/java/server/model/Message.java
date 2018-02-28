@@ -4,16 +4,20 @@ import java.util.Objects;
 
 public class Message
 {
-    private User sender;
+    private String sender;
     private String text;
 
-    public Message(User sender, String text) {
+    public Message(String sender, String text) {
         this.sender = sender;
         this.text = text;
     }
 
     public String getText() {
         return text;
+    }
+
+    public String getSender() {
+        return sender;
     }
 
     @Override
