@@ -17,6 +17,19 @@ public class User {
         this.admin = admin;
     }
 
+    public User(String name, String login) {
+        this.name = name;
+        this.login = login;
+        online = false;
+        admin = false;
+    }
+
+    public User(String name, String login, boolean admin) {
+        this.name = name;
+        this.login = login;
+        this.admin = admin;
+    }
+
     public String getName() {
         return name;
     }
