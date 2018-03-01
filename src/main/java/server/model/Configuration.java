@@ -12,6 +12,10 @@ public class Configuration implements Model {
 
     private static Configuration instance = new Configuration();
 
+    public static Configuration getInstance() {
+        return instance;
+    }
+
     private Configuration() {
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
