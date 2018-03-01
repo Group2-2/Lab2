@@ -8,27 +8,35 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * Created by SviatoslavHavrilo on 23.02.2018.
  */
 public class GeneralChatView extends JFrame{
-    private JTextArea chatArea;
-    private JList onlineUsersList;
-    private JButton sendMessageButton;
-    private JTextArea newMassegeArea;
-    private JButton privateChatButton;
-    private ClientController controller;
-    private JPanel mainPanel;
-    private JButton addNewUserButton;
+    protected JTextArea chatArea;
+    protected JList onlineUsersList;
+    protected JButton sendMessageButton;
+    protected JTextArea newMassegeArea;
+    protected JButton privateChatButton;
+    protected ClientController controller;
+    protected JPanel mainPanel;
+    protected JButton addNewUserButton;
+    protected DefaultListModel listModel;
 
     public GeneralChatView(ClientController controller, String titile) {
         super(titile);
         this.controller = controller;
         createGUI();
+        ArrayList<String> arrList = controller.getOnlineUserslist();
+        setOnlineUsersList(arrList);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
+    }
+
+    public GeneralChatView(String titile) {
+        super(titile);
     }
 
     /**
@@ -63,11 +71,11 @@ public class GeneralChatView extends JFrame{
         privateChatButton.setText("Private chat");
         mainPanel.add(privateChatButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sendMessageButton = new JButton();
-        sendMessageButton.setText("Send XmlMessage");
+        sendMessageButton.setText("Send message");
         mainPanel.add(sendMessageButton, new GridConstraints(4, 6, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         onlineUsersList = new JList();
-        final DefaultListModel defaultListModel1 = new DefaultListModel();
-        onlineUsersList.setModel(defaultListModel1);
+       listModel = new DefaultListModel();
+        onlineUsersList.setModel(listModel);
         onlineUsersList.setToolTipText("");
         mainPanel.add(onlineUsersList, new GridConstraints(1, 1, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(150, 50), new Dimension(150, -1), 0, false));
         final JLabel label1 = new JLabel();
@@ -85,6 +93,7 @@ public class GeneralChatView extends JFrame{
 
 
         this.add(mainPanel);
+        setButtonListeners();
 
         /*UserMenu menu = new UserMenu();
         this.setJMenuBar(menu);*/
@@ -102,14 +111,25 @@ public class GeneralChatView extends JFrame{
     privateChatButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            controller.createPrivateChatSelect();
         }
     });
         sendMessageButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            controller.sendMessage(newMassegeArea.getText(), "GeneralChat");
+            newMassegeArea.setText("");
         }
     });
 }
+    public void setOnlineUsersList(ArrayList<String> arrList){
+        for (String userName: arrList) {
+            listModel.addElement(userName);
+        }
+    }
+
+    public void printNewMassage(String massage){
+        chatArea.append(massage+ "\n");
+    }
+
 }

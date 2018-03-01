@@ -19,7 +19,7 @@ public class LoginView extends JFrame {
     private JButton buttonJoinChat;
     private JButton buttonRegister;
     private JPasswordField passwordField;
-    private JTextField nickNameField;
+    private JTextField loginField;
     private ClientController controller;
 
     public LoginView(ClientController controller) {
@@ -53,9 +53,9 @@ public class LoginView extends JFrame {
         passwordField = new JPasswordField();
         passwordField.setText("");
         panel3.add(passwordField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        nickNameField = new JTextField();
-        nickNameField.setText("");
-        panel3.add(nickNameField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        loginField = new JTextField();
+        loginField.setText("");
+        panel3.add(loginField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Password");
         panel3.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -80,8 +80,8 @@ public class LoginView extends JFrame {
         buttonJoinChat.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (nickNameField.getText() != null && !nickNameField.getText().trim().equals("") && passwordField!=null) {
-                    controller.validateUser(nickNameField.getText(),new String(passwordField.getPassword()));
+                if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField!=null) {
+                    controller.validateUser(loginField.getText(),new String(passwordField.getPassword()));
                 }
             }
 
@@ -92,9 +92,8 @@ public class LoginView extends JFrame {
         buttonRegister.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (nickNameField.getText() != null && !nickNameField.getText().trim().equals("") && passwordField != null) {
-                    controller.newUserRegistration(nickNameField.getText(), new String(passwordField.getPassword()));
-                }
+                    controller.openRegistrationView(loginField.getText(), new String(passwordField.getPassword()));
+                closeFrame();
             }
         });
     }

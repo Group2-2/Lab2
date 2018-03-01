@@ -9,30 +9,35 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-public class AdminView extends JFrame {
-    private JTextArea chatArea;
+public class AdminView extends GeneralChatView {
+/*    private JTextArea chatArea;
     private JList onlineUsersList;
     private JButton sendMessageButton;
     private JTextArea newMassegeArea;
     private JButton privateChatButton;
-    private JPanel mainPanel;
+    private JPanel mainPanel;*/
     private JButton banUserButton;
     private JButton unbanUserButton;
     private JButton editUserInformationButton;
     private JList bannedUsersList;
-    private ClientController controller;
+  /*  private ClientController controller;
+    private DefaultListModel listModel;*/
 
     public AdminView(ClientController controller) {
         super("ADMIN_General chat");
         this.controller = controller;
-        createGUI();
+        createAdminGUI();
+        ArrayList<String> arrList = controller.getOnlineUserslist();
+        setOnlineUsersList(arrList);
+        super.setButtonListeners();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
     }
 
-    private void createGUI() {
+    private void createAdminGUI() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(6, 10, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.setBackground(new Color(-3747873));
@@ -71,8 +76,8 @@ public class AdminView extends JFrame {
         mainPanel.add(banUserButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         onlineUsersList = new JList();
         onlineUsersList.setBackground(new Color(-3747873));
-        final DefaultListModel defaultListModel2 = new DefaultListModel();
-        onlineUsersList.setModel(defaultListModel2);
+        listModel = new DefaultListModel();
+        onlineUsersList.setModel(listModel);
         onlineUsersList.setToolTipText("");
         mainPanel.add(onlineUsersList, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(150, 50), new Dimension(150, -1), 0, false));
         newMassegeArea = new JTextArea();
@@ -85,46 +90,29 @@ public class AdminView extends JFrame {
         privateChatButton.setText("Private chat");
         mainPanel.add(privateChatButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sendMessageButton = new JButton();
-        sendMessageButton.setText("Send XmlMessage");
+        sendMessageButton.setText("Send message");
         mainPanel.add(sendMessageButton, new GridConstraints(4, 8, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         editUserInformationButton = new JButton();
         editUserInformationButton.setText("Edit user information");
         mainPanel.add(editUserInformationButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
         this.add(mainPanel);
-        setButtonListeners();
+        setAdminButtonListeners();
 
     }
 
-    public void setButtonListeners() {
+    public void setAdminButtonListeners() {
         banUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                controller.banUserSelect();
             }
         });
-        editUserInformationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
 
-            }
-        });
-        privateChatButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
         unbanUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        sendMessageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
+                controller.unBanUserSelect();
             }
         });
     }
