@@ -2,8 +2,7 @@ package server.model;
 
 import java.util.Objects;
 
-public class Message
-{
+public class Message {
     private String sender;
     private String text;
 

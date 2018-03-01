@@ -1,10 +1,10 @@
 package server.model;
 
 public enum FilePath {
-    ADMIN("admin"),
+    BAN_LIST("ban_list"),
     CHATS("chats"),
-    Groups("groups"),
-    LIST_USER("list_users");
+    GROUPS("groups"),
+    LIST_USER("list_users"),;
 
     private String path;
 

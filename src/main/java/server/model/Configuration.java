@@ -1,120 +1,178 @@
 package server.model;
 
-import com.thoughtworks.xstream.XStream;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class Configuration {
+public class Configuration implements Model {
 
     private Map<Long, List<Message>> chats;
-    private Map<Long, List<User>> group;
+    private Map<Long, List<String>> groups;
     private List<User> listUsers;
-    private Admin admin = null;
+    private Set<String> banList;
+
+    private static Configuration instance = new Configuration();
 
     private Configuration() {
-        admin = read(FilePath.ADMIN.getPath());
-        if (admin == null) {
-            admin = new Admin("admin", "pass", "1");
-        }
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();
             writeObject(chats, FilePath.CHATS.getPath());
         }
+        groups = read(FilePath.GROUPS.getPath());
+        if (groups == null) {
+            groups = new Hashtable<>();
+            writeObject(groups, FilePath.GROUPS.getPath());
+        }
         listUsers = read(FilePath.LIST_USER.getPath());
         if (listUsers == null) {
-            listUsers = new ArrayList<User>();
+            listUsers = new ArrayList<>();
             writeObject(listUsers, FilePath.LIST_USER.getPath());
         }
-    }
-
-    private static Configuration instance = new Configuration();
-
-    public static Configuration getInstance() {
-        return instance;
-    }
-
-    public String configuration(Command command) {
-        String value = command.getValue();
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(value)));
-            NodeList nodes = document.getElementsByTagName("command");
-            Element element = (Element) nodes.item(0);
-            String type = element.getAttribute("type");
-            switch (type) {
-                case "all_users": {
-                    return getListUsers();
-                }
-                case "online_users": {
-                    return getOnlineListUsers();
-                }
-                case "сhats": {
-                    return getChats();
-                }
-                case "get_messages": {
-                    Long id = Long.parseLong(element.getAttribute("chat_id"));
-                    return getMessages(id);
-                }
-                case "ban": {
-                    String id = element.getAttribute("user");
-                    listUsers.forEach(user -> {
-                        //if (user.getLogin().equals(id))
-                    });
-                }
-                case "login" : {
-                    String login = element.getAttribute("login");
-                    String password = element.getAttribute("password");
-                    for (User user: listUsers) {
-                        if (user.getLogin().equals(login) && user.getPassword().equals(password)) {
-                            return String.format("<command type=\"login\" result = \"ACCEPTED\" name= \"%s\" />", user.getName());
-                        }
-                    }
-                    return "<command type=\"login\" result = \"NOTACCEPTED\"/>";
-                }
-                case "registration": {
-                    String login = element.getAttribute("login");
-                    String password = element.getAttribute("password");
-                    String name = element.getAttribute("name");
-                }
-            }
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
+        banList = read(FilePath.BAN_LIST.getPath());
+        if (banList == null) {
+            banList = new HashSet<>();
+            writeObject(listUsers, FilePath.BAN_LIST.getPath());
         }
-        return "";
     }
 
 
+    @Override
+    public List<String> getListUsers() {
+        List<String> list = new ArrayList<>();
+        listUsers.forEach(user -> list.add(user.getLogin()));
+        return list;
+    }
 
-    public void addMessage(Long id, Message message) {
+    @Override
+    public List<String> getOnlineListUsers() {
+        List<String> list = new ArrayList<>();
+        listUsers.forEach(user ->  {
+            if (user.isOnline())
+                list.add(user.getLogin());
+        });
+        return list;
+    }
+
+    @Override
+    public void addMessage(long id, Message message) {
         if (!chats.containsKey(id)) {
             chats.put(id, new ArrayList<>());
+            groups.put(id, new ArrayList<>());
         }
         chats.get(id).add(message);
     }
 
+    @Override
     public void save() {
         writeObject(chats, FilePath.CHATS.getPath());
         writeObject(listUsers, FilePath.LIST_USER.getPath());
+        writeObject(groups, FilePath.GROUPS.getPath());
+        writeObject(banList, FilePath.BAN_LIST.getPath());
+    }
+
+    @Override
+    public List<Message> getMessages(long id) {
+        return chats.get(id);
+    }
+
+    @Override
+    public boolean register(User user) {
+        for (User person: listUsers) {
+            if (person.equals(user))
+                return false;
+        }
+        listUsers.add(user);
+        return true;
+    }
+
+    @Override
+    public boolean login(User user) {
+        for (User person: listUsers) {
+            if (person.equals(user))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String getUserName(String login) {
+        for (User person: listUsers) {
+            if (person.getLogin().equals(login)) {
+                return person.getName();
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<String> getChatUsers(long id) {
+        return groups.get(id);
+    }
+
+    @Override
+    public long createChat() {
+        long id = chats.size();
+        chats.put(id, new ArrayList<>());
+        groups.put(id, new ArrayList<>());
+        return id;
+    }
+
+    @Override
+    public void addToChat(String login, long id) {
+        if (!groups.containsKey(id)) {
+            chats.put(id, new ArrayList<>());
+            groups.put(id, new ArrayList<>());
+        }
+        groups.get(id).add(login);
+    }
+
+    @Override
+    public List<Long> getChats() {
+        return new ArrayList<>(chats.keySet());
+    }
+
+    @Override
+    public void ban(String login) {
+        banList.add(login);
+    }
+
+    @Override
+    public void unban(String login) {
+        banList.remove(login);
+    }
+
+    @Override
+    public void setOnlineStatus(String login, boolean online) {
+        User user = findByLogin(login);
+        user.setOnline(!user.isOnline());
+    }
+
+    @Override
+    public void createAdmin(String login) {
+        User user = findByLogin(login);
+        user.setAdmin(true);
+    }
+
+    @Override
+    public void deleteAdmin(String login) {
+        User user = findByLogin(login);
+        user.setAdmin(false);
+    }
+
+    @Override
+    public boolean isInBan(String login) {
+        return listUsers.contains(login);
+    }
+
+    private User findByLogin(String login) {
+        User user = null;
+        for (User person: listUsers) {
+            if (person.getLogin().equals(login)) {
+                user = person;
+            }
+        }
+        return user;
     }
 
     private static <T> T read(String path) {
@@ -143,49 +201,5 @@ public class Configuration {
             e.printStackTrace();
         }
 
-    }
-
-    private String getMessages(long id) {
-        if (!chats.containsKey(id)) {
-            chats.put(id, new ArrayList<>());
-        }
-        XStream xstream = new XStream();
-        xstream.alias("message", Message.class);
-        xstream.useAttributeFor(Message.class, "sender");
-        xstream.useAttributeFor(Message.class, "text");
-        xstream.aliasField("sender", Message.class, "sender");
-        xstream.aliasField("text", Message.class, "text");
-        xstream.alias("messages", List.class);
-        return xstream.toXML(chats.get(id));
-    }
-
-    private String getChats() {
-        XStream xstream = new XStream();
-        xstream.alias("chats", List.class);
-        xstream.alias("chat", Long.class);
-        List<Long> list = new ArrayList<>();
-        chats.forEach((key, value) -> list.add(key));
-        return xstream.toXML(list);
-    }
-
-    private String getListUsers() {
-        XStream xstream = new XStream();
-        xstream.alias("users", List.class);
-        xstream.alias("user", String.class);
-        final List<String> list = new ArrayList<>();
-        listUsers.forEach(item -> list.add(item.getName()));
-        return xstream.toXML(listUsers);
-    }
-
-    private String getOnlineListUsers() {
-        XStream xstream = new XStream();
-        xstream.alias("users", List.class);
-        xstream.alias("user", String.class);
-        final List<String> list = new ArrayList<>();
-        listUsers.forEach(item -> {
-            if (item.isOnline())
-                list.add(item.getName());
-        });
-        return xstream.toXML(listUsers);
     }
 }
