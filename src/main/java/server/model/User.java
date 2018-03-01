@@ -69,6 +69,8 @@ public class User {
                 "name='" + name + '\'' +
                 ", login='" + login + '\'' +
                 ", password='" + password + '\'' +
+                ", online=" + online +
+                ", admin=" + admin +
                 '}';
     }
 
