@@ -19,8 +19,8 @@ public class Main {
         User user = new User("name", "login", "password");
         XStream xstream = new XStream();
         List<Message> messageList = new ArrayList<Message>();
-        messageList.add(new Message(user, "1"));
-        messageList.add(new Message(user, "2"));
+    //    messageList.add(new Message(user, "1"));
+      //  messageList.add(new Message(user, "2"));
         System.out.println(xstream.toXML(messageList));
         System.out.println(xstream.fromXML(xstream.toXML(messageList)));
         /*JAXBContext jaxbContext = JAXBContext.newInstance(User.class);
