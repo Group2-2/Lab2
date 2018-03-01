@@ -1,6 +1,5 @@
 package server.model;
 
-import java.util.List;
 import java.util.Objects;
 
 public class User {
@@ -8,11 +7,14 @@ public class User {
     private String login;
     private String password;
     private boolean online;
+    private boolean admin;
 
-    public User(String name, String login, String password) {
+    public User(String name, String login, String password, boolean online, boolean admin) {
         this.name = name;
         this.login = login;
         this.password = password;
+        this.online = online;
+        this.admin = admin;
     }
 
     public String getName() {
@@ -47,6 +49,14 @@ public class User {
         this.online = online;
     }
 
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
     @Override
     public int hashCode() {
 
@@ -67,8 +77,6 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(name, user.name) &&
-                Objects.equals(login, user.login) &&
-                Objects.equals(password, user.password);
+        return user.getLogin().equals(login);
     }
 }
