@@ -17,9 +17,9 @@ public class User {
         this.admin = admin;
     }
 
-    public User(String name, String login) {
-        this.name = name;
+    public User(String login,String password) {
         this.login = login;
+        this.password = password;
         online = false;
         admin = false;
     }
