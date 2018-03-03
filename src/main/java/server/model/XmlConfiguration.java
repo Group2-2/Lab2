@@ -157,7 +157,7 @@ public class XmlConfiguration {
         return xstream.toXML(list);
     }
 
-    private static Document newDocument(String value){
+    public static Document newDocument(String value){
         Document document = null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
