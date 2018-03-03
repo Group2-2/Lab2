@@ -64,20 +64,19 @@ public class XmlConfiguration {
                 String password = element.getAttribute("password");
                 String name = model.getUserName(login);
                 if(model.login(new User(login, password, name, true, false))){
-                    return String.format("<command type=\"login\" result = \"ACCEPTED\" name= \"%s\" />", name);
+                    return String.format("<command type=\"login\" result = \"ACCEPTED\" name= \"%s\" isAdmin = \"%s\" />", name, model.isAdmin(login));
                 } else {
                     return "<command type=\"login\" result = \"NOTACCEPTED\"/>";
                 }
             }
-
             case "registration": {
                 String login = element.getAttribute("login");
                 String password = element.getAttribute("password");
                 String name = element.getAttribute("name");
-                if(model.register(new User(login, password, name, true, false))) {
+                if(!model.register(new User(login, password, name, true, false))) {
                     return "<command type=\"registration\" result = \"NOTACCEPTED\" />";
                 } else {
-                    return "<command type=\"registration\" result = \"ACCEPTED\" />";
+                    return String.format("<command type=\"registration\" isAdmin = \"%s\" result = \"ACCEPTED\" />", model.isAdmin(login));
                 }
             }
             case "newChatID": {
@@ -86,48 +85,46 @@ public class XmlConfiguration {
                 model.addToChat(login, id);
                 return String.format("<command type=\"newChatID\" chat_id=\"%s\" />", id);
             }
-
             case "addToChat": {
                 String login = element.getAttribute("login");
                 long id = Long.parseLong(element.getAttribute("chat_id"));
                 model.addToChat(login, id);
-                return "<command type=\"newChatID\" result = \"ACCEPTED\" />";
+                return command;
             }
             case "addMessage": {
                 String login = element.getAttribute("sender");
                 long id = Long.parseLong(element.getAttribute("chat_id"));
                 String text = element.getAttribute("text");
                 model.addMessage(id, new Message(login, text));
-                return "<command type=\"addMessage\" result = \"ACCEPTED\" />";
+                return command;
             }
-
             case "setOnlineStatus": {
                 boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
                 String login = element.getAttribute("user");
                 model.setOnlineStatus(login, online);
-                return "<command type=\"setOnlineStatus\" result = \"ACCEPTED\" />";
+                return command;
             }
             case "createAdmin": {
                 String login = element.getAttribute("user");
                 model.createAdmin(login);
-                return "<command type=\"createAdmin\" result = \"ACCEPTED\" />";
+                return command;
             }
             case "deleteAdmin": {
                 String login = element.getAttribute("user");
                 model.deleteAdmin(login);
-                return "<command type=\"deleteAdmin\" result = \"ACCEPTED\" />";
+                return command;
             }
             case "isInBan": {
                 String login = element.getAttribute("user");
                 model.deleteAdmin(login);
-                return String.format("<command type=\"isInBan\" isInBan = \"%s\" />", model.isInBan(login)) ;
+                return String.format("<command type=\"isInBan\" isInBan=\"%s\" />", model.isInBan(login)) ;
             }
             case "getUserName": {
                 String login = element.getAttribute("user");
-                return String.format("<command type=\"getUserName\" name = \"%s\" />", model.getUserName(login)) ;
+                return String.format("<command type=\"getUserName\" name=\"%s\" />", model.getUserName(login)) ;
             }
             default: {
-                return "<command type=\"notFound\" result = \"NOACCEPTED\" />";
+                return command;
             }
 
         }
