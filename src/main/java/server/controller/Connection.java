@@ -100,6 +100,9 @@ public class Connection implements Runnable {
                 long id = Long.parseLong(element.getAttribute("chat_id"));
                 Server.getInstance().sendToChat(id,command, this);
                 return "";
+            case "setOnlineStatus":
+                boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
+                ModelImpl.getInstance().setOnlineStatus(element.getAttribute("login"), isOnline);
             default :
                 return "";
         }

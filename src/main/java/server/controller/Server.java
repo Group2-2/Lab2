@@ -88,6 +88,7 @@ public class Server implements ServerController {
             users.forEach((login, connection) -> {
                 if(!connection.checkConnection()){
                     users.remove(login);
+                    ModelImpl.getInstance().setOnlineStatus(login, false);
                 }
             });
             try {
