@@ -20,9 +20,9 @@ public class LoginView extends JFrame {
     private JButton buttonRegister;
     private JPasswordField passwordField;
     private JTextField loginField;
-    private ClientController controller;
+    private ClientControllerImpl controller;
 
-    public LoginView(ClientController controller) {
+    public LoginView(ClientControllerImpl controller) {
         super("Join chat");
         this.controller = controller;
         createGUI();
@@ -60,7 +60,7 @@ public class LoginView extends JFrame {
         label1.setText("Password");
         panel3.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        label2.setText("NickName");
+        label2.setText("Login");
         panel3.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
 
@@ -82,6 +82,7 @@ public class LoginView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField!=null) {
                     controller.validateUser(loginField.getText(),new String(passwordField.getPassword()));
+                    closeFrame();
                 }
             }
 
@@ -92,8 +93,10 @@ public class LoginView extends JFrame {
         buttonRegister.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    controller.openRegistrationView(loginField.getText(), new String(passwordField.getPassword()));
-                closeFrame();
+                if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null) {
+                    controller.registerNewUser(loginField.getText(), loginField.getText(), new String(passwordField.getPassword()));
+                    closeFrame();
+                }
             }
         });
     }

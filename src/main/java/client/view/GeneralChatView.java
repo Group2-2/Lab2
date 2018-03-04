@@ -19,17 +19,25 @@ public class GeneralChatView extends JFrame{
     protected JButton sendMessageButton;
     protected JTextArea newMassegeArea;
     protected JButton privateChatButton;
-    protected ClientController controller;
+    protected ClientControllerImpl controller;
     protected JPanel mainPanel;
     protected JButton addNewUserButton;
     protected DefaultListModel listModel;
+    private String chat_id;
 
-    public GeneralChatView(ClientController controller, String titile) {
+    public String getChat_id() {
+        return chat_id;
+    }
+
+    public void setChat_id(String chat_id) {
+        this.chat_id = chat_id;
+    }
+
+    public GeneralChatView(ClientControllerImpl controller, String titile) {
         super(titile);
         this.controller = controller;
+        setChat_id("0");
         createGUI();
-        ArrayList<String> arrList = controller.getOnlineUserslist();
-        setOnlineUsersList(arrList);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
@@ -37,6 +45,7 @@ public class GeneralChatView extends JFrame{
 
     public GeneralChatView(String titile) {
         super(titile);
+        setChat_id("0");
     }
 
     /**
@@ -99,27 +108,34 @@ public class GeneralChatView extends JFrame{
         this.setJMenuBar(menu);*/
     }
 
-    public void removeprivateChatButton (){
+    public void removePrivateChatButton (){
         mainPanel.remove(privateChatButton);
         addNewUserButton = new JButton();
         addNewUserButton.setText("Add new friend to chat");
         mainPanel.add(addNewUserButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-
+        addNewUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.addToPrivateChatSelect(getChat_id());
+            }
+        });
     }
 
     public void setButtonListeners() {
     privateChatButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            controller.createPrivateChatSelect();
+            controller.createPrivateChat();
         }
     });
         sendMessageButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            controller.sendMessage(newMassegeArea.getText(), "GeneralChat");
-            newMassegeArea.setText("");
-        }
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (newMassegeArea.getText() != null && !newMassegeArea.getText().trim().equals("")) {
+                        controller.sendMessage(newMassegeArea.getText(), getChat_id());
+                        newMassegeArea.setText("");
+                    }
+                }
     });
 }
     public void setOnlineUsersList(ArrayList<String> arrList){

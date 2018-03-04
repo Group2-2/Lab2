@@ -25,8 +25,9 @@ public class AdminView extends GeneralChatView {
   /*  private ClientController controller;
     private DefaultListModel listModel;*/
 
-    public AdminView(ClientController controller) {
+    public AdminView(ClientControllerImpl controller) {
         super("ADMIN_General chat");
+        this.setTitle("ADMIN_General chat");
         this.controller = controller;
         createAdminGUI();
         ArrayList<String> arrList = controller.getOnlineUserslist();
@@ -92,10 +93,10 @@ public class AdminView extends GeneralChatView {
         sendMessageButton = new JButton();
         sendMessageButton.setText("Send message");
         mainPanel.add(sendMessageButton, new GridConstraints(4, 8, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        editUserInformationButton = new JButton();
+       /* editUserInformationButton = new JButton();
         editUserInformationButton.setText("Edit user information");
         mainPanel.add(editUserInformationButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-
+*/
         this.add(mainPanel);
         setAdminButtonListeners();
 
@@ -105,14 +106,14 @@ public class AdminView extends GeneralChatView {
         banUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.banUserSelect();
+                controller.banUserSelect(getChat_id());
             }
         });
 
         unbanUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.unBanUserSelect();
+                controller.unBanUserSelect(getChat_id());
             }
         });
     }

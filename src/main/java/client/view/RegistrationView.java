@@ -2,6 +2,7 @@ package client.view;
 
 
 import client.controller.ClientController;
+import client.controller.ClientControllerImpl;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
@@ -21,9 +22,9 @@ public class RegistrationView extends JFrame {
     private JPasswordField passwordField;
     private JTextField nickNameField;
     private JTextField loginField;
-    private ClientController controller;
+    private ClientControllerImpl controller;
 
-    public RegistrationView(ClientController controller) {
+    public RegistrationView(ClientControllerImpl controller) {
         super("Register new user");
         this.controller = controller;
         createGUI();
@@ -85,7 +86,8 @@ public class RegistrationView extends JFrame {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                controller.exitApp();
+                closeFrame();
             }
         });
         buttonConfirm.addActionListener(new ActionListener() {
@@ -93,7 +95,8 @@ public class RegistrationView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null
                         && nickNameField.getText() != null && !nickNameField.getText().trim().equals("") ) {
-                    controller.newUserRegistration(loginField.getText(), nickNameField.getText(), new String(passwordField.getPassword()));
+                    controller.registerNewUser(loginField.getText(), nickNameField.getText(), new String(passwordField.getPassword()));
+                    closeFrame();
                 }
             }
         });

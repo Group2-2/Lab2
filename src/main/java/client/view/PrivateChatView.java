@@ -7,9 +7,8 @@ import client.controller.*;
  */
 public class PrivateChatView extends GeneralChatView{
 
-
-    public PrivateChatView(ClientController controller) {
+    public PrivateChatView(ClientControllerImpl controller) {
         super(controller, "Private chat room");
-        removeprivateChatButton();
+        removePrivateChatButton();
 }
 }
