@@ -96,9 +96,9 @@ public class ModelImpl implements Model {
     public boolean login(User user) {
         for (User person: listUsers) {
             if (person.equals(user))
-                return false;
+                return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -132,11 +132,14 @@ public class ModelImpl implements Model {
             groups.put(id, new ArrayList<>());
         }
         groups.get(id).add(login);
+        User user = findByLogin(login);
+        user.getChats().add(id);
     }
 
     @Override
-    public List<Long> getChats() {
-        return new ArrayList<>(chats.keySet());
+    public List<Long> getChats(String login) {
+        User user = findByLogin(login);
+        return user.getChats();
     }
 
     @Override

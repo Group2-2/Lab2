@@ -14,7 +14,7 @@ public interface Model {
     List<String> getChatUsers(long id);
     long createChat();
     void addToChat(String login, long id);
-    List<Long> getChats();
+    List<Long> getChats(String login);
     void ban(String login);
     void unban(String login);
     void setOnlineStatus(String login, boolean online);

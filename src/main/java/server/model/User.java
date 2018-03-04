@@ -1,33 +1,26 @@
 package server.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class User {
+public class User implements Serializable {
     private String name;
     private String login;
     private String password;
-    private boolean online;
-    private boolean admin;
+    private boolean online= false;
+    private boolean admin = false;
+    private List<Long> chats = new ArrayList<>();
 
-    public User(String name, String login, String password, boolean online, boolean admin) {
+    public User(String login, String password, String name) {
         this.name = name;
         this.login = login;
         this.password = password;
-        this.online = online;
-        this.admin = admin;
     }
 
-    public User(String login,String password) {
-        this.login = login;
-        this.password = password;
-        online = false;
-        admin = false;
-    }
-
-    public User(String name, String login, boolean admin) {
-        this.name = name;
-        this.login = login;
-        this.admin = admin;
+    public List<Long> getChats() {
+        return chats;
     }
 
     public String getName() {

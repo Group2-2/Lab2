@@ -39,7 +39,8 @@ public class XmlConfiguration {
                 return listUserToXml(model.getOnlineListUsers());
             }
             case "сhats": {
-                return getChats();
+                String login = element.getAttribute("sender");
+                return getChats(login);
             }
             case "get_messages": {
                 long id = Long.parseLong(element.getAttribute("chat_id"));
@@ -52,19 +53,20 @@ public class XmlConfiguration {
             case "ban": {
                 String login = element.getAttribute("user");
                 model.ban(login);
-                return "<command type=\"ban\" result = \"ACCEPTED\"/>"; //return
+                return String.format("<command type=\"ban\" user = \"%s\" result = \"ACCEPTED\"/>", login);
             }
             case "unban": {
                 String login = element.getAttribute("user");
                 model.unban(login);
-                return "<command type=\"unban\" result = \"ACCEPTED\"/>"; //return
+                return String.format("<command type=\"unban\" user = \"%s\" result = \"ACCEPTED\"/>", login);
             }
             case "login" : {
                 String login = element.getAttribute("login");
                 String password = element.getAttribute("password");
-                String name = model.getUserName(login);
-                if(model.login(new User(login, password, name, true, false))){
-                    return String.format("<command type=\"login\" result = \"ACCEPTED\" name= \"%s\" isAdmin = \"%s\" />", name, model.isAdmin(login));
+                if(model.login(new User(login, password, ""))){
+                    String name = model.getUserName(login);
+                    return String.format("<command type=\"login\" result=\"ACCEPTED\" name=\"%s\" isAdmin=\"%s\" isInBan=\"%s\" />",
+                            name, model.isAdmin(login), model.isInBan(login));
                 } else {
                     return "<command type=\"login\" result = \"NOTACCEPTED\"/>";
                 }
@@ -73,17 +75,17 @@ public class XmlConfiguration {
                 String login = element.getAttribute("login");
                 String password = element.getAttribute("password");
                 String name = element.getAttribute("name");
-                if(!model.register(new User(login, password, name, true, false))) {
+                if(!model.register(new User(login, password, name))) {
                     return "<command type=\"registration\" result = \"NOTACCEPTED\" />";
                 } else {
-                    return String.format("<command type=\"registration\" isAdmin = \"%s\" result = \"ACCEPTED\" />", model.isAdmin(login));
+                    return String.format("<command type=\"registration\" name = \"%s\" result = \"ACCEPTED\" />", name);
                 }
             }
             case "newChatID": {
                 String login = element.getAttribute("sender");
                 long id = model.createChat();
                 model.addToChat(login, id);
-                return String.format("<command type=\"newChatID\" chat_id=\"%s\" />", id);
+                return String.format("<command type=\"newChatID\" chat_id=\"%s\" user = \"%s\" />", id, login);
             }
             case "addToChat": {
                 String login = element.getAttribute("login");
@@ -142,11 +144,11 @@ public class XmlConfiguration {
         return xstream.toXML(list);
     }
 
-    private static String getChats() {
+    private static String getChats(String login) {
         XStream xstream = new XStream();
         xstream.alias("chats", List.class);
         xstream.alias("chat", Long.class);
-        List<Long> list = model.getChats();
+        List<Long> list = model.getChats(login);
         return xstream.toXML(list);
     }
 
