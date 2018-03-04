@@ -9,15 +9,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 public class AdminView extends GeneralChatView {
-/*    private JTextArea chatArea;
-    private JList onlineUsersList;
-    private JButton sendMessageButton;
-    private JTextArea newMassegeArea;
-    private JButton privateChatButton;
-    private JPanel mainPanel;*/
+    /*    private JTextArea chatArea;
+        private JList onlineUsersList;
+        private JButton sendMessageButton;
+        private JTextArea newMassegeArea;
+        private JButton privateChatButton;
+        private JPanel mainPanel;*/
     private JButton banUserButton;
     private JButton unbanUserButton;
     private JButton editUserInformationButton;
@@ -33,7 +35,7 @@ public class AdminView extends GeneralChatView {
         ArrayList<String> arrList = controller.getOnlineUserslist();
         setOnlineUsersList(arrList);
         super.setButtonListeners();
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.pack();
         this.setVisible(true);
     }
@@ -100,6 +102,20 @@ public class AdminView extends GeneralChatView {
         this.add(mainPanel);
         setAdminButtonListeners();
 
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent event) {
+                Object[] options = {"Yes", "No"};
+                int n = JOptionPane
+                        .showOptionDialog(event.getWindow(), "Close application?",
+                                "Confirmation", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                if (n == 0) {
+                    controller.exitChat();
+                    System.exit(2);
+                }
+            }
+        });
     }
 
     public void setAdminButtonListeners() {
@@ -117,4 +133,4 @@ public class AdminView extends GeneralChatView {
             }
         });
     }
-    }
+}

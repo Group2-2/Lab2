@@ -29,11 +29,11 @@ public class RegistrationView extends JFrame {
         this.controller = controller;
         createGUI();
         setContentPane(contentPane);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
     }
 
-    public void createGUI(){
+    public void createGUI() {
 
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(2, 1, new Insets(10, 10, 10, 10), -1, -1));
@@ -82,7 +82,7 @@ public class RegistrationView extends JFrame {
         getRootPane().setContentPane(contentPane);
     }
 
-    public void setButtonListeners(){
+    public void setButtonListeners() {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,7 +94,7 @@ public class RegistrationView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null
-                        && nickNameField.getText() != null && !nickNameField.getText().trim().equals("") ) {
+                        && nickNameField.getText() != null && !nickNameField.getText().trim().equals("")) {
                     controller.registerNewUser(loginField.getText(), nickNameField.getText(), new String(passwordField.getPassword()));
                     closeFrame();
                 }
@@ -102,7 +102,7 @@ public class RegistrationView extends JFrame {
         });
     }
 
-    public void closeFrame(){
+    public void closeFrame() {
         this.setVisible(false);
         this.dispose();
     }

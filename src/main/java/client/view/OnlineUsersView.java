@@ -82,7 +82,7 @@ public class OnlineUsersView extends JFrame {
 
         onlineUsersList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
-                JList list = (JList)evt.getSource();
+                JList list = (JList) evt.getSource();
                 if (evt.getClickCount() == 2) {
                     String val = onlineUsersList.getSelectedValue().toString();
                     if (command.equals("addToPrivateChat"))
@@ -94,14 +94,14 @@ public class OnlineUsersView extends JFrame {
                         controller.unBanUser(val);
                     closeFrame();
                     // Triple-click detected
-                   // int index = list.locationToIndex(evt.getPoint());
+                    // int index = list.locationToIndex(evt.getPoint());
                 }
             }
         });
     }
 
-    public void setOnlineUsersList(ArrayList<String> arrList){
-        for (String userName: arrList) {
+    public void setOnlineUsersList(ArrayList<String> arrList) {
+        for (String userName : arrList) {
             listModel.addElement(userName);
         }
     }
@@ -114,7 +114,7 @@ public class OnlineUsersView extends JFrame {
         this.chat_id = chat_id;
     }
 
-    public void closeFrame(){
+    public void closeFrame() {
         this.setVisible(false);
         this.dispose();
     }

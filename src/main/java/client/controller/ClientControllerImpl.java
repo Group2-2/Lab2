@@ -33,17 +33,18 @@ public class ClientControllerImpl implements ClientController {
     private List<String> banUsers;
     private String currentUser;
     private boolean isAdmin;
+    private boolean isBanned;
     private boolean isConnected;
     private GeneralChatView generalChatView;
     private AdminView adminView;
     private LoginView loginView;
     private RegistrationView registrationView;
-    private LinkedHashMap<String, PrivateChatView> privateChatsList;
-    private static String nickname;
+    private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
+    private static String mainChatID = "0";
 
     public static void main(String[] args) throws IOException, SAXException {
         ClientControllerImpl client = new ClientControllerImpl();
-        // client.run();
+        client.run();
     }
 
     public void run() {
@@ -60,21 +61,22 @@ public class ClientControllerImpl implements ClientController {
                     String type = element.getAttribute("type");
                     String result = element.getAttribute("result");
                     if (type.equals("login")) {
-                        if(result.equals("ACCEPTED")){
+                        if (result.equals("ACCEPTED")) {
                             String userName = element.getAttribute("name");
                             setCurrentUser(userName);
                             boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
                             setAdmin(isAdminString);
+                            isBanned = Boolean.parseBoolean(element.getAttribute("isInBan"));
                             break;
-                        } else if(result.equals("NOTACCEPTED")){
+                        } else if (result.equals("NOTACCEPTED")) {
                             loginView = new LoginView(this);
                         }
                     } else if (type.equals("registration")) {
-                        if(result.equals("ACCEPTED")){
+                        if (result.equals("ACCEPTED")) {
                             boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
                             setAdmin(isAdminString);
                             break;
-                        } else if(result.equals("NOTACCEPTED")){
+                        } else if (result.equals("NOTACCEPTED")) {
                             RegistrationView registrationView = new RegistrationView(this);
                         }
                     }
@@ -92,13 +94,15 @@ public class ClientControllerImpl implements ClientController {
             Thread thread = new Thread(new ReadMessage(in, this));
             thread.start();
 
-            if(isAdmin()) {
+            if (isAdmin()) {
                 adminView = new AdminView(this);
-            }else {
+            } else {
                 generalChatView = new GeneralChatView(this, "Main chat");
                 generalChatView.setOnlineUsersList(getOnlineUserslist());
+                generalChatView.blockBanedUser(isBanned);
             }
-
+            sendOnline("true");
+            sendMessage("@ Join chat", mainChatID);
 
             while (isConnected) {
 
@@ -130,14 +134,14 @@ public class ClientControllerImpl implements ClientController {
     }
 
     public ClientControllerImpl() {
-        loginView = new LoginView(this);
+ /*       loginView = new LoginView(this);
 
         generalChatView = new GeneralChatView(this, "Main chat");
         generalChatView.setOnlineUsersList(getOnlineUserslist());
         getChatList();
 
         adminView = new AdminView(this);
-
+        PrivateChatView PrivateChatView = new PrivateChatView(this);*/
         /*PrivateChatView PrivateChatView = new PrivateChatView(this);
         adminView = new AdminView(this);
         RegistrationView registrationView = new RegistrationView(this);
@@ -149,35 +153,69 @@ public class ClientControllerImpl implements ClientController {
         registrationView.setLoginPassword(login, password);
     }
 
-    public boolean openPrivateChat(String chat_id){
-        PrivateChatView privateChatView = new PrivateChatView(this);
-        privateChatView.setChat_id(chat_id);
-        privateChatsList.put(chat_id, privateChatView);
+    public boolean openPrivateChat(String login, String chat_id) {
+        if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chat_id))) {
+            PrivateChatView privateChatView = new PrivateChatView(this);
+            privateChatView.setChat_id(chat_id);
+            sendMessage("@ Join chat", chat_id);
+            privateChatsList.put(chat_id, privateChatView);
+            return true;
+        }
         return true;
     }
 
     public void exitChat() {
+        sendMessage("@ Has left chat", mainChatID);
+        sendOnline("false");
+        exitApp();
+    }
+
+    public void exitApp() {
         try {
-
+            isConnected = false;
+            in.close();
+            out.close();
         } catch (Exception e) {
-
-           // logger.error("Exception close: ", e);
+            logger.error("Chat exit failed! ", e);
         }
+    }
 
+    public void leavePrivateChat(String chat_id) {
+        if (privateChatsList.containsKey(chat_id)) {
+            sendMessage("@ Has left chat", chat_id);
+            privateChatsList.remove(chat_id);
+        }
     }
 
     public synchronized void getMessages(String chat_id, String text, String sender) {
         String massage = sender.concat(": ").concat(text);
-        if (chat_id.equals("0")) {
+        if (chat_id.equals(mainChatID)) {
             generalChatView.printNewMassage(massage);
-        }else if (privateChatsList.containsKey(chat_id)) {
+        } else if (privateChatsList.containsKey(chat_id)) {
             PrivateChatView privateChatView = privateChatsList.get(chat_id);
             privateChatView.printNewMassage(massage);
         }
     }
 
+    private void banUserConfirm(String login) {
+        String massage = "@ADMIN has banned ".concat(login);
+        generalChatView.printNewMassage(massage);
+        if (login.equals(getCurrentUser())) {
+            isBanned = true;
+            generalChatView.blockBanedUser(isBanned);
+        }
+    }
+
+    private void unBanUserConfirm(String login) {
+        String massage = "@ADMIN has UNbanned ".concat(login);
+        generalChatView.printNewMassage(massage);
+        if (login.equals(getCurrentUser())) {
+            isBanned = false;
+            generalChatView.blockBanedUser(isBanned);
+        }
+    }
+
     public String getCurrentUser() {
-        currentUser = "my_nick";
         return currentUser;
     }
 
@@ -193,58 +231,69 @@ public class ClientControllerImpl implements ClientController {
         isAdmin = admin;
     }
 
+    public static String getMainChatID() {
+        return mainChatID;
+    }
+
     public boolean sendMessage(String message, String chatID) {
         //<command type="addMessage" sender="my_nick" chat_id = "0" text ="dsfaf"/>
-        String msg =  String.format("<command type=\"addMessage\" sender=\"%1$s\" chat_id = \"%2$s\" text =\"%3$s\"/>", getCurrentUser(), message, chatID);
-             return(sendXMLString(msg));
+        String msg = String.format("<command type=\"addMessage\" sender=\"%1$s\" chat_id = \"%2$s\" text =\"%3$s\"/>", getCurrentUser(),chatID, message);
+        return (sendXMLString(msg));
     }
 
     public boolean registerNewUser(String login, String nickName, String password) {
         //<addMessage sender = * chat_id = * text = ***/>
-        String msg =  String.format("<command type=\"registration\" login=\"%1$s\" name = \"%2$s\" password =\"%3$s\"/>", login, nickName, password);
-               setCurrentUser(login);
-        return(sendXMLString(msg));
+        String msg = String.format("<command type=\"registration\" login=\"%1$s\" name = \"%2$s\" password =\"%3$s\"/>", login, nickName, password);
+        setCurrentUser(login);
+        return (sendXMLString(msg));
+    }
+
+    public void sendOnline(String isOnline) {
+        //<addMessage sender = * chat_id = * text = ***/>
+        String msg = String.format("<command type=\"setOnlineStatus\" user=\"%1$s\" isOnline = \"%2$s\"/>", getCurrentUser(), isOnline);
+        sendXMLString(msg);
     }
 
     public boolean validateUser(String login, String password) {
         //<command type="login" login="log1" password ="pass1"/>
         String msg = String.format("<command type=\"login\" login=\"%1$s\" password =\"%2$s\"/>", login, password);
-              return(sendXMLString(msg));
+        setCurrentUser(login);
+        return (sendXMLString(msg));
     }
 
-    public boolean createPrivateChat(){
+    public boolean createPrivateChat() {
         //<command type="newChatID" sender = "sender"/>
         String msg = String.format("<command type=\"newChatID\" sender = \"%s\"/>", getCurrentUser());
-        return(sendXMLString(msg));
+        return (sendXMLString(msg));
     }
 
-    public void addToPrivateChat(String s, String chat_id) {
-        //<command type="addToChat" chat_id = "0"/>
-        String msg = String.format("<command type=\"addToChat\" chat_id = \"%s\"/>", chat_id);
-         sendXMLString(msg);
+    public void addToPrivateChat(String login, String chat_id) {
+        //<command type="addToChat" chat_id = "0" user = "***" />
+        String msg = String.format("<command type=\"addToChat\" chat_id = \"%s\" user = \"%s\"/>", chat_id, login);
+        sendXMLString(msg);
     }
 
     public boolean banUser(String banedUser) {
         //<command type="ban" user = "***"></command>
         String msg = String.format("<command type=\"ban\" user = \"%s\"/>", banedUser);
-        return(sendXMLString(msg));
+        return (sendXMLString(msg));
     }
 
     public boolean unBanUser(String unBanUser) {
         //<command type="unban" user = "***"></command>
         String msg = String.format("<command type=\"unban\" user = \"%s\"/>", unBanUser);
-        return(sendXMLString(msg));
+        return (sendXMLString(msg));
     }
 
     public boolean getChatList() {
         //<command type="сhats" sender = "***"></command>
         String msg = String.format("<command type=\"сhats\" sender = \"%s\"/>", getCurrentUser());
-        return(sendXMLString(msg));
+        return (sendXMLString(msg));
     }
 
-    public boolean sendXMLString (String xmlText){
+    public boolean sendXMLString(String xmlText) {
         System.out.println(xmlText);
-        // out.println(xmlText); //test
+        out.println(xmlText); //test
         return true;
     }
 
@@ -277,8 +326,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
 
-
-    private Document getXML(String value){
+    private Document getXML(String value) {
         Document document = null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -289,12 +337,6 @@ public class ClientControllerImpl implements ClientController {
             e.printStackTrace();
         }
         return document;
-    }
-
-
-
-    public void exitApp() {
-
     }
 
     private class ReadMessage implements Runnable {
@@ -339,29 +381,33 @@ public class ClientControllerImpl implements ClientController {
                         }
                         case "ban": {
                             String login = element.getAttribute("user");
+                            controller.banUserConfirm(login);
                             //
                         }
                         case "unban": {
                             String login = element.getAttribute("user");
+                            controller.unBanUserConfirm(login);
                             //
                         }
                         case "newChatID": {
                             String chat_id = element.getAttribute("chat_id");
-                            openPrivateChat(chat_id);
+                            String login = element.getAttribute("sender");
+                            openPrivateChat(login, chat_id);
                         }
                         case "addToChat": {
                             String chat_id = element.getAttribute("chat_id");
-                            openPrivateChat(chat_id);
+                            String login = element.getAttribute("login");
+                            openPrivateChat(login, chat_id);
                         }
                         case "addMessage": {
                             String sender = element.getAttribute("sender");
                             String chat_id = element.getAttribute("chat_id");
                             String text = element.getAttribute("text");
-                            controller.getMessages(chat_id,text,sender);
+                            controller.getMessages(chat_id, text, sender);
                         }
                         case "isInBan": {
                             String login = element.getAttribute("user");
-                         //
+                            //
                         }
                     }
                 }
@@ -371,5 +417,7 @@ public class ClientControllerImpl implements ClientController {
             }
         }
     }
+
+
 }
 

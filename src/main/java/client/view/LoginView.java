@@ -27,11 +27,11 @@ public class LoginView extends JFrame {
         this.controller = controller;
         createGUI();
         setContentPane(contentPane);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
     }
 
-    public void createGUI(){
+    public void createGUI() {
 
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(2, 1, new Insets(10, 10, 10, 10), -1, -1));
@@ -76,12 +76,12 @@ public class LoginView extends JFrame {
         getRootPane().setContentPane(contentPane);
     }
 
-    public void setValidateUserListener(){
+    public void setValidateUserListener() {
         buttonJoinChat.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField!=null) {
-                    controller.validateUser(loginField.getText(),new String(passwordField.getPassword()));
+                if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null) {
+                    controller.validateUser(loginField.getText(), new String(passwordField.getPassword()));
                     closeFrame();
                 }
             }
@@ -102,7 +102,7 @@ public class LoginView extends JFrame {
     }
 
 
-    public void closeFrame(){
+    public void closeFrame() {
         this.setVisible(false);
         this.dispose();
     }
