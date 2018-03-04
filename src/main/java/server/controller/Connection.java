@@ -30,7 +30,7 @@ public class Connection implements Runnable {
                 System.out.println(message);
                 if (message != null && !message.equals("")) {
                     String response = XmlConfiguration.getInstance().configuration(message);
-                    System.out.println(response);
+
                     String login = checkNewUser(message);
                     if(!login.equals("")){
                         Server.getInstance().setUser(login, this);
@@ -50,7 +50,10 @@ public class Connection implements Runnable {
     }
 
     public void send(String message) {
+        writer.flush();
         writer.println(message);
+        writer.flush();
+        System.out.println(message);
     }
 
     public boolean checkConnection() {
