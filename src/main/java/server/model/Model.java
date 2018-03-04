@@ -20,5 +20,6 @@ public interface Model {
     void setOnlineStatus(String login, boolean online);
     void createAdmin(String login);
     void deleteAdmin(String login);
+    boolean isAdmin(String login);
     boolean isInBan(String login);
 }

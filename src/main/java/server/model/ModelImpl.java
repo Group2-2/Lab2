@@ -3,28 +3,30 @@ package server.model;
 import java.io.*;
 import java.util.*;
 
-public class Configuration implements Model {
+public class ModelImpl implements Model {
 
     private Map<Long, List<Message>> chats;
     private Map<Long, List<String>> groups;
     private List<User> listUsers;
-    private Set<String> banList;
+    private List<String> banList;
 
-    private static Configuration instance = new Configuration();
+    private static ModelImpl instance = new ModelImpl();
 
-    public static Configuration getInstance() {
+    public static ModelImpl getInstance() {
         return instance;
     }
 
-    private Configuration() {
+    private ModelImpl() {
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();
+            chats.put(0L, new ArrayList<>());
             writeObject(chats, FilePath.CHATS.getPath());
         }
         groups = read(FilePath.GROUPS.getPath());
         if (groups == null) {
             groups = new Hashtable<>();
+            groups.put(0L, new ArrayList<>());
             writeObject(groups, FilePath.GROUPS.getPath());
         }
         listUsers = read(FilePath.LIST_USER.getPath());
@@ -34,7 +36,7 @@ public class Configuration implements Model {
         }
         banList = read(FilePath.BAN_LIST.getPath());
         if (banList == null) {
-            banList = new HashSet<>();
+            banList = new ArrayList<>();
             writeObject(listUsers, FilePath.BAN_LIST.getPath());
         }
     }
@@ -86,6 +88,7 @@ public class Configuration implements Model {
                 return false;
         }
         listUsers.add(user);
+        groups.get(0L).add(user.getLogin());
         return true;
     }
 
@@ -165,6 +168,12 @@ public class Configuration implements Model {
     }
 
     @Override
+    public boolean isAdmin(String login) {
+        User user = findByLogin(login);
+        return user.isAdmin();
+    }
+
+    @Override
     public boolean isInBan(String login) {
         return listUsers.contains(login);
     }
@@ -182,10 +191,12 @@ public class Configuration implements Model {
     private static <T> T read(String path) {
         T result = null;
         try {
-            FileInputStream fis = new FileInputStream(path);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            result = (T) ois.readObject();
-            ois.close();
+            if (new File(path).exists()) {
+                FileInputStream fis = new FileInputStream(path);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                result = (T) ois.readObject();
+                ois.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             result = null;
