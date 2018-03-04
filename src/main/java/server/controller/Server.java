@@ -14,9 +14,17 @@ public class Server implements ServerController {
     private static final Logger logger = Logger.getLogger(Server.class);
     private ServerSocket serverSocket;
     private int port;
-
+    /**
+     * login - current connection of online users
+     */
     private Map<String, Connection> users; //login/connection
     private static Server instance = new Server(12345);
+
+    /**
+     * initializes port, map, ServerSocket and started new Thread with checkOnline method
+     * @see server.controller.Server#checkOnline
+     * @param port
+     */
 
     private Server(int port) {
         users = new Hashtable<>();
@@ -29,11 +37,12 @@ public class Server implements ServerController {
         new Thread(this::checkOnline).start();
     }
 
-
+    @Override
     public int getPort() {
         return port;
     }
 
+    @Override
     public Map<String, Connection> getUsers() {
         return users;
     }
@@ -42,10 +51,12 @@ public class Server implements ServerController {
         return instance;
     }
 
+    @Override
     public void setUser(String login, Connection connection){
         users.put(login, connection);
     }
 
+    @Override
     public void run() {
         while (true) {
             final Socket socket;
@@ -58,6 +69,8 @@ public class Server implements ServerController {
             }
         }
     }
+
+    @Override
     public void sendToChat(Long chatId, String text, Connection current){
         List list = ModelImpl.getInstance().getChatUsers(chatId);
         users.forEach((login, connection) -> {
@@ -67,6 +80,9 @@ public class Server implements ServerController {
         } );
     }
 
+    /**
+     * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
+     */
     private void checkOnline(){
         while(!Thread.interrupted()){
             users.forEach((login, connection) -> {

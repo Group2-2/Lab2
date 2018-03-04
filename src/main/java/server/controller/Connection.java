@@ -14,6 +14,9 @@ public class Connection implements Runnable {
 
     final private Socket socket;
     private PrintWriter writer;
+    /**
+     * parameter of working this thread, stopped, when it is false
+     */
     private boolean isWork = true;
 
     public Connection(Socket socket) {
@@ -25,6 +28,7 @@ public class Connection implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         while (isWork) {
             try {
@@ -52,6 +56,10 @@ public class Connection implements Runnable {
 
     }
 
+    /**
+     * send message ro this user
+     * @param message
+     */
     public void send(String message) {
         writer.flush();
         writer.println(message);
@@ -59,15 +67,24 @@ public class Connection implements Runnable {
         System.out.println(message);
     }
 
+    /**
+     * @return false if connection crushed and stopped the thread
+     */
     public boolean checkConnection() {
             try {
                 send("<test></test>");
                 return true;
             } catch (Exception e) {
-                isWork = false;
+               isWork = false;
                return false;
             }
     }
+
+    /**
+     * check login and register, check chat_id for newMessage and chatConfiguration
+     * @param command
+     * @return login if user login or register
+     */
     private String checkNewUser(String command){
         Document document = XmlConfiguration.newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
