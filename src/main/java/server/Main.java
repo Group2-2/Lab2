@@ -1,6 +1,7 @@
 package server;
 
 import com.thoughtworks.xstream.XStream;
+import server.controller.Server;
 import server.model.*;
 
 import javax.xml.bind.JAXBContext;
@@ -14,7 +15,9 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        XmlConfiguration configuration = XmlConfiguration.getInstance();
+        Server server = Server.getInstance();
+        new Thread(server).start();
+        /*XmlConfiguration configuration = XmlConfiguration.getInstance();
 
         String answer = configuration.configuration("<command type=\"registration\" login=\"log1\" password=\"pass1\" name=\"n1\" />");
 
@@ -23,7 +26,7 @@ public class Main {
         System.out.println(answer);
         answer = configuration.configuration("<command type=\"get_chat_users\" chat_id=\"0\" />");
         System.out.println(answer);
-        ModelImpl.getInstance().save();
+        ModelImpl.getInstance().save();*/
 
         /*XStream xstream = new XStream();
         List<Message> messageList = new ArrayList<>();

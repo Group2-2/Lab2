@@ -76,9 +76,9 @@ public class XmlConfiguration {
                 String password = element.getAttribute("password");
                 String name = element.getAttribute("name");
                 if(!model.register(new User(login, password, name))) {
-                    return "<command type=\"registration\" result = \"NOTACCEPTED\" />";
+                    return "<command type=\"registration\" result =\"NOTACCEPTED\" />";
                 } else {
-                    return String.format("<command type=\"registration\" name = \"%s\" result = \"ACCEPTED\" />", name);
+                    return String.format("<command type=\"registration\" name=\"%s\" result=\"ACCEPTED\" />", name);
                 }
             }
             case "newChatID": {

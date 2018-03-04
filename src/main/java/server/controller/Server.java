@@ -49,7 +49,6 @@ public class Server implements Runnable {
             final Socket socket;
             try {
                 socket = serverSocket.accept();
-                final String name = socket.getInetAddress().toString();
                 final Connection connection = new Connection(socket);
                 new Thread(connection).start();
             } catch (IOException e) {

@@ -27,8 +27,10 @@ public class Connection implements Runnable {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
+                System.out.println(message);
                 if (message != null && !message.equals("")) {
                     String response = XmlConfiguration.getInstance().configuration(message);
+                    System.out.println(response);
                     String login = checkNewUser(message);
                     if(!login.equals("")){
                         Server.getInstance().setUser(login, this);
@@ -80,3 +82,4 @@ public class Connection implements Runnable {
         }
     }
 }
+
