@@ -16,7 +16,8 @@ public class Connection implements Runnable {
     public Connection(Socket socket) {
         this.socket = socket;
         try {
-            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer = new PrintWriter(socket.getOutputStream(), true);
+            //writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (IOException e) {
             e.printStackTrace();
         }
