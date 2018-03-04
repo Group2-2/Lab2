@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-public class Server implements Runnable {
+public class Server implements ServerController {
     private static final Logger logger = Logger.getLogger(Server.class);
     private ServerSocket serverSocket;
     private int port;
@@ -24,7 +24,7 @@ public class Server implements Runnable {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            logger.error("Server - getInstanse", e);
+            logger.error("Server - getInstance", e);
         }
         new Thread(this::checkOnline).start();
     }
