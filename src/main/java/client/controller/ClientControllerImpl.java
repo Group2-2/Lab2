@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -114,6 +115,8 @@ public class ClientControllerImpl implements ClientController {
             } catch (Exception e) {
                 logger.info("Потоки не были закрыты!");
             }
+        }else{
+            JOptionPane.showMessageDialog(null, "Server not found!");
         }
     }
 
