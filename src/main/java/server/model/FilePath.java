@@ -4,7 +4,7 @@ public enum FilePath {
     BAN_LIST("ban_list"),
     CHATS("chats"),
     GROUPS("groups"),
-    LIST_USER("list_users"),;
+    LIST_USER("list_users");
 
     private String path;
 
