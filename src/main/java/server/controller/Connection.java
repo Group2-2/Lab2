@@ -1,5 +1,6 @@
 package server.controller;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -8,6 +9,8 @@ import java.io.*;
 import java.net.*;
 
 public class Connection implements Runnable {
+
+    private static final Logger logger = Logger.getLogger(Connection.class);
 
     final private Socket socket;
     private PrintWriter writer;
@@ -18,7 +21,7 @@ public class Connection implements Runnable {
         try {
             writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("connectionNewInstanse", e);
         }
     }
 
@@ -38,13 +41,13 @@ public class Connection implements Runnable {
                     send(response);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn("readlineEx",e);
             }
         }
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Close", e);
         }
 
     }

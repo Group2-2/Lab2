@@ -1,5 +1,6 @@
 package server.controller;
 
+import org.apache.log4j.Logger;
 import server.model.*;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Server implements Runnable {
+    private static final Logger logger = Logger.getLogger(Server.class);
     private ServerSocket serverSocket;
     private int port;
 
@@ -22,7 +24,7 @@ public class Server implements Runnable {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Server - getInstanse", e);
         }
         new Thread(this::checkOnline).start();
     }
@@ -52,7 +54,7 @@ public class Server implements Runnable {
                 final Connection connection = new Connection(socket);
                 new Thread(connection).start();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn("Connection-socket", e);
             }
         }
     }
@@ -75,7 +77,7 @@ public class Server implements Runnable {
             try {
                 Thread.sleep(60000); // 1 minute
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.warn("CheckOnline, ", e);
             }
         }
     }
