@@ -53,6 +53,7 @@ public class Server implements ServerController {
 
     @Override
     public void setUser(String login, Connection connection){
+        ModelImpl.getInstance().save();
         users.put(login, connection);
     }
 
@@ -78,6 +79,7 @@ public class Server implements ServerController {
                 connection.send(text);
             }
         } );
+        ModelImpl.getInstance().save();
     }
 
     /**

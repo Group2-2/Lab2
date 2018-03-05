@@ -95,7 +95,6 @@ public class Connection implements Runnable {
             case "login" :
                 return element.getAttribute("login");
             case "addMessage":
-            case "newChatID":
             case "addToChat":
                 long id = Long.parseLong(element.getAttribute("chat_id"));
                 Server.getInstance().sendToChat(id,command, this);
@@ -103,6 +102,7 @@ public class Connection implements Runnable {
             case "setOnlineStatus":
                 boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
                 ModelImpl.getInstance().setOnlineStatus(element.getAttribute("login"), isOnline);
+            case "newChatID":/*дальше по имплементации*/
             default :
                 return "";
         }
