@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+  /*  public static void main(String[] args) {
         Server server = Server.getInstance();
         new Thread(server).start();
         /*XmlConfiguration configuration = XmlConfiguration.getInstance();
@@ -45,5 +45,5 @@ public class Main {
         jaxbMarshaller.marshal(user, sw);
         String xmlString = sw.toString();
         System.out.println(xmlString);*/
-    }
+    //}
 }

@@ -71,6 +71,10 @@ public class Server implements ServerController {
         }
     }
 
+    public static void main(String[] args){
+            new Thread(instance).start();
+    }
+
     @Override
     public void sendToChat(Long chatId, String text, Connection current){
         List list = ModelImpl.getInstance().getChatUsers(chatId);
