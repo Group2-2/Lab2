@@ -1,5 +1,6 @@
 package server.controller;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -9,8 +10,13 @@ import java.net.*;
 
 public class Connection implements Runnable {
 
+    private static final Logger logger = Logger.getLogger(Connection.class);
+
     final private Socket socket;
     private PrintWriter writer;
+    /**
+     * parameter of working this thread, stopped, when it is false
+     */
     private boolean isWork = true;
 
     public Connection(Socket socket) {
@@ -19,10 +25,11 @@ public class Connection implements Runnable {
             writer = new PrintWriter(socket.getOutputStream(), true);
             //writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("connectionNewInstanse", e);
         }
     }
 
+    @Override
     public void run() {
         while (isWork) {
             try {
@@ -31,7 +38,7 @@ public class Connection implements Runnable {
                 System.out.println(message);
                 if (message != null && !message.equals("")) {
                     String response = XmlConfiguration.getInstance().configuration(message);
-                    System.out.println(response);
+
                     String login = checkNewUser(message);
                     if(!login.equals("")){
                         Server.getInstance().setUser(login, this);
@@ -39,30 +46,46 @@ public class Connection implements Runnable {
                     send(response);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn("readlineEx",e);
             }
         }
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Close", e);
         }
 
     }
 
+    /**
+     * send message ro this user
+     * @param message
+     */
     public void send(String message) {
+        writer.flush();
         writer.println(message);
+        writer.flush();
+        System.out.println(message);
     }
 
+    /**
+     * @return false if connection crushed and stopped the thread
+     */
     public boolean checkConnection() {
             try {
                 send("<test></test>");
                 return true;
             } catch (Exception e) {
-                isWork = false;
+               isWork = false;
                return false;
             }
     }
+
+    /**
+     * check login and register, check chat_id for newMessage and chatConfiguration
+     * @param command
+     * @return login if user login or register
+     */
     private String checkNewUser(String command){
         Document document = XmlConfiguration.newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
@@ -73,11 +96,14 @@ public class Connection implements Runnable {
             case "login" :
                 return element.getAttribute("login");
             case "addMessage":
-            case "newChatID":
             case "addToChat":
                 long id = Long.parseLong(element.getAttribute("chat_id"));
                 Server.getInstance().sendToChat(id,command, this);
                 return "";
+            case "setOnlineStatus":
+                boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
+                ModelImpl.getInstance().setOnlineStatus(element.getAttribute("user"), isOnline);
+            case "newChatID":/*дальше по имплементации*/
             default :
                 return "";
         }

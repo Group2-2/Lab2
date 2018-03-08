@@ -364,6 +364,7 @@ public class ClientControllerImpl implements ClientController {
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
+                    if(element == null) continue;
                     String type = element.getAttribute("type");
 
                     switch (type) {

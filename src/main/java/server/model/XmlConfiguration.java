@@ -156,7 +156,7 @@ public class XmlConfiguration {
         XStream xstream = new XStream();
         xstream.alias("users", List.class);
         xstream.alias("user", String.class);
-        return xstream.toXML(list);
+        return xstream.toXML(list).toString().replaceAll("\\n", " ");
     }
 
     public static Document newDocument(String value){
