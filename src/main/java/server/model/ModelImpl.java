@@ -155,7 +155,7 @@ public class ModelImpl implements Model {
     @Override
     public void setOnlineStatus(String login, boolean online) {
         User user = findByLogin(login);
-        user.setOnline(!user.isOnline());
+        user.setOnline(online);
     }
 
     @Override
