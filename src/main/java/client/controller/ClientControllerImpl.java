@@ -42,7 +42,7 @@ public class ClientControllerImpl implements ClientController {
     private RegistrationView registrationView;
     private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
     private static String mainChatID = "0";
-
+    private Thread thread;
     public static void main(String[] args) throws IOException, SAXException {
         ClientControllerImpl client = new ClientControllerImpl();
         client.run();
@@ -92,7 +92,7 @@ public class ClientControllerImpl implements ClientController {
                     }
                 }
             }
-            Thread thread = new Thread(new ReadMessage(in, this));
+            thread = new Thread(new ReadMessage(in, this));
             thread.start();
 
             if (isAdmin()) {
@@ -178,6 +178,7 @@ public class ClientControllerImpl implements ClientController {
             isConnected = false;
             in.close();
             out.close();
+            thread.interrupt();
         } catch (Exception e) {
             logger.error("Chat exit failed! ", e);
         }
@@ -295,7 +296,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     public boolean sendXMLString(String xmlText) {
-        System.out.println(xmlText);
+        System.out.println("OUT "+xmlText);
         out.println(xmlText); //test
         return true;
     }
@@ -361,6 +362,7 @@ public class ClientControllerImpl implements ClientController {
             try {
                 while (true) {
                     String line = in.readLine();
+                    System.out.println("Get in line "+ line);
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
@@ -395,7 +397,7 @@ public class ClientControllerImpl implements ClientController {
                         }
                         case "newChatID": {
                             String chat_id = element.getAttribute("chat_id");
-                            String login = element.getAttribute("sender");
+                            String login = element.getAttribute("user");
                             openPrivateChat(login, chat_id);
                         }
                         case "addToChat": {
