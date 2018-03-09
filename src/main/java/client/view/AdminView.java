@@ -32,8 +32,7 @@ public class AdminView extends GeneralChatView {
         this.setTitle("ADMIN_General chat");
         this.controller = controller;
         createAdminGUI();
-        ArrayList<String> arrList = controller.getOnlineUserslist();
-        setOnlineUsersList(arrList);
+        controller.getOnlineUsers();
         super.setButtonListeners();
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.pack();

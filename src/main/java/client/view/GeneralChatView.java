@@ -27,14 +27,6 @@ public class GeneralChatView extends JFrame {
     protected DefaultListModel listModel;
     private String chat_id;
 
-    public String getChat_id() {
-        return chat_id;
-    }
-
-    public void setChat_id(String chat_id) {
-        this.chat_id = chat_id;
-    }
-
     public GeneralChatView(ClientControllerImpl controller, String titile) {
         super(titile);
         this.controller = controller;
@@ -49,6 +41,14 @@ public class GeneralChatView extends JFrame {
     public GeneralChatView(String titile) {
         super(titile);
         setChat_id(controller.getMainChatID());
+    }
+
+    public String getChat_id() {
+        return chat_id;
+    }
+
+    public void setChat_id(String chat_id) {
+        this.chat_id = chat_id;
     }
 
     /**
@@ -156,6 +156,7 @@ public class GeneralChatView extends JFrame {
     }
 
     public void setOnlineUsersList(ArrayList<String> arrList) {
+        listModel.clear();
         for (String userName : arrList) {
             listModel.addElement(userName);
         }

@@ -4,24 +4,20 @@ import client.view.*;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 
 public class ClientControllerImpl implements ClientController {
     private static final Logger logger = Logger.getLogger(ClientControllerImpl.class);
@@ -70,6 +66,7 @@ public class ClientControllerImpl implements ClientController {
                             isBanned = Boolean.parseBoolean(element.getAttribute("isInBan"));
                             break;
                         } else if (result.equals("NOTACCEPTED")) {
+                            JOptionPane.showMessageDialog(null, "Incorrect login/password");
                             loginView = new LoginView(this);
                         }
                     } else if (type.equals("registration")) {
@@ -78,7 +75,8 @@ public class ClientControllerImpl implements ClientController {
                             setAdmin(isAdminString);
                             break;
                         } else if (result.equals("NOTACCEPTED")) {
-                            RegistrationView registrationView = new RegistrationView(this);
+                            JOptionPane.showMessageDialog(null, "Login is alredy used!");
+                            loginView = new LoginView(this);
                         }
                     }
                 } catch (IOException e) {
@@ -96,12 +94,13 @@ public class ClientControllerImpl implements ClientController {
             thread.start();
 
             if (isAdmin()) {
-                adminView = new AdminView(this);
+                generalChatView = new AdminView(this);
             } else {
                 generalChatView = new GeneralChatView(this, "Main chat");
-                generalChatView.setOnlineUsersList(getOnlineUserslist());
                 generalChatView.blockBanedUser(isBanned);
             }
+
+            getOnlineUsers();
             sendOnline("true");
             sendMessage("@ Join chat", mainChatID);
 
@@ -134,21 +133,6 @@ public class ClientControllerImpl implements ClientController {
             return false;
         }
         return true;
-    }
-
-    public ClientControllerImpl() {
- /*       loginView = new LoginView(this);
-
-        generalChatView = new GeneralChatView(this, "Main chat");
-        generalChatView.setOnlineUsersList(getOnlineUserslist());
-        getChatList();
-
-        adminView = new AdminView(this);
-        PrivateChatView PrivateChatView = new PrivateChatView(this);*/
-        /*PrivateChatView PrivateChatView = new PrivateChatView(this);
-        adminView = new AdminView(this);
-        RegistrationView registrationView = new RegistrationView(this);
-        OnlineUsersView OnlineUsersView = new OnlineUsersView(this, "Users", "sdf");*/
     }
 
     public void openRegistrationView(String login, String password) {
@@ -301,21 +285,33 @@ public class ClientControllerImpl implements ClientController {
         return true;
     }
 
-
-    public ArrayList<String> getOnlineUserslist() {
-        onlineUsers.clear();
-        onlineUsers.add("Marta");
-        onlineUsers.add("Anna");
-        onlineUsers.add("Kate");
-        onlineUsers.add("Lili");
-
-        //<command type="online_users"></command>
-        String msg = "<command type=\"online_users\"/>";
-        System.out.println(msg);
-        sendXMLString(msg);
-
+    public ArrayList<String> getOnlineUsersList() {
         return onlineUsers;
     }
+
+    public void getOnlineUsers() {
+        //sendOnline("true");
+        //<command type="online_users"></command>
+        String msg = "<command type=\"online_users\"/>";
+        sendXMLString(msg);
+    }
+
+    public void SetOnlineUsers(String line) {
+        //<users>   <user>qwerty</user> </users>
+        onlineUsers.clear();
+        Document document = getXML(line);
+        NodeList users = document.getElementsByTagName("user");
+        for (int i = 0; i < users.getLength(); i++) {
+            Node node = users.item(i);
+            if (node.getNodeName().equals("user")){
+                Element element = (Element) node;
+                onlineUsers.add(element.getTextContent());
+            }
+        }
+        generalChatView.setOnlineUsersList(onlineUsers);
+    }
+
+
 
     public void addToPrivateChatSelect(String chat_id) {
         OnlineUsersView OnlineUsersView = new OnlineUsersView(this, "Select user to add to chat", "addToPrivateChat", chat_id);
@@ -360,20 +356,22 @@ public class ClientControllerImpl implements ClientController {
 
         public void run() {
             try {
-                while (true) {
+                while (isConnected) {
                     String line = in.readLine();
                     System.out.println("Get in line "+ line);
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
-                    if(element == null) continue;
+                    if(element == null) {
+                        if(document.getDocumentElement().getNodeName().equals("users")){
+                        SetOnlineUsers(line);
+                        }
+                        continue;
+                    }
                     String type = element.getAttribute("type");
 
                     switch (type) {
                         case "all_users": {
-                            //
-                        }
-                        case "online_users": {
                             //
                         }
                         case "сhats": {
