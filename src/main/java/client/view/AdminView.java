@@ -34,6 +34,7 @@ public class AdminView extends GeneralChatView {
         createAdminGUI();
         controller.getOnlineUsers();
         super.setButtonListeners();
+        addCloseListener();
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.pack();
         this.setVisible(true);
@@ -115,6 +116,18 @@ public class AdminView extends GeneralChatView {
                 }
             }
         });
+    }
+
+    @Override
+    public void setOnlineUsersList(ArrayList<String> arrList) {
+        listModel.clear();
+        for (String userName : arrList) {
+            listModel.addElement(userName);
+        }
+    }
+
+    public void printNewMassage(String massage) {
+        chatArea.append(massage + "\n");
     }
 
     public void setAdminButtonListeners() {

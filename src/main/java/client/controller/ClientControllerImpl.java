@@ -46,6 +46,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     public void run() {
+        mainChatID = "0";
         isConnected = connectServer();
         if (isConnected) {
             loginView = new LoginView(this);
@@ -91,8 +92,10 @@ public class ClientControllerImpl implements ClientController {
                     }
                 }
             }
-            thread = new Thread(new ReadMessage(in, this));
-            thread.start();
+           /* //test
+            String msg = "<command type=\"createAdmin\" user = \"Sviat\"/>";
+            sendXMLString(msg);
+            //*/
 
             if (isAdmin()) {
                 generalChatView = new AdminView(this);
@@ -104,6 +107,9 @@ public class ClientControllerImpl implements ClientController {
             getOnlineUsers();
             sendOnline("true");
             sendMessage("@ Join chat", mainChatID);
+
+            thread = new Thread(new ReadMessage(in, this));
+            thread.start();
 
             while (isConnected) {
 
@@ -226,7 +232,7 @@ public class ClientControllerImpl implements ClientController {
 
     public boolean sendMessage(String message, String chatID) {
         //<command type="addMessage" sender="my_nick" chat_id = "0" text ="dsfaf"/>
-        String msg = String.format("<command type=\"addMessage\" sender=\"%1$s\" chat_id = \"%2$s\" text =\"%3$s\"/>", getCurrentUser(),chatID, message);
+        String msg = String.format("<command type=\"addMessage\" sender=\"%1$s\" chat_id = \"%2$s\" text =\"%3$s\"/>", getCurrentUser(),chatID, message.replaceAll("\\n", " "));
         return (sendXMLString(msg));
     }
 
@@ -258,7 +264,7 @@ public class ClientControllerImpl implements ClientController {
 
     public void addToPrivateChat(String login, String chat_id) {
         //<command type="addToChat" chat_id = "0" user = "***" />
-        String msg = String.format("<command type=\"addToChat\" chat_id = \"%s\" user = \"%s\"/>", chat_id, login);
+        String msg = String.format("<command type=\"addToChat\" chat_id = \"%s\" login = \"%s\"/>", chat_id, login);
         sendXMLString(msg);
     }
 
@@ -313,7 +319,14 @@ public class ClientControllerImpl implements ClientController {
         generalChatView.setOnlineUsersList(onlineUsers);
     }
 
-
+    public void changeOnlineUsers(String login, boolean online){
+        if (online){
+            if (!onlineUsers.contains(login)) onlineUsers.add(login);
+        }else {
+            if (onlineUsers.contains(login)) onlineUsers.remove(login);
+        }
+        generalChatView.setOnlineUsersList(onlineUsers);
+    }
 
     public void addToPrivateChatSelect(String chat_id) {
         OnlineUsersView OnlineUsersView = new OnlineUsersView(this, "Select user to add to chat", "addToPrivateChat", chat_id);
@@ -382,8 +395,10 @@ public class ClientControllerImpl implements ClientController {
                         case "get_messages": {
                             //
                         }
-                        case "get_chat_users": {
-                            //
+                        case "setOnlineStatus": {
+                            String login = element.getAttribute("user");
+                            boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
+                            controller.changeOnlineUsers(login, online);
                         }
                         case "ban": {
                             String login = element.getAttribute("user");
