@@ -179,7 +179,6 @@ public class Server implements ServerController {
                 break;
             }
             if (a == 0) return;
-            String k = (String)list.get(a - 1);
             consoleChangeUser((String) list.get(a - 1));
         }
      }
