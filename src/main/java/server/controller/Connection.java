@@ -8,6 +8,10 @@ import server.model.*;
 import java.io.*;
 import java.net.*;
 
+/**
+ * Class wraps current connection
+ * Fully communicates with the user, receives the message and sends back
+ */
 public class Connection implements Runnable {
 
     private static final Logger logger = Logger.getLogger(Connection.class);
