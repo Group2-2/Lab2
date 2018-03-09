@@ -39,6 +39,7 @@ public class ClientControllerImpl implements ClientController {
     private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
     private static String mainChatID = "0";
     private Thread thread;
+
     public static void main(String[] args) throws IOException, SAXException {
         ClientControllerImpl client = new ClientControllerImpl();
         client.run();
@@ -305,7 +306,8 @@ public class ClientControllerImpl implements ClientController {
             Node node = users.item(i);
             if (node.getNodeName().equals("user")){
                 Element element = (Element) node;
-                onlineUsers.add(element.getTextContent());
+                String nicknameVar = element.getTextContent();
+                if (!nicknameVar.equals(currentUser)) onlineUsers.add(nicknameVar);
             }
         }
         generalChatView.setOnlineUsersList(onlineUsers);
