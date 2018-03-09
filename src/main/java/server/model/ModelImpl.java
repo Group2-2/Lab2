@@ -181,6 +181,12 @@ public class ModelImpl implements Model {
         return listUsers.contains(login);
     }
 
+    @Override
+    public boolean isOnline(String login) {
+        User user = findByLogin(login);
+        return user.isOnline();
+    }
+
     private User findByLogin(String login) {
         User user = null;
         for (User person: listUsers) {

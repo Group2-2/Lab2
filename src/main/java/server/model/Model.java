@@ -22,4 +22,5 @@ public interface Model {
     void deleteAdmin(String login);
     boolean isAdmin(String login);
     boolean isInBan(String login);
+    boolean isOnline(String login);
 }
