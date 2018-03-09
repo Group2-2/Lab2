@@ -3,6 +3,11 @@ package server.model;
 import java.io.*;
 import java.util.*;
 
+/**
+ * This class is implements of interface Model.
+ * This class is singleton
+ */
+
 public class ModelImpl implements Model {
 
     private Map<Long, List<Message>> chats;

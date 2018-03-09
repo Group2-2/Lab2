@@ -3,6 +3,9 @@ package server.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * This class describe message in chat. It contain information about sender and message
+ */
 public class Message implements Serializable {
     private String sender;
     private String text;
@@ -12,10 +15,18 @@ public class Message implements Serializable {
         this.text = text;
     }
 
+    /**
+     * Method for get text of message
+     * @return text of message
+     */
     public String getText() {
         return text;
     }
 
+    /**
+     * Method for get sender login of message
+     * @return sender login
+     */
     public String getSender() {
         return sender;
     }
