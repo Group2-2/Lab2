@@ -162,8 +162,8 @@ public class Server implements ServerController {
                 return;
             }
             System.out.println("0 - return");
-            for (int i = 1; i < list.size(); i++) {
-                String s = (String) list.get(i);
+            for (int i = 1; i <= list.size(); i++) {
+                String s = (String) list.get(i-1);
                 System.out.println(i + ": " + s + " - isBan: " + ModelImpl.getInstance().isInBan(s)
                         + ", isAdmin: " + ModelImpl.getInstance().isAdmin(s)
                         + ", online: " + ModelImpl.getInstance().isOnline(s));
@@ -179,6 +179,7 @@ public class Server implements ServerController {
                 break;
             }
             if (a == 0) return;
+            String k = (String)list.get(a - 1);
             consoleChangeUser((String) list.get(a - 1));
         }
      }
@@ -211,7 +212,7 @@ public class Server implements ServerController {
                     ModelImpl.getInstance().save();
                     break;
                 case 2:
-                    if(ModelImpl.getInstance().isAdmin(login)){
+                    if(!ModelImpl.getInstance().isAdmin(login)){
                         ModelImpl.getInstance().createAdmin(login);
                     }else{
                         ModelImpl.getInstance().deleteAdmin(login);
