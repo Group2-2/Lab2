@@ -40,7 +40,7 @@
                     <manifest>
                         <addClasspath>true</addClasspath>
                         <classpathPrefix>libs/</classpathPrefix>
-                        <mainClass>server.Main</mainClass>
+                        <mainClass>server.Server</mainClass>
                     </manifest>
                 </archive>
             </configuration>

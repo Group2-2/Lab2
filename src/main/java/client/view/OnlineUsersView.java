@@ -31,8 +31,7 @@ public class OnlineUsersView extends JFrame {
         this.command = command;
         this.chat_id = chat_id;
         createGUI();
-        ArrayList<String> arrList = controller.getOnlineUserslist();
-        setOnlineUsersList(arrList);
+       controller.getOnlineUsers();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
@@ -57,6 +56,7 @@ public class OnlineUsersView extends JFrame {
 
         this.add(mainPanel);
         setButtonListeners();
+        setOnlineUsersList(controller.getOnlineUsersList());
     }
 
     public void setButtonListeners() {
@@ -101,6 +101,7 @@ public class OnlineUsersView extends JFrame {
     }
 
     public void setOnlineUsersList(ArrayList<String> arrList) {
+        listModel.clear();
         for (String userName : arrList) {
             listModel.addElement(userName);
         }

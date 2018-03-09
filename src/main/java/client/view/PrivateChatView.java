@@ -16,6 +16,7 @@ public class PrivateChatView extends GeneralChatView {
         removePrivateChatButton();
         addCloseListener();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setOnlineUsersList(controller.getOnlineUsersList());
     }
 
     public void addCloseListener() {
