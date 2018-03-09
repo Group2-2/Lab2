@@ -21,7 +21,7 @@ public class Server implements ServerController {
     /**
      * initializes port, map, ServerSocket and started new Thread with checkOnline method
      * @see server.controller.Server#checkOnline
-     * @param port
+     * @param port port
      */
 
     private Server(int port) {
@@ -126,7 +126,7 @@ public class Server implements ServerController {
             break;
         }
         List list;
-        List list1 = new ArrayList();
+        List list1 = new ArrayList<String>();
         switch(a){
             case 1:
                 list = ModelImpl.getInstance().getListUsers();
