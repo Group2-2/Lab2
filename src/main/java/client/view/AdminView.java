@@ -126,6 +126,7 @@ public class AdminView extends GeneralChatView {
         }
     }
 
+    @Override
     public void printNewMassage(String massage) {
         chatArea.append(massage + "\n");
     }

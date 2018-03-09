@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -121,7 +122,7 @@ public class ClientControllerImpl implements ClientController {
             } catch (Exception e) {
                 logger.info("Потоки не были закрыты!");
             }
-        }else{
+        } else {
             JOptionPane.showMessageDialog(null, "Server not found!");
         }
     }
@@ -232,7 +233,7 @@ public class ClientControllerImpl implements ClientController {
 
     public boolean sendMessage(String message, String chatID) {
         //<command type="addMessage" sender="my_nick" chat_id = "0" text ="dsfaf"/>
-        String msg = String.format("<command type=\"addMessage\" sender=\"%1$s\" chat_id = \"%2$s\" text =\"%3$s\"/>", getCurrentUser(),chatID, message.replaceAll("\\n", " "));
+        String msg = String.format("<command type=\"addMessage\" sender=\"%1$s\" chat_id = \"%2$s\" text =\"%3$s\"/>", getCurrentUser(), chatID, message.replaceAll("\\n", " "));
         return (sendXMLString(msg));
     }
 
@@ -287,7 +288,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     public boolean sendXMLString(String xmlText) {
-        System.out.println("OUT "+xmlText);
+        System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
@@ -310,7 +311,7 @@ public class ClientControllerImpl implements ClientController {
         NodeList users = document.getElementsByTagName("user");
         for (int i = 0; i < users.getLength(); i++) {
             Node node = users.item(i);
-            if (node.getNodeName().equals("user")){
+            if (node.getNodeName().equals("user")) {
                 Element element = (Element) node;
                 String nicknameVar = element.getTextContent();
                 if (!nicknameVar.equals(currentUser)) onlineUsers.add(nicknameVar);
@@ -319,10 +320,10 @@ public class ClientControllerImpl implements ClientController {
         generalChatView.setOnlineUsersList(onlineUsers);
     }
 
-    public void changeOnlineUsers(String login, boolean online){
-        if (online){
+    public void changeOnlineUsers(String login, boolean online) {
+        if (online) {
             if (!onlineUsers.contains(login)) onlineUsers.add(login);
-        }else {
+        } else {
             if (onlineUsers.contains(login)) onlineUsers.remove(login);
         }
         generalChatView.setOnlineUsersList(onlineUsers);
@@ -373,13 +374,13 @@ public class ClientControllerImpl implements ClientController {
             try {
                 while (isConnected) {
                     String line = in.readLine();
-                    System.out.println("Get in line "+ line);
+                    System.out.println("Get in line " + line);
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
-                    if(element == null) {
-                        if(document.getDocumentElement().getNodeName().equals("users")){
-                        SetOnlineUsers(line);
+                    if (element == null) {
+                        if (document.getDocumentElement().getNodeName().equals("users")) {
+                            SetOnlineUsers(line);
                         }
                         continue;
                     }
