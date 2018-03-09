@@ -14,6 +14,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.List;
 
+/**
+ * Class for parse xml command and configuration server
+ * Class is singletone
+ */
 public class XmlConfiguration {
 
     private XmlConfiguration() {
@@ -26,6 +30,11 @@ public class XmlConfiguration {
         return instance;
     }
 
+    /**
+     * Method for configuration server
+     * @param command xml command
+     * @return answer from server
+     */
     public String configuration(String command) {
         Document document = newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");

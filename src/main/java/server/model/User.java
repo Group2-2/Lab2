@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class contains information about user
+ */
 public class User implements Serializable {
     private String name;
     private String login;
@@ -19,46 +22,66 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    /**
+     * Get chats what is available for user
+     * @return list of chat id's
+     */
     public List<Long> getChats() {
         return chats;
     }
 
+    /**
+     * Get user name
+     * @return user name
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    /**
+     * Get user login
+     * @return user login
+     */
     public String getLogin() {
         return login;
     }
 
+    /**
+     * Set user login
+     * @param login new login
+     */
     public void setLogin(String login) {
         this.login = login;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
+    /**
+     * Check online status
+     * @return online status
+     */
     public boolean isOnline() {
         return online;
     }
 
+    /**
+     * Set online status
+     * @param online online status
+     */
     public void setOnline(boolean online) {
         this.online = online;
     }
 
+    /**
+     * Check admin status
+     * @return admin status
+     */
     public boolean isAdmin() {
         return admin;
     }
 
+    /**
+     * Set admin status
+     * @param admin admin status
+     */
     public void setAdmin(boolean admin) {
         this.admin = admin;
     }

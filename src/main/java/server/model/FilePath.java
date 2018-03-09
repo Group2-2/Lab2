@@ -1,5 +1,9 @@
 package server.model;
 
+
+/**
+ * Enum contains path to file
+ */
 public enum FilePath {
     BAN_LIST("ban_list"),
     CHATS("chats"),
@@ -12,6 +16,10 @@ public enum FilePath {
         this.path = path;
     }
 
+    /**
+     * Get path to file
+     * @return path to file
+     */
     public String getPath() {
         return path;
     }
