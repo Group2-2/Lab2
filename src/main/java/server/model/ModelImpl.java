@@ -178,7 +178,7 @@ public class ModelImpl implements Model {
 
     @Override
     public boolean isInBan(String login) {
-        return listUsers.contains(login);
+        return banList.contains(login);
     }
 
     @Override
