@@ -2,6 +2,9 @@ package server.controller;
 
 import java.util.Map;
 
+/**
+ * interface for server controller with main methods
+ */
 public interface ServerController extends Runnable {
     /**
      * @return port

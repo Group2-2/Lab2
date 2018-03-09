@@ -8,6 +8,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
+/**
+ * Creates new Connections on demand
+ * Checks for crush connections
+ * Supports console for admin control
+ * @see server.controller.ServerController
+ * @see server.controller.Connection
+ */
 public class Server implements ServerController {
     private static final Logger logger = Logger.getLogger(Server.class);
     private ServerSocket serverSocket;
@@ -20,7 +27,7 @@ public class Server implements ServerController {
 
     /**
      * initializes port, map, ServerSocket and started new Thread with checkOnline method
-     * @see server.controller.Server#checkOnline
+     * @see Server#checkOnline
      * @param port port
      */
 
@@ -70,6 +77,10 @@ public class Server implements ServerController {
         }
     }
 
+    /**
+     * The main method, starts the Thread
+     * @param args args
+     */
     public static void main(String[] args){
             new Thread(instance).start();
     }
@@ -104,12 +115,19 @@ public class Server implements ServerController {
         }
     }
 
+    /**
+     * The method for Admin Console Configuration - run() in Thread
+     */
     private void consoleStart(){
         while(true) {
             consoleMenu();
         }
     }
 
+    /**
+     * gives us a list of users by status
+     * @see Server#consoleChangeUser(String)
+     */
     private void consoleMenu(){
         int count = 4;
         System.out.println("1 --- get all users");
@@ -119,7 +137,7 @@ public class Server implements ServerController {
         int a;
         while(true) {
             a = consoleInputIndex();
-            if(a<0 || a>count) {
+            if(a<=0 || a>count) {
                 System.out.println("wrong");
                 continue;
             }
@@ -130,32 +148,39 @@ public class Server implements ServerController {
         switch(a){
             case 1:
                 list = ModelImpl.getInstance().getListUsers();
-                consoleChangeUserStatus(list);
+                consoleShowUsers(list);
                 break;
             case 2:
                 list = ModelImpl.getInstance().getOnlineListUsers();
-                consoleChangeUserStatus(list);
+                consoleShowUsers(list);
                 break;
             case 3:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
                     if(ModelImpl.getInstance().isInBan((String)string)) list1.add(string);
                 });
-                consoleChangeUserStatus(list1);
+                consoleShowUsers(list1);
                     break;
             case 4:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
                     if(!ModelImpl.getInstance().isInBan((String)string)) list1.add(string);
                 });
-                consoleChangeUserStatus(list1);
+                consoleShowUsers(list1);
                 break;
             default:
                     System.out.println("smth wrong");
                     break;
         }
     }
-     private void consoleChangeUserStatus(List list){
+
+    /** called in consoleMenu
+     * show users in current list and call consoleChangeUser
+     * @see Server#consoleChangeUser(String)
+     * @see Server#consoleMenu()
+     * @param list current list
+     */
+     private void consoleShowUsers(List list){
         while(true) {
             if (list.size() == 0) {
                 System.out.println("List is empty\n");
@@ -182,6 +207,13 @@ public class Server implements ServerController {
             consoleChangeUser((String) list.get(a - 1));
         }
      }
+
+    /**
+     * show all user information, gives the opportunity to change BAN/UNBAN, isAdmin/no called in
+     * consoleShowUsers
+     * @param login of current user
+     * @see Server#consoleShowUsers(List)
+     * */
      private void consoleChangeUser(String login){
         while (true) {
             System.out.println(login + " - isBan: " + ModelImpl.getInstance().isInBan(login)
@@ -224,6 +256,11 @@ public class Server implements ServerController {
             }
         }
      }
+
+    /**
+     * method for menu, user has to enter int value above 0
+     * @return int value that user entered, -1 - if user entered smth wrong
+     */
     private static int consoleInputIndex() {
         System.out.println("Enter your choise:");
         Scanner sc = new Scanner(System.in);
