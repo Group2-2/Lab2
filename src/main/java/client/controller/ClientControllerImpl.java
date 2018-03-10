@@ -549,36 +549,40 @@ public class ClientControllerImpl implements ClientController {
                             String login = element.getAttribute("user");
                             boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
                             controller.changeOnlineUsers(login, online);
+                            break;
                         }
                         case "ban": {
                             String login = element.getAttribute("user");
                             controller.banUserConfirm(login);
-                            //
+                            break;
                         }
                         case "unban": {
                             String login = element.getAttribute("user");
                             controller.unBanUserConfirm(login);
-                            //
+                            break;
                         }
                         case "newChatID": {
                             String chat_id = element.getAttribute("chat_id");
                             String login = element.getAttribute("user");
                             openPrivateChat(login, chat_id);
+                            break;
                         }
                         case "addToChat": {
                             String chat_id = element.getAttribute("chat_id");
                             String login = element.getAttribute("login");
                             openPrivateChat(login, chat_id);
+                            break;
                         }
                         case "addMessage": {
                             String sender = element.getAttribute("sender");
                             String chat_id = element.getAttribute("chat_id");
                             String text = element.getAttribute("text");
                             controller.getMessages(chat_id, text, sender);
+                            break;
                         }
                         case "isInBan": {
                             String login = element.getAttribute("user");
-                            //
+                            break;
                         }
                     }
                 }
