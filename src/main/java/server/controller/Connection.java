@@ -46,6 +46,7 @@ public class Connection implements Runnable {
                     String login = checkNewUser(message);
                     if(!login.equals("")){
                         Server.getInstance().setUser(login, this);
+                        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
                     send(response);
                 }
@@ -98,7 +99,6 @@ public class Connection implements Runnable {
         switch (type) {
             case "registration":
             case "login" :
-                Server.getInstance().sendToChat(Long.parseLong("0"),command,this);
                 return element.getAttribute("login");
             case "addMessage":
             case "addToChat":
