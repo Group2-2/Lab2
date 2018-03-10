@@ -2,7 +2,6 @@ package client.view;
 
 import client.controller.*;
 
-import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -25,10 +24,5 @@ public class PrivateChatView extends GeneralChatView {
                 controller.leavePrivateChat(getChat_id());
             }
         });
-    }
-
-    public void closeFrame() {
-        this.setVisible(false);
-        this.dispose();
     }
 }

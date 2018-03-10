@@ -27,6 +27,11 @@ public class GeneralChatView extends JFrame {
     protected DefaultListModel listModel;
     private String chat_id;
 
+    /**
+     * Create new main chat frame
+     * @param controller
+     * @param titile
+     */
     public GeneralChatView(ClientControllerImpl controller, String titile) {
         super(titile);
         this.controller = controller;
@@ -38,15 +43,27 @@ public class GeneralChatView extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     * Constructor for extended frames
+     * @param titile
+     */
     public GeneralChatView(String titile) {
         super(titile);
         setChat_id(controller.getMainChatID());
     }
 
+    /**
+     * Getter chat_id
+     * @return string chat_id
+     */
     public String getChat_id() {
         return chat_id;
     }
 
+    /**
+     * setter chat_id
+     * @param chat_id
+     */
     public void setChat_id(String chat_id) {
         this.chat_id = chat_id;
     }
@@ -124,6 +141,9 @@ public class GeneralChatView extends JFrame {
         });
     }
 
+    /**
+     * Change private chat button into add new user to chat
+     */
     public void removePrivateChatButton() {
         mainPanel.remove(privateChatButton);
         addNewUserButton = new JButton();
@@ -137,6 +157,9 @@ public class GeneralChatView extends JFrame {
         });
     }
 
+    /**
+     * set button listeners
+     */
     public void setButtonListeners() {
         privateChatButton.addActionListener(new ActionListener() {
             @Override
@@ -155,6 +178,10 @@ public class GeneralChatView extends JFrame {
         });
     }
 
+    /**
+     * Set list of online users
+     * @param arrList
+     */
     public void setOnlineUsersList(ArrayList<String> arrList) {
         listModel.clear();
         for (String userName : arrList) {
@@ -162,10 +189,18 @@ public class GeneralChatView extends JFrame {
         }
     }
 
+    /**
+     * add new massage in text area
+     * @param massage
+     */
     public void printNewMassage(String massage) {
         chatArea.append(massage + "\n");
     }
 
+    /**
+     * Banned user enabled send massages
+     * @param isBaned
+     */
     public void blockBanedUser(boolean isBaned) {
         boolean block = !isBaned;
         sendMessageButton.setEnabled(block);
