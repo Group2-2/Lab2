@@ -182,7 +182,7 @@ public class Server implements ServerController {
      */
      private void consoleShowUsers(List list){
         while(true) {
-            if (list.size() == 0) {
+            if (list == null || list.size() == 0) {
                 System.out.println("List is empty\n");
                 return;
             }
