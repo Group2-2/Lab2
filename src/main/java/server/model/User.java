@@ -1,5 +1,7 @@
 package server.model;
 
+import org.apache.log4j.Logger;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +18,23 @@ public class User implements Serializable {
     private boolean admin = false;
     private List<Long> chats = new ArrayList<>();
 
+    private static final Logger logger = Logger.getLogger(User.class);
+
+
     public User(String login, String password, String name) {
         this.name = name;
         this.login = login;
         this.password = password;
+
+        if (name.trim().equals("")) {
+            logger.warn("Name of user is empty");
+        }
+        if (login.trim().equals("")) {
+            logger.warn("Login of user is empty");
+        }
+        if (password.trim().equals("")) {
+            logger.warn("Password of user is empty");
+        }
     }
 
     /**

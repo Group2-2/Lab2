@@ -1,6 +1,7 @@
 package server.model;
 
 import com.thoughtworks.xstream.XStream;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -25,6 +26,7 @@ public class XmlConfiguration {
 
     private static XmlConfiguration instance = new XmlConfiguration();
     private static ModelImpl model = ModelImpl.getInstance();
+    private static final Logger logger = Logger.getLogger(XmlConfiguration.class);
 
     public static XmlConfiguration getInstance() {
         return instance;
@@ -135,6 +137,7 @@ public class XmlConfiguration {
                 return String.format("<command type=\"getUserName\" name=\"%s\" />", model.getUserName(login)) ;
             }
             default: {
+                logger.warn("Command not found " + command);
                 return command;
             }
 
