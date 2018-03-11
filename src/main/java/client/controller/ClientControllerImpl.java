@@ -99,7 +99,7 @@ public class ClientControllerImpl implements ClientController {
                     }
                 }
             }
-           /* //test
+          /*  //test
             String msg = "<command type=\"createAdmin\" user = \"Sviat\"/>";
             sendXMLString(msg);
             //*/
@@ -228,12 +228,11 @@ public class ClientControllerImpl implements ClientController {
      * @param login
      */
     private void banUserConfirm(String login) {
-        String massage = "@ADMIN has banned ".concat(login);
-        generalChatView.printNewMassage(massage);
         if (login.equals(getCurrentUser())) {
             isBanned = true;
             generalChatView.blockBanedUser(isBanned);
         }
+        sendMessage("@ADMIN has banned ".concat(login), mainChatID);
     }
 
     /**
@@ -241,12 +240,11 @@ public class ClientControllerImpl implements ClientController {
      * @param login
      */
     private void unBanUserConfirm(String login) {
-        String massage = "@ADMIN has UNbanned ".concat(login);
-        generalChatView.printNewMassage(massage);
         if (login.equals(getCurrentUser())) {
             isBanned = false;
             generalChatView.blockBanedUser(isBanned);
         }
+        sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
     }
 
     /**
@@ -404,7 +402,7 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        System.out.println("OUT " + xmlText);
+        //System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
