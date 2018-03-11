@@ -97,6 +97,10 @@ public class Connection implements Runnable {
         Element element = (Element) nodes.item(0);
         String type = element.getAttribute("type");
         switch (type) {
+            case "ban":
+            case "unban":
+                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
+                return "";
             case "registration":
             case "login" :
                 return element.getAttribute("login");
