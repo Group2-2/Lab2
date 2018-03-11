@@ -54,7 +54,7 @@ public class ClientControllerImpl implements ClientController {
      *Start new chat application
      */
     public void run() {
-        mainChatID = "0";
+       // mainChatID = "0";
         isConnected = connectServer();
         if (isConnected) {
             loginView = new LoginView(this);
@@ -111,10 +111,6 @@ public class ClientControllerImpl implements ClientController {
                 generalChatView = new GeneralChatView(this, "Main chat");
                 generalChatView.blockBanedUser(isBanned);
             }
-
-            getOnlineUsers();
-            sendOnline("true");
-            sendMessage("@ Join chat", mainChatID);
 
             thread = new Thread(new ReadMessage(in, this));
             thread.start();
@@ -183,7 +179,6 @@ public class ClientControllerImpl implements ClientController {
      * close main chat window
      */
     public void exitChat() {
-        sendMessage("@ Has left chat", mainChatID);
         sendOnline("false");
         exitApp();
     }
@@ -437,7 +432,7 @@ public class ClientControllerImpl implements ClientController {
             if (node.getNodeName().equals("user")) {
                 Element element = (Element) node;
                 String nicknameVar = element.getTextContent();
-                if (!nicknameVar.equals(currentUser)) onlineUsers.add(nicknameVar);
+                onlineUsers.add(nicknameVar);
             }
         }
         generalChatView.setOnlineUsersList(onlineUsers);
@@ -451,8 +446,10 @@ public class ClientControllerImpl implements ClientController {
     public void changeOnlineUsers(String login, boolean online) {
         if (online) {
             if (!onlineUsers.contains(login)) onlineUsers.add(login);
+            if (login.equals(currentUser)) sendMessage("@ Join chat", mainChatID);
         } else {
             if (onlineUsers.contains(login)) onlineUsers.remove(login);
+            if (login.equals(currentUser)) sendMessage("@ Has left chat", mainChatID);
         }
         generalChatView.setOnlineUsersList(onlineUsers);
     }
@@ -520,8 +517,15 @@ public class ClientControllerImpl implements ClientController {
          * start reading in stream
          */
         public void run() {
+            boolean varGetOnlineUsers = false;
+            boolean varSendOnlines = false;
             try {
+                getOnlineUsers();
                 while (isConnected) {
+                    if (varGetOnlineUsers && !varSendOnlines) {
+                        sendOnline("true");
+                        varSendOnlines = true;
+                    }
                     String line = in.readLine();
                     System.out.println("Get in line " + line);
                     Document document = getXML(line);
@@ -530,6 +534,7 @@ public class ClientControllerImpl implements ClientController {
                     if (element == null) {
                         if (document.getDocumentElement().getNodeName().equals("users")) {
                             SetOnlineUsers(line);
+                            varGetOnlineUsers = true;
                         }
                         continue;
                     }
@@ -537,13 +542,13 @@ public class ClientControllerImpl implements ClientController {
 
                     switch (type) {
                         case "all_users": {
-                            //
+                            break;
                         }
                         case "сhats": {
-                            //
+                            break;
                         }
                         case "get_messages": {
-                            //
+                            break;
                         }
                         case "setOnlineStatus": {
                             String login = element.getAttribute("user");
