@@ -46,7 +46,7 @@ public class Connection implements Runnable {
                     String login = checkNewUser(message);
                     if(!login.equals("")){
                         Server.getInstance().setUser(login, this);
-                        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
+                //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
                     send(response);
                 }
@@ -91,7 +91,7 @@ public class Connection implements Runnable {
      * @param command
      * @return login if user login or register
      */
-    private String checkNewUser(String command){
+    private String checkNewUser(String command) {
         Document document = XmlConfiguration.newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
         Element element = (Element) nodes.item(0);
@@ -108,6 +108,7 @@ public class Connection implements Runnable {
             case "setOnlineStatus":
                 boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
                 ModelImpl.getInstance().setOnlineStatus(element.getAttribute("user"), isOnline);
+                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
             case "newChatID":/*дальше по имплементации*/
             default :
                 return "";

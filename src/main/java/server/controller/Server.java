@@ -58,7 +58,7 @@ public class Server implements ServerController {
     }
 
     @Override
-    public void setUser(String login, Connection connection){
+    public void setUser(String login, Connection connection) {
         ModelImpl.getInstance().save();
         users.put(login, connection);
     }
@@ -81,12 +81,12 @@ public class Server implements ServerController {
      * The main method, starts the Thread
      * @param args args
      */
-    public static void main(String[] args){
+    public static void main(String[] args) {
             new Thread(instance).start();
     }
 
     @Override
-    public void sendToChat(Long chatId, String text, Connection current){
+    public void sendToChat(Long chatId, String text, Connection current) {
         List list = ModelImpl.getInstance().getChatUsers(chatId);
         users.forEach((login, connection) -> {
             if(list.contains(login) && connection != current) {
@@ -99,8 +99,8 @@ public class Server implements ServerController {
     /**
      * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
      */
-    private void checkOnline(){
-        while(!Thread.interrupted()){
+    private void checkOnline() {
+        while(!Thread.interrupted()) {
             users.forEach((login, connection) -> {
                 if(!connection.checkConnection()){
                     users.remove(login);
@@ -118,8 +118,8 @@ public class Server implements ServerController {
     /**
      * The method for Admin Console Configuration - run() in Thread
      */
-    private void consoleStart(){
-        while(true) {
+    private void consoleStart() {
+        while (true) {
             consoleMenu();
         }
     }
@@ -128,24 +128,24 @@ public class Server implements ServerController {
      * gives us a list of users by status
      * @see Server#consoleChangeUser(String)
      */
-    private void consoleMenu(){
+    private void consoleMenu() {
         int count = 4;
         System.out.println("1 --- get all users");
         System.out.println("2 --- get online users");
         System.out.println("3 --- get ban users");
         System.out.println("4 --- get unban users");
         int a;
-        while(true) {
+        while (true) {
             a = consoleInputIndex();
-            if(a<=0 || a>count) {
+            if(a <= 0 || a > count) {
                 System.out.println("wrong");
                 continue;
             }
             break;
         }
-        List list;
-        List list1 = new ArrayList<String>();
-        switch(a){
+        List<String> list;
+        List<String> list1 = new ArrayList<>();
+        switch (a) {
             case 1:
                 list = ModelImpl.getInstance().getListUsers();
                 consoleShowUsers(list);
@@ -157,14 +157,14 @@ public class Server implements ServerController {
             case 3:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
-                    if(ModelImpl.getInstance().isInBan((String)string)) list1.add(string);
+                    if(ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                     break;
             case 4:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
-                    if(!ModelImpl.getInstance().isInBan((String)string)) list1.add(string);
+                    if(!ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                 break;
@@ -180,8 +180,8 @@ public class Server implements ServerController {
      * @see Server#consoleMenu()
      * @param list current list
      */
-     private void consoleShowUsers(List list){
-        while(true) {
+     private void consoleShowUsers(List list) {
+        while (true) {
             if (list == null || list.size() == 0) {
                 System.out.println("List is empty\n");
                 return;
@@ -214,7 +214,7 @@ public class Server implements ServerController {
      * @param login of current user
      * @see Server#consoleShowUsers(List)
      * */
-     private void consoleChangeUser(String login){
+     private void consoleChangeUser(String login) {
         while (true) {
             System.out.println(login + " - isBan: " + ModelImpl.getInstance().isInBan(login)
                     + ", isAdmin: " + ModelImpl.getInstance().isAdmin(login) + ", online: "
@@ -267,8 +267,7 @@ public class Server implements ServerController {
         int  n;
         try {
             n = sc.nextInt();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return -1;
         }
         return n;
