@@ -54,7 +54,6 @@ public class ClientControllerImpl implements ClientController {
      *Start new chat application
      */
     public void run() {
-       // mainChatID = "0";
         isConnected = connectServer();
         if (isConnected) {
             loginView = new LoginView(this);
