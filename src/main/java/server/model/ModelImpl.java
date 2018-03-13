@@ -18,13 +18,13 @@ public class ModelImpl implements Model {
     private List<String> banList;
 
     private static ModelImpl instance = new ModelImpl();
-    private static final Logger logger = Logger.getLogger(ModelImpl.class);
+    private final Logger logger = Logger.getLogger(ModelImpl.class);
 
     public static ModelImpl getInstance() {
         return instance;
     }
 
-    private ModelImpl() {
+    public ModelImpl() {
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();
@@ -100,6 +100,7 @@ public class ModelImpl implements Model {
                 return false;
         }
         listUsers.add(user);
+        user.getChats().add(0L);
         groups.get(0L).add(user.getLogin());
         return true;
     }
@@ -157,11 +158,17 @@ public class ModelImpl implements Model {
     @Override
     public void ban(String login) {
         banList.add(login);
+        User user = findByLogin(login);
+        user.getChats().remove(0L);
+        groups.get(0L).remove(login);
     }
 
     @Override
     public void unban(String login) {
         banList.remove(login);
+        User user = findByLogin(login);
+        user.getChats().add(0L);
+        groups.get(0L).add(login);
     }
 
     @Override

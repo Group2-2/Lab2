@@ -25,7 +25,7 @@ public class XmlConfiguration {
     }
 
     private static XmlConfiguration instance = new XmlConfiguration();
-    private static ModelImpl model = ModelImpl.getInstance();
+    private static Model model = ModelImpl.getInstance();
     private static final Logger logger = Logger.getLogger(XmlConfiguration.class);
 
     public static XmlConfiguration getInstance() {
@@ -49,7 +49,7 @@ public class XmlConfiguration {
             case "online_users": {
                 return listUserToXml(model.getOnlineListUsers());
             }
-            case "сhats": {
+            case "chats": {
                 String login = element.getAttribute("sender");
                 return getChats(login);
             }
@@ -161,14 +161,14 @@ public class XmlConfiguration {
         xstream.alias("chats", List.class);
         xstream.alias("chat", Long.class);
         List<Long> list = model.getChats(login);
-        return xstream.toXML(list);
+        return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
     private static String listUserToXml(List<String> list) {
         XStream xstream = new XStream();
         xstream.alias("users", List.class);
         xstream.alias("user", String.class);
-        return xstream.toXML(list).toString().replaceAll("\\n", " ");
+        return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
     public static Document newDocument(String value){

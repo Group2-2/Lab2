@@ -25,6 +25,7 @@ public class ClientControllerImpl implements ClientController {
     private String serverAddress = "localhost";
     private Socket socket;
     private ArrayList<String> onlineUsers = new ArrayList<>();
+    private ArrayList<String> chatsListInForm = new ArrayList<>();
     private BufferedReader in;
     private PrintWriter out;
     private List<String> banUsers;
@@ -321,6 +322,15 @@ public class ClientControllerImpl implements ClientController {
     }
 
     /**
+     * prepare command get chats list
+     */
+    public void getChatsList() {
+        //<addMessage sender = * chat_id = * text = ***/>
+        String msg = String.format("<command type=\"chats\" sender=\"%1$s\"/>", getCurrentUser());
+        sendXMLString(msg);
+    }
+
+    /**
      * prepare command check user login-password
      * @param login
      * @param password
@@ -390,9 +400,16 @@ public class ClientControllerImpl implements ClientController {
      * prepare command get all online users
      */
     public void getOnlineUsers() {
-        //sendOnline("true");
         //<command type="online_users"></command>
         String msg = "<command type=\"online_users\"/>";
+        sendXMLString(msg);
+    }
+
+    /**
+     * prepare command get messages in chat
+     */
+    public void getMassagesInChat(String ChatID) {
+        String msg = String.format("<command type=\"get_messages\" chat_id=\"%s\"/>", ChatID);
         sendXMLString(msg);
     }
 
@@ -402,7 +419,7 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        //System.out.println("OUT " + xmlText);
+        System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
@@ -419,7 +436,7 @@ public class ClientControllerImpl implements ClientController {
      * parse input xml and set online users to frames
      * @param line
      */
-    public void SetOnlineUsers(String line) {
+    public void setOnlineUsers(String line) {
         //<users>   <user>qwerty</user> </users>
         onlineUsers.clear();
         Document document = getXML(line);
@@ -433,6 +450,47 @@ public class ClientControllerImpl implements ClientController {
             }
         }
         generalChatView.setOnlineUsersList(onlineUsers);
+    }
+
+    /**
+     * parse input xml and set private chats
+     * @param line
+     */
+    public void setChats(String line) {
+        //<chats>   <long>0</long>   <long>1</long> </chats>
+        chatsListInForm.clear();
+        Document document = getXML(line);
+        NodeList chatIDlong = document.getElementsByTagName("long");
+        for (int i = 0; i < chatIDlong.getLength(); i++) {
+            Node node = chatIDlong.item(i);
+            if (node.getNodeName().equals("long")) {
+                Element element = (Element) node;
+                String chatStringID = element.getTextContent();
+                if (chatStringID.equals("0")) continue;
+                chatsListInForm.add(chatStringID);
+            }
+        }
+        generalChatView.setPrivateChatsList(chatsListInForm);
+    }
+
+    /**
+     * parse input xml and set massages
+     * @param line
+     */
+    public void setAllMassages(String line) {
+        //<users>   <user>qwerty</user> </users>
+        Document document = getXML(line);
+        NodeList messageList = document.getElementsByTagName("message");
+        for (int i = 0; i < messageList.getLength(); i++) {
+            Node node = messageList.item(i);
+            if (node.getNodeName().equals("message")) {
+                Element element = (Element) node;
+                String sender = element.getAttribute("sender");
+                String text = element.getAttribute("text");
+                String nicknameVar = element.getTextContent();
+                getMessages(mainChatID, text, sender);
+            }
+        }
     }
 
     /**
@@ -482,6 +540,7 @@ public class ClientControllerImpl implements ClientController {
      */
 
     private Document getXML(String value) {
+        value = value.replaceAll("\\n", " ");
         Document document = null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -516,22 +575,43 @@ public class ClientControllerImpl implements ClientController {
         public void run() {
             boolean varGetOnlineUsers = false;
             boolean varSendOnlines = false;
+            boolean varLoadMessages = false;
+            boolean varSetChatList = false;
             try {
                 getOnlineUsers();
                 while (isConnected) {
-                    if (varGetOnlineUsers && !varSendOnlines) {
+                    if (varGetOnlineUsers && !varLoadMessages) {
+                        getMassagesInChat(mainChatID);
+                    }
+                    if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
                         sendOnline("true");
                         varSendOnlines = true;
                     }
+                    if (varGetOnlineUsers && varLoadMessages && varSendOnlines && !varSetChatList) {
+                        getChatsList();
+                    }
                     String line = in.readLine();
                     System.out.println("Get in line " + line);
+                    if (line.equals("<messages>"))   line = in.readLine();
+                    if (line.equals("</messages>") || line.equals("<messages/>"))   {
+                        line = in.readLine();
+                        varLoadMessages = true;
+                    }
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
                     if (element == null) {
                         if (document.getDocumentElement().getNodeName().equals("users")) {
-                            SetOnlineUsers(line);
+                            setOnlineUsers(line);
                             varGetOnlineUsers = true;
+                        }
+                        if (document.getDocumentElement().getNodeName().equals("message")) {
+                            setAllMassages(line);
+                            varLoadMessages = true;
+                        }
+                        if (document.getDocumentElement().getNodeName().equals("chats")) {
+                            setChats(line);
+                            varSetChatList = true;
                         }
                         continue;
                     }
