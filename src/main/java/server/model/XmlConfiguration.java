@@ -153,7 +153,10 @@ public class XmlConfiguration {
         xstream.aliasField("text", Message.class, "text");
         xstream.alias("messages", List.class);
         List<Message>list = model.getMessages(id);
-        return xstream.toXML(list);
+        String s =  xstream.toXML(list).replaceAll("\\n", " ")
+                .replaceAll("message ", String.format("message chat_id=\"%s\" ", "" + id));
+        System.out.println(s);
+        return s;
     }
 
     private static String getChats(String login) {
