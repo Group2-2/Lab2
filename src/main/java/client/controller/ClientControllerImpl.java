@@ -25,6 +25,7 @@ public class ClientControllerImpl implements ClientController {
     private String serverAddress = "localhost";
     private Socket socket;
     private ArrayList<String> onlineUsers = new ArrayList<>();
+    private ArrayList<String> chatsListInForm = new ArrayList<>();
     private BufferedReader in;
     private PrintWriter out;
     private List<String> banUsers;
@@ -321,6 +322,15 @@ public class ClientControllerImpl implements ClientController {
     }
 
     /**
+     * prepare command get chats list
+     */
+    public void getChatsList() {
+        //<addMessage sender = * chat_id = * text = ***/>
+        String msg = String.format("<command type=\"chats\" sender=\"%1$s\"/>", getCurrentUser());
+        sendXMLString(msg);
+    }
+
+    /**
      * prepare command check user login-password
      * @param login
      * @param password
@@ -443,6 +453,27 @@ public class ClientControllerImpl implements ClientController {
     }
 
     /**
+     * parse input xml and set private chats
+     * @param line
+     */
+    public void setChats(String line) {
+        //<chats>   <long>0</long>   <long>1</long> </chats>
+        chatsListInForm.clear();
+        Document document = getXML(line);
+        NodeList chatIDlong = document.getElementsByTagName("long");
+        for (int i = 0; i < chatIDlong.getLength(); i++) {
+            Node node = chatIDlong.item(i);
+            if (node.getNodeName().equals("long")) {
+                Element element = (Element) node;
+                String chatStringID = element.getTextContent();
+                if (chatStringID.equals("0")) continue;
+                chatsListInForm.add(chatStringID);
+            }
+        }
+        generalChatView.setPrivateChatsList(chatsListInForm);
+    }
+
+    /**
      * parse input xml and set massages
      * @param line
      */
@@ -545,6 +576,7 @@ public class ClientControllerImpl implements ClientController {
             boolean varGetOnlineUsers = false;
             boolean varSendOnlines = false;
             boolean varLoadMessages = false;
+            boolean varSetChatList = false;
             try {
                 getOnlineUsers();
                 while (isConnected) {
@@ -554,6 +586,9 @@ public class ClientControllerImpl implements ClientController {
                     if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
                         sendOnline("true");
                         varSendOnlines = true;
+                    }
+                    if (varGetOnlineUsers && varLoadMessages && varSendOnlines && !varSetChatList) {
+                        getChatsList();
                     }
                     String line = in.readLine();
                     System.out.println("Get in line " + line);
@@ -573,6 +608,10 @@ public class ClientControllerImpl implements ClientController {
                         if (document.getDocumentElement().getNodeName().equals("message")) {
                             setAllMassages(line);
                             varLoadMessages = true;
+                        }
+                        if (document.getDocumentElement().getNodeName().equals("chats")) {
+                            setChats(line);
+                            varSetChatList = true;
                         }
                         continue;
                     }
