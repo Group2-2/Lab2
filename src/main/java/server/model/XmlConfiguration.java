@@ -49,7 +49,7 @@ public class XmlConfiguration {
             case "online_users": {
                 return listUserToXml(model.getOnlineListUsers());
             }
-            case "сhats": {
+            case "chats": {
                 String login = element.getAttribute("sender");
                 return getChats(login);
             }
@@ -161,7 +161,7 @@ public class XmlConfiguration {
         xstream.alias("chats", List.class);
         xstream.alias("chat", Long.class);
         List<Long> list = model.getChats(login);
-        return xstream.toXML(list);
+        return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
     private static String listUserToXml(List<String> list) {
