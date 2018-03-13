@@ -1,5 +1,7 @@
 package server.model;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.util.*;
 
@@ -16,6 +18,7 @@ public class ModelImpl implements Model {
     private List<String> banList;
 
     private static ModelImpl instance = new ModelImpl();
+    private static final Logger logger = Logger.getLogger(ModelImpl.class);
 
     public static ModelImpl getInstance() {
         return instance;
@@ -27,22 +30,26 @@ public class ModelImpl implements Model {
             chats = new Hashtable<>();
             chats.put(0L, new ArrayList<>());
             writeObject(chats, FilePath.CHATS.getPath());
+            logger.warn("chats file is empty");
         }
         groups = read(FilePath.GROUPS.getPath());
         if (groups == null) {
             groups = new Hashtable<>();
             groups.put(0L, new ArrayList<>());
             writeObject(groups, FilePath.GROUPS.getPath());
+            logger.warn("groups file is empty");
         }
         listUsers = read(FilePath.LIST_USER.getPath());
         if (listUsers == null) {
             listUsers = new ArrayList<>();
             writeObject(listUsers, FilePath.LIST_USER.getPath());
+            logger.warn("listUsers file is empty");
         }
         banList = read(FilePath.BAN_LIST.getPath());
         if (banList == null) {
             banList = new ArrayList<>();
             writeObject(listUsers, FilePath.BAN_LIST.getPath());
+            logger.warn("banList file is empty");
         }
     }
 
@@ -199,6 +206,8 @@ public class ModelImpl implements Model {
                 user = person;
             }
         }
+        if (user == null)
+            logger.error("user with login " + login + " is not exist");
         return user;
     }
 

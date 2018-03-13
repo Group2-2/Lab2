@@ -1,5 +1,7 @@
 package server.model;
 
+import org.apache.log4j.Logger;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,10 +11,15 @@ import java.util.Objects;
 public class Message implements Serializable {
     private String sender;
     private String text;
+    private static final Logger logger = Logger.getLogger(Message.class);
 
     public Message(String sender, String text) {
         this.sender = sender;
         this.text = text;
+
+        if (text.trim().equals("")) {
+            logger.warn("Text of message is empty");
+        }
     }
 
     /**
