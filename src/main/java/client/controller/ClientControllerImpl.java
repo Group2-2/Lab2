@@ -558,7 +558,10 @@ public class ClientControllerImpl implements ClientController {
                     String line = in.readLine();
                     System.out.println("Get in line " + line);
                     if (line.equals("<messages>"))   line = in.readLine();
-                    if (line.equals("</messages>"))   line = in.readLine();
+                    if (line.equals("</messages>") || line.equals("<messages/>"))   {
+                        line = in.readLine();
+                        varLoadMessages = true;
+                    }
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
