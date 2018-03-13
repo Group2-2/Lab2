@@ -110,6 +110,7 @@ public class Server implements ServerController {
                         entries.next();
                     }
                     entries.remove();
+                    ModelImpl.getInstance().save();
                 }
             }
             try {
@@ -129,6 +130,7 @@ public class Server implements ServerController {
                     entries.next();
                 }
                 entries.remove();
+                ModelImpl.getInstance().save();
             }
         }
     }
@@ -167,6 +169,17 @@ public class Server implements ServerController {
             case 0:
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if(consoleInputIndex() == 1){
+                    Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
+                    while (entries.hasNext()) {
+                        Map.Entry<String, Connection> entry = entries.next();
+                        ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+
+                        if (entries.hasNext()) {
+                            entries.next();
+                        }
+                        entries.remove();
+                    }
+                    ModelImpl.getInstance().save();
                     System.exit(0);
                 }
                 break;
