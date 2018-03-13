@@ -18,13 +18,13 @@ public class ModelImpl implements Model {
     private List<String> banList;
 
     private static ModelImpl instance = new ModelImpl();
-    private static final Logger logger = Logger.getLogger(ModelImpl.class);
+    private final Logger logger = Logger.getLogger(ModelImpl.class);
 
     public static ModelImpl getInstance() {
         return instance;
     }
 
-    private ModelImpl() {
+    public ModelImpl() {
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();

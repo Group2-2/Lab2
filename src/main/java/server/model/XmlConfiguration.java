@@ -25,7 +25,7 @@ public class XmlConfiguration {
     }
 
     private static XmlConfiguration instance = new XmlConfiguration();
-    private static ModelImpl model = ModelImpl.getInstance();
+    private static Model model = ModelImpl.getInstance();
     private static final Logger logger = Logger.getLogger(XmlConfiguration.class);
 
     public static XmlConfiguration getInstance() {
@@ -168,7 +168,7 @@ public class XmlConfiguration {
         XStream xstream = new XStream();
         xstream.alias("users", List.class);
         xstream.alias("user", String.class);
-        return xstream.toXML(list).toString().replaceAll("\\n", " ");
+        return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
     public static Document newDocument(String value){
