@@ -100,13 +100,13 @@ public class Server implements ServerController {
      * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
      */
     private void checkOnline() {
-        while(!Thread.interrupted()) {
+        while (!Thread.interrupted()) {
             Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry<String, Connection> entry = entries.next();
-                if(!entry.getValue().checkConnection()){
+                if (!entry.getValue().checkConnection()) {
                     ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
-                    if(entries.hasNext()) {
+                    if (entries.hasNext()) {
                         entries.next();
                     }
                     entries.remove();
@@ -123,9 +123,9 @@ public class Server implements ServerController {
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, Connection> entry = entries.next();
-            if(conn == entry.getValue()){
+            if (conn == entry.getValue()) {
                 ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
-                if(entries.hasNext()) {
+                if (entries.hasNext()) {
                     entries.next();
                 }
                 entries.remove();
@@ -174,14 +174,14 @@ public class Server implements ServerController {
             case 3:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
-                    if(ModelImpl.getInstance().isInBan(string)) list1.add(string);
+                    if (ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                     break;
             case 4:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
-                    if(!ModelImpl.getInstance().isInBan(string)) list1.add(string);
+                    if (!ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                 break;
@@ -260,16 +260,16 @@ public class Server implements ServerController {
                     ModelImpl.getInstance().save();
                     break;
                 case 2:
-                    if(!ModelImpl.getInstance().isAdmin(login)){
+                    if (!ModelImpl.getInstance().isAdmin(login)){
                         ModelImpl.getInstance().createAdmin(login);
-                    }else{
+                    } else {
                         ModelImpl.getInstance().deleteAdmin(login);
                     }
                     ModelImpl.getInstance().save();
                     break;
                 default:
-                        System.out.println("smth wrong");
-                        break;
+                    System.out.println("smth wrong");
+                    break;
             }
         }
      }

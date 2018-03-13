@@ -40,7 +40,7 @@ public class Connection implements Runnable {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
                 System.out.println(message);
-                if(message == null){
+                if (message == null){
                     isWork = false;
                     Server.getInstance().deleteUser(this);
                 }
@@ -48,7 +48,7 @@ public class Connection implements Runnable {
                     String response = XmlConfiguration.getInstance().configuration(message);
 
                     String login = checkNewUser(message);
-                    if(!login.equals("")){
+                    if (!login.equals("")){
                         Server.getInstance().setUser(login, this);
                 //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
