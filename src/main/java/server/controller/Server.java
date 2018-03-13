@@ -101,12 +101,17 @@ public class Server implements ServerController {
      */
     private void checkOnline() {
         while(!Thread.interrupted()) {
-            users.forEach((login, connection) -> {
-                if(!connection.checkConnection()){
-                    users.remove(login);
-                    ModelImpl.getInstance().setOnlineStatus(login, false);
+            Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry<String, Connection> entry = entries.next();
+                if(!entry.getValue().checkConnection()){
+                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                    if(entries.hasNext()) {
+                        entries.next();
+                    }
+                    entries.remove();
                 }
-            });
+            }
             try {
                 Thread.sleep(60000); // 1 minute
             } catch (InterruptedException e) {
@@ -114,7 +119,19 @@ public class Server implements ServerController {
             }
         }
     }
-
+    public void deleteUser(Connection conn){
+        Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry<String, Connection> entry = entries.next();
+            if(conn == entry.getValue()){
+                ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                if(entries.hasNext()) {
+                    entries.next();
+                }
+                entries.remove();
+            }
+        }
+    }
     /**
      * The method for Admin Console Configuration - run() in Thread
      */

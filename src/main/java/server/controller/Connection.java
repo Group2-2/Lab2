@@ -40,6 +40,10 @@ public class Connection implements Runnable {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
                 System.out.println(message);
+                if(message == null){
+                    isWork = false;
+                    Server.getInstance().deleteUser(this);
+                }
                 if (message != null && !message.equals("")) {
                     String response = XmlConfiguration.getInstance().configuration(message);
 
