@@ -31,7 +31,7 @@ public class OnlineUsersView extends JFrame {
         this.command = command;
         this.chat_id = chat_id;
         createGUI();
-       controller.getOnlineUsers();
+        controller.getOnlineUsers();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);

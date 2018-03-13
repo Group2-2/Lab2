@@ -100,13 +100,18 @@ public class Server implements ServerController {
      * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
      */
     private void checkOnline() {
-        while(!Thread.interrupted()) {
-            users.forEach((login, connection) -> {
-                if(!connection.checkConnection()){
-                    users.remove(login);
-                    ModelImpl.getInstance().setOnlineStatus(login, false);
+        while (!Thread.interrupted()) {
+            Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry<String, Connection> entry = entries.next();
+                if (!entry.getValue().checkConnection()) {
+                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                    if (entries.hasNext()) {
+                        entries.next();
+                    }
+                    entries.remove();
                 }
-            });
+            }
             try {
                 Thread.sleep(60000); // 1 minute
             } catch (InterruptedException e) {
@@ -114,7 +119,19 @@ public class Server implements ServerController {
             }
         }
     }
-
+    public void deleteUser(Connection conn){
+        Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry<String, Connection> entry = entries.next();
+            if (conn == entry.getValue()) {
+                ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                if (entries.hasNext()) {
+                    entries.next();
+                }
+                entries.remove();
+            }
+        }
+    }
     /**
      * The method for Admin Console Configuration - run() in Thread
      */
@@ -130,6 +147,7 @@ public class Server implements ServerController {
      */
     private void consoleMenu() {
         int count = 4;
+        System.out.println("0 --- STOP SERVER");
         System.out.println("1 --- get all users");
         System.out.println("2 --- get online users");
         System.out.println("3 --- get ban users");
@@ -137,7 +155,7 @@ public class Server implements ServerController {
         int a;
         while (true) {
             a = consoleInputIndex();
-            if(a <= 0 || a > count) {
+            if(a < 0 || a > count) {
                 System.out.println("wrong");
                 continue;
             }
@@ -146,6 +164,12 @@ public class Server implements ServerController {
         List<String> list;
         List<String> list1 = new ArrayList<>();
         switch (a) {
+            case 0:
+                System.out.print("Are you sure to stop server? Enter 1: ");
+                if(consoleInputIndex() == 1){
+                    System.exit(0);
+                }
+                break;
             case 1:
                 list = ModelImpl.getInstance().getListUsers();
                 consoleShowUsers(list);
@@ -157,14 +181,14 @@ public class Server implements ServerController {
             case 3:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
-                    if(ModelImpl.getInstance().isInBan(string)) list1.add(string);
+                    if (ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                     break;
             case 4:
                 list = ModelImpl.getInstance().getListUsers();
                 list.forEach(string -> {
-                    if(!ModelImpl.getInstance().isInBan(string)) list1.add(string);
+                    if (!ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                 break;
@@ -243,16 +267,16 @@ public class Server implements ServerController {
                     ModelImpl.getInstance().save();
                     break;
                 case 2:
-                    if(!ModelImpl.getInstance().isAdmin(login)){
+                    if (!ModelImpl.getInstance().isAdmin(login)){
                         ModelImpl.getInstance().createAdmin(login);
-                    }else{
+                    } else {
                         ModelImpl.getInstance().deleteAdmin(login);
                     }
                     ModelImpl.getInstance().save();
                     break;
                 default:
-                        System.out.println("smth wrong");
-                        break;
+                    System.out.println("smth wrong");
+                    break;
             }
         }
      }

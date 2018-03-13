@@ -40,11 +40,15 @@ public class Connection implements Runnable {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
                 System.out.println(message);
+                if (message == null){
+                    isWork = false;
+                    Server.getInstance().deleteUser(this);
+                }
                 if (message != null && !message.equals("")) {
                     String response = XmlConfiguration.getInstance().configuration(message);
 
                     String login = checkNewUser(message);
-                    if(!login.equals("")){
+                    if (!login.equals("")){
                         Server.getInstance().setUser(login, this);
                 //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
@@ -97,6 +101,10 @@ public class Connection implements Runnable {
         Element element = (Element) nodes.item(0);
         String type = element.getAttribute("type");
         switch (type) {
+            case "ban":
+            case "unban":
+                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
+                return "";
             case "registration":
             case "login" :
                 return element.getAttribute("login");
