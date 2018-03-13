@@ -582,6 +582,7 @@ public class ClientControllerImpl implements ClientController {
                 while (isConnected) {
                     if (varGetOnlineUsers && !varLoadMessages) {
                         getMassagesInChat(mainChatID);
+                        varLoadMessages = true; //допустим это так, а там поменяете, иначе оно циклиться
                     }
                     if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
                         sendOnline("true");
