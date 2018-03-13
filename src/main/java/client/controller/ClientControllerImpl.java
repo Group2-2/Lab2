@@ -390,9 +390,16 @@ public class ClientControllerImpl implements ClientController {
      * prepare command get all online users
      */
     public void getOnlineUsers() {
-        //sendOnline("true");
         //<command type="online_users"></command>
         String msg = "<command type=\"online_users\"/>";
+        sendXMLString(msg);
+    }
+
+    /**
+     * prepare command get messages in chat
+     */
+    public void getMassagesInChat(String ChatID) {
+        String msg = String.format("<command type=\"get_messages\" chat_id=\"%s\"/>", ChatID);
         sendXMLString(msg);
     }
 
@@ -402,7 +409,7 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        //System.out.println("OUT " + xmlText);
+        System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
@@ -419,7 +426,7 @@ public class ClientControllerImpl implements ClientController {
      * parse input xml and set online users to frames
      * @param line
      */
-    public void SetOnlineUsers(String line) {
+    public void setOnlineUsers(String line) {
         //<users>   <user>qwerty</user> </users>
         onlineUsers.clear();
         Document document = getXML(line);
@@ -433,6 +440,26 @@ public class ClientControllerImpl implements ClientController {
             }
         }
         generalChatView.setOnlineUsersList(onlineUsers);
+    }
+
+    /**
+     * parse input xml and set massages
+     * @param line
+     */
+    public void setAllMassages(String line) {
+        //<users>   <user>qwerty</user> </users>
+        Document document = getXML(line);
+        NodeList messageList = document.getElementsByTagName("message");
+        for (int i = 0; i < messageList.getLength(); i++) {
+            Node node = messageList.item(i);
+            if (node.getNodeName().equals("message")) {
+                Element element = (Element) node;
+                String sender = element.getAttribute("sender");
+                String text = element.getAttribute("text");
+                String nicknameVar = element.getTextContent();
+                getMessages(mainChatID, text, sender);
+            }
+        }
     }
 
     /**
@@ -482,6 +509,7 @@ public class ClientControllerImpl implements ClientController {
      */
 
     private Document getXML(String value) {
+        value = value.replaceAll("\\n", " ");
         Document document = null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -516,22 +544,32 @@ public class ClientControllerImpl implements ClientController {
         public void run() {
             boolean varGetOnlineUsers = false;
             boolean varSendOnlines = false;
+            boolean varLoadMessages = false;
             try {
                 getOnlineUsers();
                 while (isConnected) {
-                    if (varGetOnlineUsers && !varSendOnlines) {
+                    if (varGetOnlineUsers && !varLoadMessages) {
+                        getMassagesInChat(mainChatID);
+                    }
+                    if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
                         sendOnline("true");
                         varSendOnlines = true;
                     }
                     String line = in.readLine();
                     System.out.println("Get in line " + line);
+                    if (line.equals("<messages>"))   line = in.readLine();
+                    if (line.equals("</messages>"))   line = in.readLine();
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
                     if (element == null) {
                         if (document.getDocumentElement().getNodeName().equals("users")) {
-                            SetOnlineUsers(line);
+                            setOnlineUsers(line);
                             varGetOnlineUsers = true;
+                        }
+                        if (document.getDocumentElement().getNodeName().equals("message")) {
+                            setAllMassages(line);
+                            varLoadMessages = true;
                         }
                         continue;
                     }
