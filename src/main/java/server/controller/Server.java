@@ -147,6 +147,7 @@ public class Server implements ServerController {
      */
     private void consoleMenu() {
         int count = 4;
+        System.out.println("0 --- STOP SERVER");
         System.out.println("1 --- get all users");
         System.out.println("2 --- get online users");
         System.out.println("3 --- get ban users");
@@ -154,7 +155,7 @@ public class Server implements ServerController {
         int a;
         while (true) {
             a = consoleInputIndex();
-            if(a <= 0 || a > count) {
+            if(a < 0 || a > count) {
                 System.out.println("wrong");
                 continue;
             }
@@ -163,6 +164,12 @@ public class Server implements ServerController {
         List<String> list;
         List<String> list1 = new ArrayList<>();
         switch (a) {
+            case 0:
+                System.out.print("Are you sure to stop server? Enter 1: ");
+                if(consoleInputIndex() == 1){
+                    System.exit(0);
+                }
+                break;
             case 1:
                 list = ModelImpl.getInstance().getListUsers();
                 consoleShowUsers(list);
