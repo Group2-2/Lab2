@@ -93,6 +93,7 @@ public class GeneralChatView extends JFrame {
         final JScrollPane scrollPane2 = new JScrollPane();
         mainPanel.add(scrollPane2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         onlineUsersList = new JList();
+        onlineUsersList.setEnabled(true);
         listModel = new DefaultListModel();
         onlineUsersList.setModel(listModel);
         onlineUsersList.setLayoutOrientation(1);
@@ -144,6 +145,8 @@ public class GeneralChatView extends JFrame {
      * Change private chat button into add new user to chat
      */
     public void removePrivateChatButton() {
+        mainPanel.remove(privateChatButton);
+        mainPanel.remove(privateChatButton);
         mainPanel.remove(privateChatButton);
         addNewUserButton = new JButton();
         addNewUserButton.setText("Add new friend to chat");

@@ -77,13 +77,13 @@ public class OnlineUsersView extends JFrame {
                     controller.banUser(val);
                 if (command.equals("unBanUser"))
                     controller.unBanUser(val);
+                closeFrame();
             }
         });
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                dispose();
+                closeFrame();
             }
         });
 

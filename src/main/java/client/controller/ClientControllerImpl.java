@@ -165,12 +165,17 @@ public class ClientControllerImpl implements ClientController {
      * @return
      */
     public boolean openPrivateChat(String login, String chat_id) {
+        if (login.equals(getCurrentUser()) && (!chatsListInForm.contains(chat_id))) {
+            chatsListInForm.add(chat_id);
+            generalChatView.setPrivateChatsList(chatsListInForm);
+        }
         if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chat_id))) {
             PrivateChatView privateChatView = new PrivateChatView(this);
             privateChatView.setChat_id(chat_id);
-            sendMessage("@ Join chat", chat_id);
+           // sendMessage("@ Join chat", chat_id);
+            getMassagesInChat(chat_id);
             privateChatsList.put(chat_id, privateChatView);
-            return true;
+            privateChatView.setPrivateChatsList(chatsListInForm);
         }
         return true;
     }
@@ -467,7 +472,9 @@ public class ClientControllerImpl implements ClientController {
                 Element element = (Element) node;
                 String chatStringID = element.getTextContent();
                 if (chatStringID.equals("0")) continue;
-                chatsListInForm.add(chatStringID);
+                if (!chatsListInForm.contains(chatStringID)) {
+                    chatsListInForm.add(chatStringID);
+                }
             }
         }
         generalChatView.setPrivateChatsList(chatsListInForm);
@@ -478,7 +485,7 @@ public class ClientControllerImpl implements ClientController {
      * @param line
      */
     public void setAllMassages(String line) {
-        //<users>   <user>qwerty</user> </users>
+        //<messages>   <message chat_id="0" sender="q" text="ff"/>
         Document document = getXML(line);
         NodeList messageList = document.getElementsByTagName("message");
         for (int i = 0; i < messageList.getLength(); i++) {
@@ -487,8 +494,8 @@ public class ClientControllerImpl implements ClientController {
                 Element element = (Element) node;
                 String sender = element.getAttribute("sender");
                 String text = element.getAttribute("text");
-                String nicknameVar = element.getTextContent();
-                getMessages(mainChatID, text, sender);
+                String chat_id = element.getAttribute("chat_id");
+                getMessages(chat_id, text, sender);
             }
         }
     }
@@ -582,7 +589,7 @@ public class ClientControllerImpl implements ClientController {
                 while (isConnected) {
                     if (varGetOnlineUsers && !varLoadMessages) {
                         getMassagesInChat(mainChatID);
-                        varLoadMessages = true; //допустим это так, а там поменяете, иначе оно циклиться
+                        //varLoadMessages = true; //допустим это так, а там поменяете, иначе оно циклиться
                     }
                     if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
                         sendOnline("true");
@@ -593,7 +600,7 @@ public class ClientControllerImpl implements ClientController {
                     }
                     String line = in.readLine();
                     System.out.println("Get in line " + line);
-                    if (line.equals("<messages>"))   line = in.readLine();
+                   // if (line.equals("<messages>"))   line = in.readLine();
                     if (line.equals("</messages>") || line.equals("<messages/>"))   {
                         line = in.readLine();
                         varLoadMessages = true;
@@ -606,7 +613,7 @@ public class ClientControllerImpl implements ClientController {
                             setOnlineUsers(line);
                             varGetOnlineUsers = true;
                         }
-                        if (document.getDocumentElement().getNodeName().equals("message")) {
+                        if (document.getDocumentElement().getNodeName().equals("messages")) {
                             setAllMassages(line);
                             varLoadMessages = true;
                         }
