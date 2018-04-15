@@ -367,5 +367,4 @@ public class Server implements ServerController {
         ModelImpl.getInstance().save();
         serverWork = false;
     }
-
 }
