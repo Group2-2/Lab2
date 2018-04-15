@@ -264,12 +264,17 @@ public class ClientControllerImpl implements ClientController {
             generalChatView.setPrivateChatsList(chatsListInForm);
         }
         if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chat_id))) {
-            PrivateChatView privateChatView = new PrivateChatView(this);
-            privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
-            privateChatView.setChat_id(chat_id);
-            getMassagesInChat(chat_id);
-            privateChatsList.put(chat_id, privateChatView);
-            privateChatView.setPrivateChatsList(chatsListInForm);
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            int dialogResult = JOptionPane.showConfirmDialog(null, "Open private chat window?", "Join private chat", dialogButton);
+            if(dialogResult == 0) {
+                PrivateChatView privateChatView = new PrivateChatView(this);
+                privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
+                privateChatView.setChat_id(chat_id);
+                getMassagesInChat(chat_id);
+                privateChatsList.put(chat_id, privateChatView);
+                privateChatView.setPrivateChatsList(chatsListInForm);
+            } else {
+            }
         }
         return true;
     }

@@ -6,10 +6,7 @@ import client.controller.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 /**
@@ -182,6 +179,17 @@ public class GeneralChatView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (privateChatsList.getSelectedValue() != null) {
+                    String val = privateChatsList.getSelectedValue().toString();
+                    if (val != null && !val.trim().equals("")) {
+                        controller.addToPrivateChat(controller.getCurrentUser(), val);
+                    }
+                }
+            }
+        });
+        privateChatsList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList list = (JList) evt.getSource();
+                if (evt.getClickCount() == 2) {
                     String val = privateChatsList.getSelectedValue().toString();
                     if (val != null && !val.trim().equals("")) {
                         controller.addToPrivateChat(controller.getCurrentUser(), val);
