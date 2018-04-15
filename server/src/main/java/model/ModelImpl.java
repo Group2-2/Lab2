@@ -206,6 +206,14 @@ public class ModelImpl implements Model {
         return user.isOnline();
     }
 
+    @Override
+    public void deleteUser(String login) {
+        User user = findByLogin(login);
+        listUsers.remove(user);
+        banList.remove(login);
+        user.getChats().forEach(chat -> chats.get(chat).remove(login));
+    }
+
     private User findByLogin(String login) {
         User user = null;
         for (User person: listUsers) {
@@ -245,6 +253,5 @@ public class ModelImpl implements Model {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

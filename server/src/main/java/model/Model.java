@@ -119,18 +119,27 @@ public interface Model {
     /**
      * Method for check admin status in user
      * @param login login of user
+     * @return admin status
      */
     boolean isAdmin(String login);
 
     /**
      * Method for check ban status in user
      * @param login login of user
+     * @return ban status
      */
     boolean isInBan(String login);
 
     /**
      * Method for check online status in user
      * @param login login of user
+     * @return online status
      */
     boolean isOnline(String login);
+
+    /**
+     * Method for delete user from base
+     * @param login login of user
+     */
+    void  deleteUser(String login);
 }
