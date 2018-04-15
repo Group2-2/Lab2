@@ -226,4 +226,11 @@ public class GeneralChatView extends JFrame {
             listModelChats.addElement(chatID);
         }
     }
+
+    /**
+     * Set list of banned users
+     * @param arrList
+     */
+    public void setBannedList(ArrayList<String> arrList) {
+    }
 }

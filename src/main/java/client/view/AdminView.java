@@ -16,6 +16,7 @@ public class AdminView extends GeneralChatView {
     private JButton banUserButton;
     private JButton unbanUserButton;
     private JList bannedUsersList;
+    private DefaultListModel bannedListModel;
 
     /**
      *
@@ -82,8 +83,8 @@ public class AdminView extends GeneralChatView {
         unbanUserButton.setText("Unban user");
         mainPanel.add(unbanUserButton, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         bannedUsersList = new JList();
-        final DefaultListModel defaultListModel3 = new DefaultListModel();
-        bannedUsersList.setModel(defaultListModel3);
+        bannedListModel = new DefaultListModel();
+        bannedUsersList.setModel(bannedListModel);
         bannedUsersList.setToolTipText("Banned users");
         mainPanel.add(bannedUsersList, new GridConstraints(2, 3, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         sendMessageButton = new JButton();
@@ -115,20 +116,16 @@ public class AdminView extends GeneralChatView {
         });
     }
 
-    /*@Override
-    public void setOnlineUsersList(ArrayList<String> arrList) {
-        listModel.clear();
+    /**
+     * Set list of banned users
+     * @param arrList
+     */
+    public void setBannedList(ArrayList<String> arrList) {
+        bannedListModel.clear();
         for (String userName : arrList) {
-            listModel.addElement(userName);
+            bannedListModel.addElement(userName);
         }
     }
-
-    public void setPrivateChatsList(ArrayList<String> arrList) {
-        listModelChats.clear();
-        for (String chatID : arrList) {
-            listModelChats.addElement(chatID);
-        }
-    }*/
 
     @Override
     public void printNewMassage(String massage) {

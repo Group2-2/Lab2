@@ -29,7 +29,7 @@ public class ClientControllerImpl implements ClientController {
     private ArrayList<String> chatsListInForm = new ArrayList<>();
     private BufferedReader in;
     private PrintWriter out;
-    private List<String> banUsers;
+    private ArrayList<String> banUsers = new ArrayList<>();
     private String currentUser;
     private boolean isAdmin;
     private boolean isBanned;
@@ -332,10 +332,15 @@ public class ClientControllerImpl implements ClientController {
      */
     private void banUserConfirm(String login) {
         if (login.equals(getCurrentUser())) {
+            JOptionPane.showMessageDialog(null, "Admine has banned you");
             isBanned = true;
             generalChatView.blockBanedUser(isBanned);
         }
-        sendMessage("@ADMIN has banned ".concat(login), mainChatID);
+        if (isAdmin()) {
+            if (!banUsers.contains(login)) banUsers.add(login);
+            generalChatView.setBannedList(banUsers);
+            sendMessage("@ADMIN has banned ".concat(login), mainChatID);
+        }
     }
 
     /**
@@ -345,10 +350,15 @@ public class ClientControllerImpl implements ClientController {
      */
     private void unBanUserConfirm(String login) {
         if (login.equals(getCurrentUser())) {
+            JOptionPane.showMessageDialog(null, "Admine has unbanned you");
             isBanned = false;
             generalChatView.blockBanedUser(isBanned);
         }
-        sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
+        if (isAdmin()) {
+            if (banUsers.contains(login)) banUsers.remove(login);
+            adminView.setBannedList(banUsers);
+            sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
+        }
     }
 
     /**
