@@ -1,6 +1,5 @@
 package controller;
 
-<<<<<<< HEAD:client/src/main/java/controller/ClientControllerImpl.java
 import view.*;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -9,6 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,28 +18,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-=======
-        import client.view.*;
-        import org.apache.log4j.Logger;
-        import org.w3c.dom.Document;
-        import org.w3c.dom.Element;
-        import org.w3c.dom.Node;
-        import org.w3c.dom.NodeList;
-        import org.xml.sax.InputSource;
-        import org.xml.sax.SAXException;
-
-        import javax.swing.*;
-        import javax.xml.parsers.DocumentBuilder;
-        import javax.xml.parsers.DocumentBuilderFactory;
-        import javax.xml.parsers.ParserConfigurationException;
-        import java.io.*;
-        import java.net.Socket;
-        import java.net.UnknownHostException;
-        import java.util.ArrayList;
-        import java.util.LinkedHashMap;
-        import java.util.List;
->>>>>>> origin/newStructureBranch:src/main/java/client/controller/ClientControllerImpl.java
 
 public class ClientControllerImpl implements ClientController {
     private static final Logger logger = Logger.getLogger(ClientControllerImpl.class);
@@ -287,7 +265,7 @@ public class ClientControllerImpl implements ClientController {
         if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chat_id))) {
             int dialogButton = JOptionPane.YES_NO_OPTION;
             int dialogResult = JOptionPane.showConfirmDialog(null, "Open private chat window?", "Join private chat", dialogButton);
-            if(dialogResult == 0) {
+            if (dialogResult == 0) {
                 PrivateChatView privateChatView = new PrivateChatView(this);
                 privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
                 privateChatView.setChat_id(chat_id);
