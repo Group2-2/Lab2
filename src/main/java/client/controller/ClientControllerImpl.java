@@ -47,7 +47,7 @@ public class ClientControllerImpl implements ClientController {
      * @throws IOException
      * @throws SAXException
      */
-    public static void main(String[] args) throws IOException, SAXException {
+    public static void main(String[] args) {
         ClientControllerImpl client = new ClientControllerImpl();
         client.run();
     }
