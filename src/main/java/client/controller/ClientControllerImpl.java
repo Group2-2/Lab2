@@ -108,8 +108,9 @@ public class ClientControllerImpl implements ClientController {
 
             if (isAdmin()) {
                 generalChatView = new AdminView(this);
+                generalChatView.setTitle(getCurrentUser().concat(": ADMIN_General chat"));
             } else {
-                generalChatView = new GeneralChatView(this, "Main chat");
+                generalChatView = new GeneralChatView(this, getCurrentUser().concat(": Main chat"));
                 generalChatView.blockBanedUser(isBanned);
             }
 
@@ -264,8 +265,8 @@ public class ClientControllerImpl implements ClientController {
         }
         if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chat_id))) {
             PrivateChatView privateChatView = new PrivateChatView(this);
+            privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
             privateChatView.setChat_id(chat_id);
-            // sendMessage("@ Join chat", chat_id);
             getMassagesInChat(chat_id);
             privateChatsList.put(chat_id, privateChatView);
             privateChatView.setPrivateChatsList(chatsListInForm);
