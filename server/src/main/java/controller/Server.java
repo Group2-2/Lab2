@@ -19,11 +19,14 @@ public class Server implements ServerController {
     private static final Logger logger = Logger.getLogger(Server.class);
     private ServerSocket serverSocket;
     private int port;
+    private boolean checkOnlineWork = true;
+    private boolean consoleWork = true;
+    private static boolean serverWork = true;
     /**
      * login - current connection of online users
      */
     private Map<String, Connection> users; //login/connection
-    private static Server instance = new Server(12345);
+    private static Server instance;
 
     /**
      * initializes port, map, ServerSocket and started new Thread with checkOnline method
@@ -40,7 +43,6 @@ public class Server implements ServerController {
             logger.error("Server - getInstance", e);
         }
         new Thread(this::checkOnline).start();
-        new Thread(this::consoleStart).start();
     }
 
     @Override
@@ -65,7 +67,7 @@ public class Server implements ServerController {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.interrupted()) {
             final Socket socket;
             try {
                 socket = serverSocket.accept();
@@ -75,6 +77,7 @@ public class Server implements ServerController {
                 logger.warn("Connection-socket", e);
             }
         }
+        System.out.println("остановился");
     }
 
     /**
@@ -82,6 +85,17 @@ public class Server implements ServerController {
      * @param args args
      */
     public static void main(String[] args) {
+            while (true) {
+                System.out.print("Enter port: ");
+                int myPort = consoleInputIndex();
+                if (myPort < 0 || myPort > 65535 || myPort == 8080) {
+                    System.out.println("Wrong Port value");
+                    continue;
+                }
+                instance = new Server(myPort);
+                break;
+            }
+            new Thread(instance::consoleStart).start();
             new Thread(instance).start();
     }
 
@@ -100,7 +114,7 @@ public class Server implements ServerController {
      * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
      */
     private void checkOnline() {
-        while (!Thread.interrupted()) {
+        while (checkOnlineWork) {
             Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry<String, Connection> entry = entries.next();
@@ -138,7 +152,7 @@ public class Server implements ServerController {
      * The method for Admin Console Configuration - run() in Thread
      */
     private void consoleStart() {
-        while (true) {
+        while (consoleWork) {
             consoleMenu();
         }
     }
@@ -148,8 +162,14 @@ public class Server implements ServerController {
      * @see Server#consoleChangeUser(String)
      */
     private void consoleMenu() {
-        int count = 4;
-        System.out.println("0 --- STOP SERVER");
+        int count = 13;
+        System.out.println("0 --- EXIT APP");
+        if(serverWork) {
+            System.out.println("10 --- STOP SERVER");
+            System.out.println("12 --- OVERLOAD SERVER");
+        } else {
+            System.out.println("11 --- START SERVER");
+        }
         System.out.println("1 --- get all users");
         System.out.println("2 --- get online users");
         System.out.println("3 --- get ban users");
@@ -169,17 +189,9 @@ public class Server implements ServerController {
             case 0:
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if(consoleInputIndex() == 1){
-                    Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
-                    while (entries.hasNext()) {
-                        Map.Entry<String, Connection> entry = entries.next();
-                        ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
-
-                        if (entries.hasNext()) {
-                            entries.next();
-                        }
-                        entries.remove();
+                    if(serverWork==true) {
+                        stop();
                     }
-                    ModelImpl.getInstance().save();
                     System.exit(0);
                 }
                 break;
@@ -204,6 +216,33 @@ public class Server implements ServerController {
                     if (!ModelImpl.getInstance().isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
+                break;
+            case 10:
+                if(serverWork==false){
+                    System.out.println("server is stopped");
+                    return;
+                }
+                System.out.print("Are you sure to stop server? Enter 1: ");
+                if(consoleInputIndex() == 1){
+                    stop();
+                }
+                break;
+            case 11:
+                if(serverWork == true) {
+                    System.out.println("Server started");
+                } else {
+                    instance = new Server(port);
+                    serverWork = true;
+                }
+                break;
+            case 12:
+                if(serverWork == false) {
+                    System.out.println("Server is stopped");
+                    return;
+                }
+                stop();
+                instance = new Server(port);
+                serverWork = true;
                 break;
             default:
                     System.out.println("smth wrong");
@@ -299,7 +338,7 @@ public class Server implements ServerController {
      * @return int value that user entered, -1 - if user entered smth wrong
      */
     private static int consoleInputIndex() {
-        System.out.println("Enter your choise:");
+        System.out.print("Enter your choise:");
         Scanner sc = new Scanner(System.in);
         int  n;
         try {
@@ -309,4 +348,24 @@ public class Server implements ServerController {
         }
         return n;
     }
+
+    /**
+     * To stop current SERVER and all connections
+     */
+    private void stop() {
+        //Дописать что именно рассылать пользователями при остановке сервера(кооперация с клиентом)
+        Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry<String, Connection> entry = entries.next();
+            ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+            entry.getValue().stopConnection();
+            if (entries.hasNext()) {
+                entries.next();
+            }
+            entries.remove();
+        }
+        ModelImpl.getInstance().save();
+        serverWork = false;
+    }
+
 }

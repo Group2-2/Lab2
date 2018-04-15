@@ -91,6 +91,12 @@ public class Connection implements Runnable {
     }
 
     /**
+     * stops current connection
+     */
+    public void stopConnection() {
+        isWork = false;
+    }
+    /**
      * check login and register, check chat_id for newMessage and chatConfiguration
      * @param command
      * @return login if user login or register
