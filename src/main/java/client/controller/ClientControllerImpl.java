@@ -196,15 +196,6 @@ public class ClientControllerImpl implements ClientController {
                 String type = element.getAttribute("type");
 
                 switch (type) {
-                    case "all_users": {
-                        break;
-                    }
-                    case "сhats": {
-                        break;
-                    }
-                    case "get_messages": {
-                        break;
-                    }
                     case "setOnlineStatus": {
                         String login = element.getAttribute("user");
                         boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
