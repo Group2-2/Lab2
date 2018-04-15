@@ -1,5 +1,6 @@
 package controller;
 
+<<<<<<< HEAD:client/src/main/java/controller/ClientControllerImpl.java
 import view.*;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -18,6 +19,27 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+=======
+        import client.view.*;
+        import org.apache.log4j.Logger;
+        import org.w3c.dom.Document;
+        import org.w3c.dom.Element;
+        import org.w3c.dom.Node;
+        import org.w3c.dom.NodeList;
+        import org.xml.sax.InputSource;
+        import org.xml.sax.SAXException;
+
+        import javax.swing.*;
+        import javax.xml.parsers.DocumentBuilder;
+        import javax.xml.parsers.DocumentBuilderFactory;
+        import javax.xml.parsers.ParserConfigurationException;
+        import java.io.*;
+        import java.net.Socket;
+        import java.net.UnknownHostException;
+        import java.util.ArrayList;
+        import java.util.LinkedHashMap;
+        import java.util.List;
+>>>>>>> origin/newStructureBranch:src/main/java/client/controller/ClientControllerImpl.java
 
 public class ClientControllerImpl implements ClientController {
     private static final Logger logger = Logger.getLogger(ClientControllerImpl.class);
@@ -28,7 +50,7 @@ public class ClientControllerImpl implements ClientController {
     private ArrayList<String> chatsListInForm = new ArrayList<>();
     private BufferedReader in;
     private PrintWriter out;
-    private List<String> banUsers;
+    private ArrayList<String> banUsers = new ArrayList<>();
     private String currentUser;
     private boolean isAdmin;
     private boolean isBanned;
@@ -46,13 +68,13 @@ public class ClientControllerImpl implements ClientController {
      * @throws IOException
      * @throws SAXException
      */
-    public static void main(String[] args) throws IOException, SAXException {
+    public static void main(String[] args) {
         ClientControllerImpl client = new ClientControllerImpl();
         client.run();
     }
 
     /**
-     *Start new chat application
+     * Start new chat application
      */
     public void run() {
         isConnected = connectServer();
@@ -107,18 +129,14 @@ public class ClientControllerImpl implements ClientController {
 
             if (isAdmin()) {
                 generalChatView = new AdminView(this);
+                generalChatView.setTitle(getCurrentUser().concat(": ADMIN_General chat"));
             } else {
-                generalChatView = new GeneralChatView(this, "Main chat");
+                generalChatView = new GeneralChatView(this, getCurrentUser().concat(": Main chat"));
                 generalChatView.blockBanedUser(isBanned);
             }
 
-            thread = new Thread(new ReadMessage(in, this));
-            thread.start();
+            readInputStream();
 
-            while (isConnected) {
-
-            }
-            thread.interrupt();
             try {
                 in.close();
                 out.close();
@@ -132,6 +150,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * get in out streams
+     *
      * @return boolean successful connected
      */
     public boolean connectServer() {
@@ -148,6 +167,102 @@ public class ClientControllerImpl implements ClientController {
             return false;
         }
         return true;
+    }
+
+
+    /**
+     * start reading input stream massages
+     */
+    public void readInputStream() {
+        boolean varGetOnlineUsers = false;
+        boolean varSendOnlines = false;
+        boolean varLoadMessages = false;
+        boolean varSetChatList = false;
+        try {
+            getOnlineUsers();
+            while (isConnected) {
+                if (varGetOnlineUsers && !varLoadMessages) {
+                    getMassagesInChat(mainChatID);
+                }
+                if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
+                    sendOnline("true");
+                    varSendOnlines = true;
+                }
+                if (varGetOnlineUsers && varLoadMessages && varSendOnlines && !varSetChatList) {
+                    getChatsList();
+                }
+                String line = in.readLine();
+                System.out.println("Get in line " + line);
+                if (line.equals("</messages>") || line.equals("<messages/>")) {
+                    line = in.readLine();
+                    varLoadMessages = true;
+                }
+                Document document = getXML(line);
+                NodeList nodes = document.getElementsByTagName("command");
+                Element element = (Element) nodes.item(0);
+                if (element == null) {
+                    if (document.getDocumentElement().getNodeName().equals("users")) {
+                        setOnlineUsers(line);
+                        varGetOnlineUsers = true;
+                    }
+                    if (document.getDocumentElement().getNodeName().equals("messages")) {
+                        setAllMassages(line);
+                        varLoadMessages = true;
+                    }
+                    if (document.getDocumentElement().getNodeName().equals("chats")) {
+                        setChats(line);
+                        varSetChatList = true;
+                    }
+                    continue;
+                }
+                String type = element.getAttribute("type");
+
+                switch (type) {
+                    case "setOnlineStatus": {
+                        String login = element.getAttribute("user");
+                        boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
+                        changeOnlineUsers(login, online);
+                        break;
+                    }
+                    case "ban": {
+                        String login = element.getAttribute("user");
+                        banUserConfirm(login);
+                        break;
+                    }
+                    case "unban": {
+                        String login = element.getAttribute("user");
+                        unBanUserConfirm(login);
+                        break;
+                    }
+                    case "newChatID": {
+                        String chat_id = element.getAttribute("chat_id");
+                        String login = element.getAttribute("user");
+                        openPrivateChat(login, chat_id);
+                        break;
+                    }
+                    case "addToChat": {
+                        String chat_id = element.getAttribute("chat_id");
+                        String login = element.getAttribute("login");
+                        openPrivateChat(login, chat_id);
+                        break;
+                    }
+                    case "addMessage": {
+                        String sender = element.getAttribute("sender");
+                        String chat_id = element.getAttribute("chat_id");
+                        String text = element.getAttribute("text");
+                        getMessages(chat_id, text, sender);
+                        break;
+                    }
+                    case "isInBan": {
+                        String login = element.getAttribute("user");
+                        break;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.info("Ошибка при получении сообщения!");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -170,12 +285,17 @@ public class ClientControllerImpl implements ClientController {
             generalChatView.setPrivateChatsList(chatsListInForm);
         }
         if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chat_id))) {
-            PrivateChatView privateChatView = new PrivateChatView(this);
-            privateChatView.setChat_id(chat_id);
-           // sendMessage("@ Join chat", chat_id);
-            getMassagesInChat(chat_id);
-            privateChatsList.put(chat_id, privateChatView);
-            privateChatView.setPrivateChatsList(chatsListInForm);
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            int dialogResult = JOptionPane.showConfirmDialog(null, "Open private chat window?", "Join private chat", dialogButton);
+            if(dialogResult == 0) {
+                PrivateChatView privateChatView = new PrivateChatView(this);
+                privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
+                privateChatView.setChat_id(chat_id);
+                getMassagesInChat(chat_id);
+                privateChatsList.put(chat_id, privateChatView);
+                privateChatView.setPrivateChatsList(chatsListInForm);
+            } else {
+            }
         }
         return true;
     }
@@ -204,6 +324,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * close private chat window
+     *
      * @param chat_id
      */
     public void leavePrivateChat(String chat_id) {
@@ -215,6 +336,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * print input massage into wright window
+     *
      * @param chat_id
      * @param text
      * @param sender
@@ -231,30 +353,43 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * input stream user is banned
+     *
      * @param login
      */
     private void banUserConfirm(String login) {
         if (login.equals(getCurrentUser())) {
+            JOptionPane.showMessageDialog(null, "Admine has banned you");
             isBanned = true;
             generalChatView.blockBanedUser(isBanned);
         }
-        sendMessage("@ADMIN has banned ".concat(login), mainChatID);
+        if (isAdmin()) {
+            if (!banUsers.contains(login)) banUsers.add(login);
+            generalChatView.setBannedList(banUsers);
+            sendMessage("@ADMIN has banned ".concat(login), mainChatID);
+        }
     }
 
     /**
      * input stream user is unbanned
+     *
      * @param login
      */
     private void unBanUserConfirm(String login) {
         if (login.equals(getCurrentUser())) {
+            JOptionPane.showMessageDialog(null, "Admine has unbanned you");
             isBanned = false;
             generalChatView.blockBanedUser(isBanned);
         }
-        sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
+        if (isAdmin()) {
+            if (banUsers.contains(login)) banUsers.remove(login);
+            adminView.setBannedList(banUsers);
+            sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
+        }
     }
 
     /**
      * getter current user login
+     *
      * @return currentUser
      */
     public String getCurrentUser() {
@@ -263,6 +398,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * set current user login
+     *
      * @param currentUser
      */
     public void setCurrentUser(String currentUser) {
@@ -292,6 +428,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare massage for output stream
+     *
      * @param message
      * @param chatID
      * @return success
@@ -304,6 +441,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command register new user
+     *
      * @param login
      * @param nickName
      * @param password
@@ -318,6 +456,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command user is online
+     *
      * @param isOnline
      */
     public void sendOnline(String isOnline) {
@@ -337,6 +476,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command check user login-password
+     *
      * @param login
      * @param password
      * @return
@@ -350,6 +490,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command generate new chat ID
+     *
      * @return
      */
     public boolean createPrivateChat() {
@@ -360,6 +501,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command add user to private chat window
+     *
      * @param login
      * @param chat_id
      */
@@ -371,6 +513,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command banned user
+     *
      * @param banedUser
      * @return command is sent
      */
@@ -382,6 +525,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command unbanned user
+     *
      * @param unBanUser
      * @return command is sent
      */
@@ -393,6 +537,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * prepare command get chats
+     *
      * @return command is sent
      */
     public boolean getChatList() {
@@ -420,6 +565,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * sent massage/command to output stream
+     *
      * @param xmlText
      * @return command is sent
      */
@@ -439,6 +585,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * parse input xml and set online users to frames
+     *
      * @param line
      */
     public void setOnlineUsers(String line) {
@@ -459,6 +606,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * parse input xml and set private chats
+     *
      * @param line
      */
     public void setChats(String line) {
@@ -482,6 +630,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * parse input xml and set massages
+     *
      * @param line
      */
     public void setAllMassages(String line) {
@@ -502,6 +651,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * add/remove user from online list
+     *
      * @param login
      * @param online
      */
@@ -518,6 +668,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * open window to chose users to add
+     *
      * @param chat_id
      */
     public void addToPrivateChatSelect(String chat_id) {
@@ -526,6 +677,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * open window to chose user to unban
+     *
      * @param chat_id
      */
     public void unBanUserSelect(String chat_id) {
@@ -534,6 +686,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * open window to chose user to ban
+     *
      * @param chat_id
      */
     public void banUserSelect(String chat_id) {
@@ -542,6 +695,7 @@ public class ClientControllerImpl implements ClientController {
 
     /**
      * parse string with XML
+     *
      * @param value
      * @return document XML
      */
@@ -559,130 +713,6 @@ public class ClientControllerImpl implements ClientController {
         }
         return document;
     }
-
-    /**
-     * thread to read input stream
-     */
-    private class ReadMessage implements Runnable {
-        BufferedReader in;
-        private ClientControllerImpl controller;
-
-        /**
-         * @param in
-         * @param controller
-         */
-        public ReadMessage(BufferedReader in, ClientControllerImpl controller) {
-            this.in = in;
-            this.controller = controller;
-        }
-
-        /**
-         * start reading in stream
-         */
-        public void run() {
-            boolean varGetOnlineUsers = false;
-            boolean varSendOnlines = false;
-            boolean varLoadMessages = false;
-            boolean varSetChatList = false;
-            try {
-                getOnlineUsers();
-                while (isConnected) {
-                    if (varGetOnlineUsers && !varLoadMessages) {
-                        getMassagesInChat(mainChatID);
-                        //varLoadMessages = true; //допустим это так, а там поменяете, иначе оно циклиться
-                    }
-                    if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
-                        sendOnline("true");
-                        varSendOnlines = true;
-                    }
-                    if (varGetOnlineUsers && varLoadMessages && varSendOnlines && !varSetChatList) {
-                        getChatsList();
-                    }
-                    String line = in.readLine();
-                    System.out.println("Get in line " + line);
-                   // if (line.equals("<messages>"))   line = in.readLine();
-                    if (line.equals("</messages>") || line.equals("<messages/>"))   {
-                        line = in.readLine();
-                        varLoadMessages = true;
-                    }
-                    Document document = getXML(line);
-                    NodeList nodes = document.getElementsByTagName("command");
-                    Element element = (Element) nodes.item(0);
-                    if (element == null) {
-                        if (document.getDocumentElement().getNodeName().equals("users")) {
-                            setOnlineUsers(line);
-                            varGetOnlineUsers = true;
-                        }
-                        if (document.getDocumentElement().getNodeName().equals("messages")) {
-                            setAllMassages(line);
-                            varLoadMessages = true;
-                        }
-                        if (document.getDocumentElement().getNodeName().equals("chats")) {
-                            setChats(line);
-                            varSetChatList = true;
-                        }
-                        continue;
-                    }
-                    String type = element.getAttribute("type");
-
-                    switch (type) {
-                        case "all_users": {
-                            break;
-                        }
-                        case "сhats": {
-                            break;
-                        }
-                        case "get_messages": {
-                            break;
-                        }
-                        case "setOnlineStatus": {
-                            String login = element.getAttribute("user");
-                            boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
-                            controller.changeOnlineUsers(login, online);
-                            break;
-                        }
-                        case "ban": {
-                            String login = element.getAttribute("user");
-                            controller.banUserConfirm(login);
-                            break;
-                        }
-                        case "unban": {
-                            String login = element.getAttribute("user");
-                            controller.unBanUserConfirm(login);
-                            break;
-                        }
-                        case "newChatID": {
-                            String chat_id = element.getAttribute("chat_id");
-                            String login = element.getAttribute("user");
-                            openPrivateChat(login, chat_id);
-                            break;
-                        }
-                        case "addToChat": {
-                            String chat_id = element.getAttribute("chat_id");
-                            String login = element.getAttribute("login");
-                            openPrivateChat(login, chat_id);
-                            break;
-                        }
-                        case "addMessage": {
-                            String sender = element.getAttribute("sender");
-                            String chat_id = element.getAttribute("chat_id");
-                            String text = element.getAttribute("text");
-                            controller.getMessages(chat_id, text, sender);
-                            break;
-                        }
-                        case "isInBan": {
-                            String login = element.getAttribute("user");
-                            break;
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                logger.info("Ошибка при получении сообщения!");
-                e.printStackTrace();
-            }
-        }
-    }
-
-
 }
+
 
