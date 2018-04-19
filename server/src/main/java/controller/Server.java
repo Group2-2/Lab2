@@ -170,6 +170,7 @@ public class Server implements ServerController {
         } else {
             System.out.println("11 --- START SERVER");
         }
+        System.out.println("13 --- show current PORT");
         System.out.println("1 --- get all users");
         System.out.println("2 --- get online users");
         System.out.println("3 --- get ban users");
@@ -243,6 +244,9 @@ public class Server implements ServerController {
                 stop();
                 instance = new Server(port);
                 serverWork = true;
+                break;
+            case 13:
+                System.out.println("current port: " + instance.getPort() +"\n");
                 break;
             default:
                     System.out.println("smth wrong");
@@ -338,7 +342,7 @@ public class Server implements ServerController {
      * @return int value that user entered, -1 - if user entered smth wrong
      */
     private static int consoleInputIndex() {
-        System.out.print("Enter your choise:");
+        System.out.print("Enter your choise: ");
         Scanner sc = new Scanner(System.in);
         int  n;
         try {
