@@ -62,6 +62,9 @@ public class ClientControllerImpl implements ClientController {
                 String line = null;
                 try {
                     line = in.readLine();
+                    if(line.contains("<test></test>")) {
+                        continue;
+                    }
                     Document document = getXML(line);
                     NodeList nodes = document.getElementsByTagName("command");
                     Element element = (Element) nodes.item(0);
