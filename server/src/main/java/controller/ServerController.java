@@ -31,4 +31,7 @@ public interface ServerController extends Runnable {
      * @param current user, that sent mess, to avoid duplicates
      */
     void sendToChat(Long chatId, String text, Connection current);
+
+    @Override
+    void run();
 }
