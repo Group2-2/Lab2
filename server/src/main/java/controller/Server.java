@@ -139,7 +139,9 @@ public class Server implements ServerController {
         while (entries.hasNext()) {
             Map.Entry<String, Connection> entry = entries.next();
             if (conn == entry.getValue()) {
-                ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                if(ModelImpl.getInstance().existUser(entry.getKey())) {
+                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                }
                 if (entries.hasNext()) {
                     entries.next();
                 }
