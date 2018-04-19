@@ -142,4 +142,7 @@ public interface Model {
      * @param login login of user
      */
     void  deleteUser(String login);
+
+    boolean existUser(String login);
+
 }

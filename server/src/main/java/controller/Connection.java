@@ -112,6 +112,10 @@ public class Connection implements Runnable {
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
                 break;
             case "registration":
+                if(!ModelImpl.getInstance().existUser(element.getAttribute("login"))){
+                    return element.getAttribute("login");
+                }
+                break;
             case "login" :
                 return element.getAttribute("login");
             case "addMessage":

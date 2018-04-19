@@ -214,6 +214,11 @@ public class ModelImpl implements Model {
         user.getChats().forEach(chat -> chats.get(chat).remove(login));
     }
 
+    @Override
+    public boolean existUser(String login) {
+        return false;
+    }
+
     private User findByLogin(String login) {
         User user = null;
         for (User person: listUsers) {
