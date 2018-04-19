@@ -39,19 +39,19 @@ public class Connection implements Runnable {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
-                System.out.println(message);
                 if (message == null){
                     isWork = false;
                     Server.getInstance().deleteUser(this);
                 }
                 if (message != null && !message.equals("")) {
-                    String response = XmlConfiguration.getInstance().configuration(message);
 
                     String login = checkNewUser(message);
                     if (!login.equals("")){
                         Server.getInstance().setUser(login, this);
                 //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
+                    String response = XmlConfiguration.getInstance().configuration(message);
+                    System.out.println(message);
                     send(response);
                 }
             } catch (IOException e) {
@@ -110,7 +110,7 @@ public class Connection implements Runnable {
             case "ban":
             case "unban":
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
-                return "";
+                break;
             case "registration":
             case "login" :
                 return element.getAttribute("login");
@@ -118,15 +118,16 @@ public class Connection implements Runnable {
             case "addToChat":
                 long id = Long.parseLong(element.getAttribute("chat_id"));
                 Server.getInstance().sendToChat(id,command, this);
-                return "";
+                break;
             case "setOnlineStatus":
                 boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
                 ModelImpl.getInstance().setOnlineStatus(element.getAttribute("user"), isOnline);
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
             case "newChatID":/*дальше по имплементации*/
             default :
-                return "";
+                break;
         }
+        return "";
     }
 }
 
