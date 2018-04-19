@@ -216,7 +216,7 @@ public class ModelImpl implements Model {
 
     @Override
     public boolean existUser(String login) {
-        return false;
+        return findByLogin(login) != null;
     }
 
     private User findByLogin(String login) {

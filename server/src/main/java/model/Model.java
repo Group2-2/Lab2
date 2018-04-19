@@ -143,6 +143,11 @@ public interface Model {
      */
     void  deleteUser(String login);
 
+    /**
+     * Method for check exist of user
+     * @param login login of user
+     * @return if user exist return true else false
+     */
     boolean existUser(String login);
 
 }
