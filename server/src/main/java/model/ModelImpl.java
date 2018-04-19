@@ -108,7 +108,7 @@ public class ModelImpl implements Model {
     @Override
     public boolean login(User user) {
         for (User person: listUsers) {
-            if (person.equals(user))
+            if (person.equals(user) && user.getPassword().equals(person.getPassword()))
                 return true;
         }
         return false;

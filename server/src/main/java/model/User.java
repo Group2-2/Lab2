@@ -101,6 +101,10 @@ public class User implements Serializable {
         this.admin = admin;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     @Override
     public int hashCode() {
 
