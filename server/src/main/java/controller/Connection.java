@@ -27,7 +27,6 @@ public class Connection implements Runnable {
         this.socket = socket;
         try {
             writer = new PrintWriter(socket.getOutputStream(), true);
-            //writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (IOException e) {
             logger.warn("connectionNewInstanse", e);
         }
@@ -52,6 +51,9 @@ public class Connection implements Runnable {
                     }
                     String response = XmlConfiguration.getInstance().configuration(message);
                     System.out.println(message);
+                    if(response.contains("NOTACCEPTED")) {
+                        Server.getInstance().deleteUser(this);
+                    }
                     send(response);
                 }
             } catch (IOException e) {
@@ -85,7 +87,7 @@ public class Connection implements Runnable {
                 send("<test></test>");
                 return true;
             } catch (Exception e) {
-               isWork = false;
+                stopConnection();
                return false;
             }
     }
