@@ -1,5 +1,6 @@
 package controller;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,8 +84,19 @@ public class Connection implements Runnable {
      * @return false if connection crushed and stopped the thread
      */
     public boolean checkConnection() {
-            try {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
                 send("<test></test>");
+                String message = reader.readLine(); //just try
+                if (message == null){
+                    isWork = false;
+                    Server.getInstance().deleteUser(this);
+                }
                 return true;
             } catch (Exception e) {
                 stopConnection();
@@ -134,6 +146,110 @@ public class Connection implements Runnable {
                 break;
         }
         return "";
+    }
+    public String configuration(String command) {
+        String type = ModelImpl.getInstance().getTypeOfTheCommand(command);
+        switch (type) {
+            case "all_users": {
+                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getListUsers());
+            }
+            case "online_users": {
+                return  XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getOnlineListUsers());
+            }
+            case "chats": {
+                String login = ModelImpl.getInstance().getSender(command);
+                return XmlConfiguration.getInstance().getChats(login);
+            }
+            case "get_messages": {
+                long id = ModelImpl.getInstance().getChatId(command);
+                return XmlConfiguration.getInstance().getMessages(id);
+            }
+            case "get_chat_users": {
+                long id = ModelImpl.getInstance().getChatId(command);
+                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getChatUsers(id));
+            }
+            case "ban":
+            case "unban":
+            {
+                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                if(type.equals("ban")) {
+                    ModelImpl.getInstance().ban(login);
+                }else{
+                    ModelImpl.getInstance().unban(login);
+                }
+                return ModelImpl.getInstance().result(type, login, true);
+            }
+            case "login" : {
+                String login = ModelImpl.getInstance().getLogin(command);
+                String password = ModelImpl.getInstance().getPass(command);
+                if(ModelImpl.getInstance().login(new User(login, password, ""))){
+                    String name = ModelImpl.getInstance().getUserName(login);
+                    return ModelImpl.getInstance().resultForLoginRegister(type,name, ModelImpl.getInstance().isAdmin(login), ModelImpl.getInstance().isInBan(login), true);
+                } else {
+                    return ModelImpl.getInstance().resultForLoginRegister(type, null,false,false,false);
+
+                }
+            }
+            case "registration": {
+                String login = ModelImpl.getInstance().getLogin(command);
+                String password = ModelImpl.getInstance().getPass(command);
+                String name = ModelImpl.getInstance().getNameCommand(command);
+                if(!ModelImpl.getInstance().register(new User(login, password, name))) {
+                    return "<command type=\"registration\" result =\"NOTACCEPTED\" />";
+                } else {
+                    return String.format("<command type=\"registration\" name=\"%s\" result=\"ACCEPTED\" />", name);
+                }
+            }
+            case "newChatID": {
+                String login = ModelImpl.getInstance().getSender(command);
+                long id = ModelImpl.getInstance().createChat();
+                ModelImpl.getInstance().addToChat(login, id);
+                return String.format("<command type=\"newChatID\" chat_id=\"%s\" user = \"%s\" />", id, login);
+            }
+            case "addToChat": {
+                String login = ModelImpl.getInstance().getLogin(command);
+                long id = ModelImpl.getInstance().getChatId(command);
+                ModelImpl.getInstance().addToChat(login, id);
+                return command;
+            }
+            case "addMessage": {
+                String login = ModelImpl.getInstance().getSender(command);
+                long id = ModelImpl.getInstance().getChatId(command);
+                String text = ModelImpl.getInstance().getTextAttr(command);
+                ModelImpl.getInstance().addMessage(id, new Message(login, text));
+                return command;
+            }
+            case "setOnlineStatus": {
+                boolean online = ModelImpl.getInstance().getOnlineStatus(command);
+                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                ModelImpl.getInstance().setOnlineStatus(login, online);
+                return command;
+            }
+            case "createAdmin": {
+                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                ModelImpl.getInstance().createAdmin(login);
+                return command;
+            }
+            case "deleteAdmin": {
+                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                ModelImpl.getInstance().deleteAdmin(login);
+                return command;
+            }
+            case "isInBan": {
+                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                ModelImpl.getInstance().deleteAdmin(login);
+                return String.format("<command type=\"isInBan\" isInBan=\"%s\" />", ModelImpl.getInstance().isInBan(login)) ;
+            }
+            case "getUserName": {
+                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                return String.format("<command type=\"getUserName\" name=\"%s\" />", ModelImpl.getInstance().getUserName(login)) ;
+            }
+            default: {
+                logger.warn("Command not found " + command);
+                return command;
+            }
+
+        }
     }
 }
 

@@ -134,6 +134,9 @@ public class Server implements ServerController {
             }
         }
     }
+
+
+
     public void deleteUser(Connection conn){
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
         while (entries.hasNext()) {

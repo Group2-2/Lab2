@@ -144,7 +144,7 @@ public class XmlConfiguration {
         }
     }
 
-    private static String getMessages(long id) {
+    public static String getMessages(long id) {
         XStream xstream = new XStream();
         xstream.alias("message", Message.class);
         xstream.useAttributeFor(Message.class, "sender");
@@ -159,7 +159,7 @@ public class XmlConfiguration {
         return s;
     }
 
-    private static String getChats(String login) {
+    public static String getChats(String login) {
         XStream xstream = new XStream();
         xstream.alias("chats", List.class);
         xstream.alias("chat", Long.class);
@@ -167,7 +167,7 @@ public class XmlConfiguration {
         return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
-    private static String listUserToXml(List<String> list) {
+    public static String listUserToXml(List<String> list) {
         XStream xstream = new XStream();
         xstream.alias("users", List.class);
         xstream.alias("user", String.class);
