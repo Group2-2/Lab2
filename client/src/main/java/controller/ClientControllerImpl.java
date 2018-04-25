@@ -307,7 +307,6 @@ public class ClientControllerImpl implements ClientController {
             isConnected = false;
             in.close();
             out.close();
-            thread.interrupt();
         } catch (Exception e) {
             logger.error("Chat exit failed! ", e);
         }
