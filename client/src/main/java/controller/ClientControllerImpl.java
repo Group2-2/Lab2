@@ -13,6 +13,11 @@ import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -21,8 +26,8 @@ import java.util.LinkedHashMap;
 
 public class ClientControllerImpl implements ClientController {
     private static final Logger logger = Logger.getLogger(ClientControllerImpl.class);
-    private int PORT = 12345;
-    private String serverAddress = "localhost";
+    private int PORT;
+    private String serverAddress;
     private Socket socket;
     private ArrayList<String> onlineUsers = new ArrayList<>();
     private ArrayList<String> chatsListInForm = new ArrayList<>();
@@ -39,7 +44,7 @@ public class ClientControllerImpl implements ClientController {
     private RegistrationView registrationView;
     private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
     private static String mainChatID = "0";
-    private Thread thread;
+    private static final String configPath = "configConection.xml";
 
     /**
      * @param args
@@ -125,7 +130,7 @@ public class ClientControllerImpl implements ClientController {
                 logger.info("Потоки не были закрыты!");
             }
         } else {
-            JOptionPane.showMessageDialog(null, "Server not found!");
+            JOptionPane.showMessageDialog(null, "Server not found! Connection settings in file: "+configPath);
         }
     }
 
@@ -136,7 +141,12 @@ public class ClientControllerImpl implements ClientController {
      */
     public boolean connectServer() {
         try {
-            socket = new Socket(serverAddress, PORT);
+           if (!readConfig()){
+               JOptionPane.showMessageDialog(null, "Delete file or change settings in file: "+configPath);
+               logger.error("File with connection config cannot read!");
+               return false;
+           };
+            socket = new Socket(getServerAddress(), getPORT());
             logger.info("Connected: " + socket);
             in = new BufferedReader(new InputStreamReader(
                     socket.getInputStream()));
@@ -693,6 +703,112 @@ public class ClientControllerImpl implements ClientController {
             e.printStackTrace();
         }
         return document;
+    }
+
+    /**
+     * getter PORT
+     *
+     * @return int PORT
+     */
+    public int getPORT() {
+        return PORT;
+    }
+
+    /**
+     * set PORT
+     *
+     * @param PORT
+     */
+    public void setPORT(int PORT) {
+        this.PORT = PORT;
+    }
+
+    /**
+     * getter serverAddress
+     *
+     * @return String serverAddress
+     */
+    public String getServerAddress() {
+        return serverAddress;
+    }
+
+    /**
+     * set serverAddress
+     *
+     * @param serverAddress
+     */
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
+
+    /**
+     * read port and server address from xml file or create new file
+     *
+     * @return read config file successfully
+     */
+    private boolean readConfig() {
+        String varPORT = "12345";
+        String varServerAddress = "localhost";
+        boolean readSuccess = false;
+        try {
+            if (new File(configPath).exists()) {
+                File file = new File(configPath);
+                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(file);
+                document.getDocumentElement().normalize();
+                NodeList config = document.getElementsByTagName("config");
+                for (int i = 0; i < config.getLength(); i++) {
+                    Node node = config.item(i);
+                    if (node.getNodeName().equals("config")) {
+                        Element element = (Element) node;
+                        varPORT = element.getElementsByTagName("PORT").item(0).getTextContent();
+                        varServerAddress = element.getElementsByTagName("serverAddress").item(0).getTextContent();
+
+                        setPORT(Integer.parseInt(varPORT));
+                        setServerAddress(varServerAddress);
+                        logger.info("File with config read without problems!");
+                        readSuccess = true;
+                    }
+                }
+            } else {
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                Document doc = docBuilder.newDocument();
+                Element rootElement = doc.createElement("config");
+                doc.appendChild(rootElement);
+                Element portElement = doc.createElement("PORT");
+                portElement.appendChild(doc.createTextNode(varPORT));
+                rootElement.appendChild(portElement);
+                Element serverAddressElement = doc.createElement("serverAddress");
+                serverAddressElement.appendChild(doc.createTextNode(varServerAddress));
+                rootElement.appendChild(serverAddressElement);
+
+                // write the content into xml file
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(new File(configPath));
+
+                transformer.transform(source, result);
+
+                setPORT(Integer.parseInt(varPORT));
+                setServerAddress(varServerAddress);
+                JOptionPane.showMessageDialog(null, "File with configuration saved! You can change settings in file: "+configPath);
+                logger.info("File with config saved!");
+                readSuccess = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }finally {
+            return readSuccess;
+        }
     }
 }
 
