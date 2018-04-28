@@ -1,5 +1,6 @@
 package model;
 
+import com.thoughtworks.xstream.XStream;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -20,11 +21,13 @@ public class ModelImpl implements Model {
     private static ModelImpl instance = new ModelImpl();
     private final Logger logger = Logger.getLogger(ModelImpl.class);
 
+
     public static ModelImpl getInstance() {
         return instance;
     }
 
     public ModelImpl() {
+
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();
@@ -234,16 +237,20 @@ public class ModelImpl implements Model {
     private static <T> T read(String path) {
         T result = null;
         try {
-            if (new File(path).exists()) {
-                FileInputStream fis = new FileInputStream(path);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                result = (T) ois.readObject();
-                ois.close();
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
+            StringBuilder builder = new StringBuilder();
+            String thisLine = "";
+            while ((thisLine = bufferedReader.readLine()) != null) {
+                builder.append(thisLine).append("\b");
             }
+            XStream xstream = new XStream();
+            xstream.alias("hashtable", Map.class);
+            xstream.alias("entry", Map.Entry.class);
+            xstream.alias("list", List.class);
+            xstream.alias("chats", List.class);
+            result = (T) xstream.fromXML(builder.toString());
+            bufferedReader.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            result = null;
-        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         return result;
@@ -251,11 +258,9 @@ public class ModelImpl implements Model {
 
     private static void writeObject(Object obj, String path) {
         try {
-            FileOutputStream fos = new FileOutputStream(path);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(obj);
-            oos.close();
-        } catch (IOException e) {
+            XStream xstream = new XStream();
+            xstream.toXML(obj, new PrintWriter(new File(path)));
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }

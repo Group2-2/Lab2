@@ -56,6 +56,7 @@ public class Connection implements Runnable {
                         Server.getInstance().deleteUser(this);
                     }
                     send(response);
+                    ModelImpl.getInstance().save();
                 }
             } catch (IOException e) {
                 logger.warn("readlineEx",e);
