@@ -150,4 +150,5 @@ public interface Model {
      */
     boolean existUser(String login);
 
+
 }

@@ -186,4 +186,47 @@ public class XmlConfiguration {
         }
         return document;
     }
+
+    private static String getValue(String command, String attribute) {
+        Document document = newDocument(command);
+        NodeList nodes = document.getElementsByTagName("command");
+        Element element = (Element) nodes.item(0);
+        return element.getAttribute(attribute);
+    }
+
+    /**
+     * Method for get type of command
+     * @param command command from user
+     * @return type of command
+     */
+    public static String getTypeOfTheCommand(String command) {
+        return getValue(command, "type");
+    }
+
+    /**
+     * Method for get sender of command
+     * @param command command from user
+     * @return sender of command
+     */
+    public String getSender(String command) {
+        return getValue(command, "sender");
+    }
+
+    /**
+     * Method for get chat id of command
+     * @param command command from user
+     * @return chat id of command
+     */
+    public Long getChatId(String command) {
+        return Long.parseLong(getValue(command, "chat_id"));
+    }
+
+    /**
+     * Method for get user of command
+     * @param command command from user
+     * @return user of command
+     */
+    public String getUserFromMessage(String command) {
+        return getValue(command, "user");
+    }
 }
