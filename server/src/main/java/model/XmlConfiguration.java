@@ -284,10 +284,15 @@ public class XmlConfiguration {
      */
     public String command(String command, Map<String, Object> attributes) {
         StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, Object> item: attributes.entrySet()) {
-            String buf = String.format("%s = \"%s\"", item.getKey(), item.getValue());
-            builder.append(buf).append(" ");
+        String value = "";
+        if (attributes != null) {
+            for (Map.Entry<String, Object> item: attributes.entrySet()) {
+                String buf = String.format("%s=\"%s\"", item.getKey(), item.getValue());
+                builder.append(buf).append(" ");
+            }
+            value = builder.toString().trim();
         }
-        return String.format("<command type=\"%s\" %s />", command, builder.toString().trim());
+
+        return String.format("<command type=\"%s\" %s />", command, value);
     }
 }
