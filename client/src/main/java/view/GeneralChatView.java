@@ -24,6 +24,7 @@ public class GeneralChatView extends JFrame {
     protected ClientControllerImpl controller;
     protected JPanel mainPanel;
     protected JButton addNewUserButton;
+    protected JButton editMyPasswordButton;
     protected DefaultListModel listModel;
     protected DefaultListModel listModelChats;
     private String chat_id;
@@ -78,7 +79,7 @@ public class GeneralChatView extends JFrame {
      */
     private void createGUI() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(5, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(6, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.setBorder(BorderFactory.createTitledBorder("Online users"));
         final JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.setBackground(new Color(-2366220));
@@ -97,7 +98,7 @@ public class GeneralChatView extends JFrame {
         onlineUsersList.setLayoutOrientation(1);
         scrollPane2.setViewportView(onlineUsersList);
         newMassegeArea = new JTextArea();
-        mainPanel.add(newMassegeArea, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
+        mainPanel.add(newMassegeArea, new GridConstraints(4, 1, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
         final JScrollPane scrollPane3 = new JScrollPane();
         mainPanel.add(scrollPane3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         privateChatsList = new JList();
@@ -116,8 +117,10 @@ public class GeneralChatView extends JFrame {
         mainPanel.add(openPrivateChatButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sendMessageButton = new JButton();
         sendMessageButton.setText("Send message");
-        mainPanel.add(sendMessageButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-
+        mainPanel.add(sendMessageButton, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        editMyPasswordButton = new JButton();
+        editMyPasswordButton.setText("Edit my password");
+        mainPanel.add(editMyPasswordButton, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         this.add(mainPanel);
         setButtonListeners();
     }
