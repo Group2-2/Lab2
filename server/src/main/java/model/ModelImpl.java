@@ -19,7 +19,7 @@ public class ModelImpl implements Model {
     private List<String> banList;
 
     private static ModelImpl instance = new ModelImpl();
-    private final Logger logger = Logger.getLogger(ModelImpl.class);
+    private final static Logger logger = Logger.getLogger(ModelImpl.class);
 
 
     public static ModelImpl getInstance() {
@@ -265,7 +265,7 @@ public class ModelImpl implements Model {
             result = (T) xstream.fromXML(builder.toString());
             bufferedReader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("File " + path + " not found");
         }
         return result;
     }
