@@ -258,10 +258,25 @@ public class Connection implements Runnable {
                 String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 return String.format("<command type=\"getUserName\" name=\"%s\" />", ModelImpl.getInstance().getUserName(login)) ;
             }
-            default: {
+            case "getBanList":
+                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getBanList());
+            case "deleteUser":
+                String login = XmlConfiguration.getInstance().getLogin(command);
+                map = new HashMap<>();
+                ModelImpl.getInstance().deleteUser(login);
+                map.put("result", "ACCEPTED");
+                return XmlConfiguration.getInstance().command(type, map);
+            case "changePassword":
+                String log = XmlConfiguration.getInstance().getLogin(command);
+                String pass = XmlConfiguration.getInstance().getPassword(command);
+                map = new HashMap<>();
+                map.put("result", "ACCEPTED");
+                ModelImpl.getInstance().changePassword(log,pass);
+                return XmlConfiguration.getInstance().command(type, map);
+            default:
                 logger.warn("Command not found " + command);
                 return command;
-            }
+
 
         }
     }
