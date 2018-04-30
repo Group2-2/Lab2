@@ -21,7 +21,7 @@ public class Connection implements Runnable {
 
     final private Socket socket;
     private PrintWriter writer;
-    /**
+      /**
      * parameter of working this thread, stopped, when it is false
      */
     private boolean isWork = true;
@@ -53,7 +53,7 @@ public class Connection implements Runnable {
 
                 //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
-                    String response = XmlConfiguration.getInstance().configuration(message);
+                    String response = configuration(message);
                     System.out.println(message);
                     if (!login.equals("")){
                         if(response.contains("NOTACCEPTED")) {
@@ -122,7 +122,7 @@ public class Connection implements Runnable {
      * @return login if user login or register
      */
     private String checkNewUser(String command) {
-        Document document = XmlConfiguration.newDocument(command);
+        Document document = XmlConfiguration.getInstance().newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
         Element element = (Element) nodes.item(0);
         String type = element.getAttribute("type");
