@@ -149,7 +149,7 @@ public class Connection implements Runnable {
         return "";
     }
     public String configuration(String command) {
-        String type = ModelImpl.getInstance().getTypeOfTheCommand(command);
+        String type = XmlConfiguration.getInstance().getTypeOfTheCommand(command);
         switch (type) {
             case "all_users": {
                 return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getListUsers());
@@ -158,43 +158,43 @@ public class Connection implements Runnable {
                 return  XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getOnlineListUsers());
             }
             case "chats": {
-                String login = ModelImpl.getInstance().getSender(command);
+                String login = XmlConfiguration.getInstance().getSender(command);
                 return XmlConfiguration.getInstance().getChats(login);
             }
             case "get_messages": {
-                long id = ModelImpl.getInstance().getChatId(command);
+                long id = XmlConfiguration.getInstance().getChatId(command);
                 return XmlConfiguration.getInstance().getMessages(id);
             }
             case "get_chat_users": {
-                long id = ModelImpl.getInstance().getChatId(command);
+                long id = XmlConfiguration.getInstance().getChatId(command);
                 return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getChatUsers(id));
             }
             case "ban":
             case "unban":
             {
-                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 if(type.equals("ban")) {
                     ModelImpl.getInstance().ban(login);
                 }else{
                     ModelImpl.getInstance().unban(login);
                 }
-                return ModelImpl.getInstance().result(type, login, true);
+                return XmlConfiguration.getInstance().result(type, login, true);
             }
             case "login" : {
-                String login = ModelImpl.getInstance().getLogin(command);
-                String password = ModelImpl.getInstance().getPass(command);
+                String login = XmlConfiguration.getInstance().getLogin(command);
+                String password = XmlConfiguration.getInstance().getPass(command);
                 if(ModelImpl.getInstance().login(new User(login, password, ""))){
-                    String name = ModelImpl.getInstance().getUserName(login);
-                    return ModelImpl.getInstance().resultForLoginRegister(type,name, ModelImpl.getInstance().isAdmin(login), ModelImpl.getInstance().isInBan(login), true);
+                    String name = XmlConfiguration.getInstance().getUserName(login);
+                    return XmlConfiguration.getInstance().resultForLoginRegister(type,name, ModelImpl.getInstance().isAdmin(login), ModelImpl.getInstance().isInBan(login), true);
                 } else {
-                    return ModelImpl.getInstance().resultForLoginRegister(type, null,false,false,false);
+                    return XmlConfiguration.getInstance().resultForLoginRegister(type, null,false,false,false);
 
                 }
             }
             case "registration": {
-                String login = ModelImpl.getInstance().getLogin(command);
-                String password = ModelImpl.getInstance().getPass(command);
-                String name = ModelImpl.getInstance().getNameCommand(command);
+                String login = XmlConfiguration.getInstance().getLogin(command);
+                String password = XmlConfiguration.getInstance().getPass(command);
+                String name = XmlConfiguration.getInstance().getNameCommand(command);
                 if(!ModelImpl.getInstance().register(new User(login, password, name))) {
                     return "<command type=\"registration\" result =\"NOTACCEPTED\" />";
                 } else {
@@ -202,47 +202,47 @@ public class Connection implements Runnable {
                 }
             }
             case "newChatID": {
-                String login = ModelImpl.getInstance().getSender(command);
+                String login = XmlConfiguration.getInstance().getSender(command);
                 long id = ModelImpl.getInstance().createChat();
                 ModelImpl.getInstance().addToChat(login, id);
                 return String.format("<command type=\"newChatID\" chat_id=\"%s\" user = \"%s\" />", id, login);
             }
             case "addToChat": {
-                String login = ModelImpl.getInstance().getLogin(command);
-                long id = ModelImpl.getInstance().getChatId(command);
+                String login = XmlConfiguration.getInstance().getLogin(command);
+                long id = XmlConfiguration.getInstance().getChatId(command);
                 ModelImpl.getInstance().addToChat(login, id);
                 return command;
             }
             case "addMessage": {
-                String login = ModelImpl.getInstance().getSender(command);
-                long id = ModelImpl.getInstance().getChatId(command);
-                String text = ModelImpl.getInstance().getTextAttr(command);
+                String login = XmlConfiguration.getInstance().getSender(command);
+                long id = XmlConfiguration.getInstance().getChatId(command);
+                String text = XmlConfiguration.getInstance().getTextAttr(command);
                 ModelImpl.getInstance().addMessage(id, new Message(login, text));
                 return command;
             }
             case "setOnlineStatus": {
-                boolean online = ModelImpl.getInstance().getOnlineStatus(command);
-                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                boolean online = XmlConfiguration.getInstance().getOnlineStatus(command);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 ModelImpl.getInstance().setOnlineStatus(login, online);
                 return command;
             }
             case "createAdmin": {
-                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 ModelImpl.getInstance().createAdmin(login);
                 return command;
             }
             case "deleteAdmin": {
-                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 ModelImpl.getInstance().deleteAdmin(login);
                 return command;
             }
             case "isInBan": {
-                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 ModelImpl.getInstance().deleteAdmin(login);
                 return String.format("<command type=\"isInBan\" isInBan=\"%s\" />", ModelImpl.getInstance().isInBan(login)) ;
             }
             case "getUserName": {
-                String login = ModelImpl.getInstance().getUserFromMessage(command);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 return String.format("<command type=\"getUserName\" name=\"%s\" />", ModelImpl.getInstance().getUserName(login)) ;
             }
             default: {
