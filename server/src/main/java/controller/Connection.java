@@ -195,8 +195,6 @@ public class Connection implements Runnable {
                 map = new HashMap<>();
 
                 if(ModelImpl.getInstance().login(new User(login, password, ""))){
-                    String name = XmlConfiguration.getInstance().getName(login);
-                    map.put("name", name);
                     map.put("isAdmin",ModelImpl.getInstance().isAdmin(login) );
                     map.put("isInBan",  ModelImpl.getInstance().isInBan(login));
                     map.put("result", "ACCEPTED");
