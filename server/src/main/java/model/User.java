@@ -38,6 +38,15 @@ public class User implements Serializable {
     }
 
     /**
+     * Method for set password
+     * @param password new password
+     */
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
      * Get chats what is available for user
      * @return list of chat id's
      */

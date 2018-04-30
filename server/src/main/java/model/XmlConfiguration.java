@@ -278,7 +278,9 @@ public class XmlConfiguration {
 
     /**
      * Method for create response answer
-     *
+     * @param command name of command
+     * @param attributes dictionary of attribute
+     * @return new xml response
      */
     public String command(String command, Map<String, Object> attributes) {
         StringBuilder builder = new StringBuilder();

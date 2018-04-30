@@ -222,6 +222,20 @@ public class ModelImpl implements Model {
         return findByLogin(login) != null;
     }
 
+    @Override
+    public List<String> getBanList() {
+        List<String> list = new ArrayList<>();
+        list.addAll(banList);
+        return list;
+    }
+
+
+    @Override
+    public void changePassword(String login, String password){
+        User user = findByLogin(login);
+        user.setPassword(password);
+    }
+
     private User findByLogin(String login) {
         User user = null;
         for (User person: listUsers) {

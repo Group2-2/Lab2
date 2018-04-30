@@ -151,4 +151,17 @@ public interface Model {
     boolean existUser(String login);
 
 
+    /**
+     * Method for get ban list
+     * @return ban list
+     */
+    List<String> getBanList();
+
+    /**
+     * Method for change password
+     * @param login login of user
+     * @param password new password
+     */
+    void changePassword(String login, String password);
+
 }
