@@ -213,6 +213,7 @@ public class Connection implements Runnable {
                 ModelImpl.getInstance().addToChat(login, id);
                 return command;
             }
+            
             case "addMessage": {
                 String login = XmlConfiguration.getInstance().getSender(command);
                 long id = XmlConfiguration.getInstance().getChatId(command);
