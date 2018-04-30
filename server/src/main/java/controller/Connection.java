@@ -8,6 +8,8 @@ import org.w3c.dom.NodeList;
 import model.*;
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class wraps current connection
@@ -48,12 +50,15 @@ public class Connection implements Runnable {
                     String login = checkNewUser(message);
                     if (!login.equals("")){
                         Server.getInstance().setUser(login, this);
+
                 //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
                     }
                     String response = XmlConfiguration.getInstance().configuration(message);
                     System.out.println(message);
-                    if(response.contains("NOTACCEPTED")) {
-                        Server.getInstance().deleteUser(this);
+                    if (!login.equals("")){
+                        if(response.contains("NOTACCEPTED")) {
+                            Server.getInstance().deleteUser(this);
+                        }
                     }
                     send(response);
                     ModelImpl.getInstance().save();
@@ -149,6 +154,7 @@ public class Connection implements Runnable {
         return "";
     }
     public String configuration(String command) {
+        Map<String, Object> map;
         String type = XmlConfiguration.getInstance().getTypeOfTheCommand(command);
         switch (type) {
             case "all_users": {
@@ -178,18 +184,26 @@ public class Connection implements Runnable {
                 }else{
                     ModelImpl.getInstance().unban(login);
                 }
-                return XmlConfiguration.getInstance().result(type, login, true);
+                map = new HashMap<>();
+                map.put("login", login);
+                map.put("result", "ACCEPTED");
+                return XmlConfiguration.getInstance().command(type,map);
             }
             case "login" : {
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 String password = XmlConfiguration.getInstance().getPassword(command);
+                map = new HashMap<>();
+
                 if(ModelImpl.getInstance().login(new User(login, password, ""))){
                     String name = XmlConfiguration.getInstance().getName(login);
-                    return XmlConfiguration.getInstance().resultForLoginRegister(type,name, ModelImpl.getInstance().isAdmin(login), ModelImpl.getInstance().isInBan(login), true);
+                    map.put("name", name);
+                    map.put("isAdmin",ModelImpl.getInstance().isAdmin(login) );
+                    map.put("isInBan",  ModelImpl.getInstance().isInBan(login));
+                    map.put("result", "ACCEPTED");
                 } else {
-                    return XmlConfiguration.getInstance().resultForLoginRegister(type, null,false,false,false);
-
+                    map.put("result", "NOTACCEPTED");
                 }
+                return XmlConfiguration.getInstance().command(type, map);
             }
             case "registration": {
                 String login = XmlConfiguration.getInstance().getLogin(command);
@@ -213,7 +227,7 @@ public class Connection implements Runnable {
                 ModelImpl.getInstance().addToChat(login, id);
                 return command;
             }
-            
+
             case "addMessage": {
                 String login = XmlConfiguration.getInstance().getSender(command);
                 long id = XmlConfiguration.getInstance().getChatId(command);

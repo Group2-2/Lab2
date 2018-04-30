@@ -103,7 +103,7 @@ public class Server implements ServerController {
     public void sendToChat(Long chatId, String text, Connection current) {
         List list = ModelImpl.getInstance().getChatUsers(chatId);
         users.forEach((login, connection) -> {
-            if(list.contains(login) && connection != current) {
+            if(list.contains(login) && !connection.equals(current)) {
                 connection.send(text);
             }
         } );
@@ -226,6 +226,7 @@ public class Server implements ServerController {
             case 10:
                 if(serverWork==false){
                     System.out.println("server is stopped");
+                    sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("stop", null), null);
                     return;
                 }
                 System.out.print("Are you sure to stop server? Enter 1: ");
@@ -243,6 +244,7 @@ public class Server implements ServerController {
                 break;
             case 12:
                 if(serverWork == false) {
+                    sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("restart", null), null);
                     System.out.println("Server is stopped");
                     return;
                 }
