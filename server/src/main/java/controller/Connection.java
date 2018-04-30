@@ -182,9 +182,9 @@ public class Connection implements Runnable {
             }
             case "login" : {
                 String login = XmlConfiguration.getInstance().getLogin(command);
-                String password = XmlConfiguration.getInstance().getPass(command);
+                String password = XmlConfiguration.getInstance().getPassword(command);
                 if(ModelImpl.getInstance().login(new User(login, password, ""))){
-                    String name = XmlConfiguration.getInstance().getUserName(login);
+                    String name = XmlConfiguration.getInstance().getName(login);
                     return XmlConfiguration.getInstance().resultForLoginRegister(type,name, ModelImpl.getInstance().isAdmin(login), ModelImpl.getInstance().isInBan(login), true);
                 } else {
                     return XmlConfiguration.getInstance().resultForLoginRegister(type, null,false,false,false);
@@ -193,8 +193,8 @@ public class Connection implements Runnable {
             }
             case "registration": {
                 String login = XmlConfiguration.getInstance().getLogin(command);
-                String password = XmlConfiguration.getInstance().getPass(command);
-                String name = XmlConfiguration.getInstance().getNameCommand(command);
+                String password = XmlConfiguration.getInstance().getPassword(command);
+                String name = XmlConfiguration.getInstance().getName(command);
                 if(!ModelImpl.getInstance().register(new User(login, password, name))) {
                     return "<command type=\"registration\" result =\"NOTACCEPTED\" />";
                 } else {
@@ -217,7 +217,7 @@ public class Connection implements Runnable {
             case "addMessage": {
                 String login = XmlConfiguration.getInstance().getSender(command);
                 long id = XmlConfiguration.getInstance().getChatId(command);
-                String text = XmlConfiguration.getInstance().getTextAttr(command);
+                String text = XmlConfiguration.getInstance().getText(command);
                 ModelImpl.getInstance().addMessage(id, new Message(login, text));
                 return command;
             }

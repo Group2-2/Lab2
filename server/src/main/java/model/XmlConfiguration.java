@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class for parse xml command and configuration server
@@ -228,5 +229,63 @@ public class XmlConfiguration {
      */
     public String getUserFromMessage(String command) {
         return getValue(command, "user");
+    }
+
+    /**
+     * Method for get password of command
+     * @param command command from user
+     * @return password of command
+     */
+    public String getPassword(String command) {
+        return getValue(command, "password");
+    }
+
+    /**
+     * Method for get login of command
+     * @param command command from user
+     * @return login of command
+     */
+    public String getLogin(String command) {
+        return getValue(command, "login");
+    }
+
+    /**
+     * Method for get name of command
+     * @param command command from user
+     * @return name of command
+     */
+    public String getName(String command) {
+        return getValue(command, "name");
+    }
+
+    /**
+     * Method for online status from command
+     * @param command command from user
+     * @return online status from command
+     */
+    public boolean getOnlineStatus(String command) {
+        return Boolean.parseBoolean(getValue(command, "isOnline"));
+    }
+
+    /**
+     * Method for get text from command
+     * @param command command from user
+     * @return text of command
+     */
+    public String getText(String command) {
+        return getValue(command, "text");
+    }
+
+    /**
+     * Method for create response answer
+     *
+     */
+    public String command(String command, Map<String, Object> attributes) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> item: attributes.entrySet()) {
+            String buf = String.format("%s = \"%s\"", item.getKey(), item.getValue());
+            builder.append(buf).append(" ");
+        }
+        return String.format("<command type=\"%s\" %s />", command, builder.toString().trim());
     }
 }
