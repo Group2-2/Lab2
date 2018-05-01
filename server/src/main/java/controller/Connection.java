@@ -46,20 +46,8 @@ public class Connection implements Runnable {
                     Server.getInstance().deleteUser(this);
                 }
                 if (message != null && !message.equals("")) {
-
-                    String login = checkNewUser(message);
-                    if (!login.equals("")){
-                        Server.getInstance().setUser(login, this);
-
-                //        Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().configuration(message),this);
-                    }
                     String response = configuration(message);
                     System.out.println(message);
-                    if (!login.equals("")){
-                        if(response.contains("NOTACCEPTED")) {
-                            Server.getInstance().deleteUser(this);
-                        }
-                    }
                     send(response);
                     ModelImpl.getInstance().save();
                 }
@@ -121,7 +109,7 @@ public class Connection implements Runnable {
      * @param command
      * @return login if user login or register
      */
-    private String checkNewUser(String command) {
+  /*  private String checkNewUser(String command) {
         Document document = XmlConfiguration.getInstance().newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
         Element element = (Element) nodes.item(0);
@@ -153,6 +141,7 @@ public class Connection implements Runnable {
         }
         return "";
     }
+    */
     public String configuration(String command) {
         Map<String, Object> map;
         String type = XmlConfiguration.getInstance().getTypeOfTheCommand(command);
@@ -175,28 +164,33 @@ public class Connection implements Runnable {
                 long id = XmlConfiguration.getInstance().getChatId(command);
                 return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getChatUsers(id), "users");
             }
-            case "ban":
-            case "unban":
-            {
+            case "ban": {
+                Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
                 String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                if(type.equals("ban")) {
-                    ModelImpl.getInstance().ban(login);
-                }else{
-                    ModelImpl.getInstance().unban(login);
-                }
+                ModelImpl.getInstance().ban(login);
                 map = new HashMap<>();
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
-                return XmlConfiguration.getInstance().command(type,map);
+                return XmlConfiguration.getInstance().command(type, map);
+            }
+            case "unban": {
+                Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
+                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
+                ModelImpl.getInstance().unban(login);
+                map = new HashMap<>();
+                map.put("login", login);
+                map.put("result", "ACCEPTED");
+                return XmlConfiguration.getInstance().command(type, map);
             }
             case "login" : {
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 String password = XmlConfiguration.getInstance().getPassword(command);
                 map = new HashMap<>();
-                if(ModelImpl.getInstance().login(new User(login, password, ""))){
-                    map.put("isAdmin",ModelImpl.getInstance().isAdmin(login) );
-                    map.put("isInBan",  ModelImpl.getInstance().isInBan(login));
+                if (ModelImpl.getInstance().login(new User(login, password, ""))) {
+                    map.put("isAdmin", ModelImpl.getInstance().isAdmin(login));
+                    map.put("isInBan", ModelImpl.getInstance().isInBan(login));
                     map.put("result", "ACCEPTED");
+                    Server.getInstance().setUser(login, this);
                 } else {
                     map.put("result", "NOTACCEPTED");
                 }
@@ -210,6 +204,7 @@ public class Connection implements Runnable {
                     map.put("result", "NOTACCEPTED");
                 } else {
                     map.put("result", "ACCEPTED");
+                    Server.getInstance().setUser(login, this);
                 }
                 return XmlConfiguration.getInstance().command(type,map);
             }
@@ -226,6 +221,7 @@ public class Connection implements Runnable {
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 long id = XmlConfiguration.getInstance().getChatId(command);
                 ModelImpl.getInstance().addToChat(login, id);
+                Server.getInstance().sendToChat(id,command, this);
                 return command;
             }
 
@@ -240,6 +236,7 @@ public class Connection implements Runnable {
                 boolean online = XmlConfiguration.getInstance().getOnlineStatus(command);
                 String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 ModelImpl.getInstance().setOnlineStatus(login, online);
+                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
                 return command;
             }
             case "createAdmin": {
@@ -272,7 +269,6 @@ public class Connection implements Runnable {
                 map = new HashMap<>();
                 ModelImpl.getInstance().deleteUser(login);
                 map.put("result", "ACCEPTED");
-                ModelImpl.getInstance().save();
                 return XmlConfiguration.getInstance().command(type, map);
             case "changePassword":
                 String log = XmlConfiguration.getInstance().getLogin(command);
@@ -285,6 +281,7 @@ public class Connection implements Runnable {
                 logger.warn("Command not found " + command);
                 return command;
         }
+
     }
 }
 
