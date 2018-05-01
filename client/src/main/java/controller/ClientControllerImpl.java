@@ -34,6 +34,7 @@ public class ClientControllerImpl implements ClientController {
     private BufferedReader in;
     private PrintWriter out;
     private ArrayList<String> banUsers = new ArrayList<>();
+    private ArrayList<String> allUsers = new ArrayList<>();
     private String currentUser;
     private boolean isAdmin;
     private boolean isBanned;
@@ -45,6 +46,7 @@ public class ClientControllerImpl implements ClientController {
     private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
     private static String mainChatID = "0";
     private static final String configPath = "configConection.xml";
+    private OnlineUsersView allUsersView;
 
     /**
      * @param args
@@ -183,16 +185,24 @@ public class ClientControllerImpl implements ClientController {
                 String line = in.readLine();
                 System.out.println("Get in line " + line);
                 if (line.equals("</messages>") || line.equals("<messages/>")) {
-                    line = in.readLine();
                     varLoadMessages = true;
+                    continue;
                 }
+                if (line.equals("</onlineUsers>") || line.equals("<onlineUsers/>")) {
+                    varGetOnlineUsers = true;
+                    continue;
+                }
+
                 Document document = getXML(line);
                 NodeList nodes = document.getElementsByTagName("command");
                 Element element = (Element) nodes.item(0);
                 if (element == null) {
-                    if (document.getDocumentElement().getNodeName().equals("users")) {
+                    if (document.getDocumentElement().getNodeName().equals("onlineUsers")) {
                         setOnlineUsers(line);
                         varGetOnlineUsers = true;
+                    }
+                    if (document.getDocumentElement().getNodeName().equals("users")) {
+                        setAllUsers(line);
                     }
                     if (document.getDocumentElement().getNodeName().equals("messages")) {
                         setAllMassages(line);
@@ -582,7 +592,7 @@ public class ClientControllerImpl implements ClientController {
      * @param line
      */
     public void setOnlineUsers(String line) {
-        //<users>   <user>qwerty</user> </users>
+        //<online_users>   <user>qwerty</user> </online_users>
         onlineUsers.clear();
         Document document = getXML(line);
         NodeList users = document.getElementsByTagName("user");
@@ -595,6 +605,26 @@ public class ClientControllerImpl implements ClientController {
             }
         }
         generalChatView.setOnlineUsersList(onlineUsers);
+    }
+
+    /**
+     * parse input xml and set all users list
+     *
+     * @param line
+     */
+    public void setAllUsers(String line) {
+        //<users>   <user>qwerty</user> </users>
+        allUsers.clear();
+        Document document = getXML(line);
+        NodeList users = document.getElementsByTagName("user");
+        for (int i = 0; i < users.getLength(); i++) {
+            Node node = users.item(i);
+            if (node.getNodeName().equals("user")) {
+                Element element = (Element) node;
+                String nicknameVar = element.getTextContent();
+                allUsers.add(nicknameVar);
+            }
+        }
     }
 
     /**
@@ -829,7 +859,9 @@ public class ClientControllerImpl implements ClientController {
      * @param chat_id
      */
     public void deleteUserSelect(String chat_id) {
-        OnlineUsersView allUsersView = new OnlineUsersView(this, "Select user to delete", "deleteUser", chat_id);
+        getAllUsers();
+        allUsersView = new OnlineUsersView(this, "Select user to delete", "deleteUser", chat_id);
+        allUsersView.setOnlineUsersList(allUsers);
     }
 
     /**
@@ -870,7 +902,9 @@ public class ClientControllerImpl implements ClientController {
      * @param chat_id
      */
     public void editUserSelect(String chat_id) {
-        OnlineUsersView allUsersView = new OnlineUsersView(this, "Select user to change password", "editUser", chat_id);
+        getAllUsers();
+        allUsersView = new OnlineUsersView(this, "Select user to change password", "editUser", chat_id);
+        allUsersView.setOnlineUsersList(allUsers);
     }
 
 }
