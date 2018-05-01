@@ -19,7 +19,7 @@ public class ModelImpl implements Model {
     private List<String> banList;
 
     private static ModelImpl instance = new ModelImpl();
-    private final static Logger logger = Logger.getLogger(ModelImpl.class);
+    private final Logger logger = Logger.getLogger(ModelImpl.class);
 
 
     public static ModelImpl getInstance() {
@@ -247,7 +247,7 @@ public class ModelImpl implements Model {
         return user;
     }
 
-    private static <T> T read(String path) {
+    private <T> T read(String path) {
         T result = null;
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
@@ -269,7 +269,7 @@ public class ModelImpl implements Model {
         return result;
     }
 
-    private static void writeObject(Object obj, String path) {
+    private void writeObject(Object obj, String path) {
         try {
             XStream xstream = new XStream();
             xstream.toXML(obj, new PrintWriter(new File(path)));
