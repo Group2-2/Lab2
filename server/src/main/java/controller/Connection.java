@@ -11,7 +11,7 @@ import java.util.Map;
  * Class wraps current connection
  * Fully communicates with the user, receives the message and sends back
  */
-public class Connection implements Runnable {
+    class Connection implements Runnable {
 
     private static final Logger logger = Logger.getLogger(Connection.class);
 
@@ -48,15 +48,16 @@ public class Connection implements Runnable {
                     ModelImpl.getInstance().save();
                 }
             } catch (IOException e) {
-                logger.warn("readlineEx",e);
+                stopConnection();
+                logger.warn("readlineEx from user, while thread running",e);
             }
         }
         try {
             socket.close();
         } catch (IOException e) {
-            logger.warn("Close", e);
+            logger.warn("Close in thread", e);
         }
-
+        writer.close();
     }
 
     /**
@@ -75,6 +76,10 @@ public class Connection implements Runnable {
      * @return false if connection crushed and stopped the thread
      */
     public boolean checkConnection() {
+        if (!isWork) {
+            Server.getInstance().deleteUser(this);
+            return true;
+        }
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -84,15 +89,20 @@ public class Connection implements Runnable {
         try {
           send("<test></test>");
           String message = reader.readLine(); //just try
-            if (message == null){
+            if (message == null) {
                 isWork = false;
                 Server.getInstance().deleteUser(this);
             }
             return true;
-        } catch (Exception e) {
+        } catch (NullPointerException | IOException e) {
             stopConnection();
-            return false;
         }
+        try {
+            reader.close();
+        } catch (IOException | NullPointerException e ) {
+            logger.debug(e);
+        }
+        return false;
     }
 
     /**
@@ -101,7 +111,7 @@ public class Connection implements Runnable {
     public void stopConnection() {
         isWork = false;
     }
-    /**
+   /* /**
      * check login and register, check chat_id for newMessage and chatConfiguration
      * @param command - accepted command
      * @return login if user login or register
@@ -145,29 +155,29 @@ public class Connection implements Runnable {
      * manages user profiles, adds connections to the map,
      * sends the necessary commands to the required chats
      * @param command - accepted command
-     * @return
+     * @return string, that sends to user back
      */
     private String configuration(String command) {
         Map<String, Object> map;
-        String type = XmlConfiguration.getInstance().getTypeOfTheCommand(command);
+        String type = XmlConfiguration.getTypeOfTheCommand(command);
         switch (type) {
             case "all_users": {
-                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getListUsers(), "users");
+                return XmlConfiguration.listUserToXml(ModelImpl.getInstance().getListUsers(), "users");
             }
             case "online_users": {
-                return  XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getOnlineListUsers(), "onlineUsers");
+                return  XmlConfiguration.listUserToXml(ModelImpl.getInstance().getOnlineListUsers(), "onlineUsers");
             }
             case "chats": {
                 String login = XmlConfiguration.getInstance().getSender(command);
-                return XmlConfiguration.getInstance().getChats(login);
+                return XmlConfiguration.getChats(login);
             }
             case "get_messages": {
                 long id = XmlConfiguration.getInstance().getChatId(command);
-                return XmlConfiguration.getInstance().getMessages(id);
+                return XmlConfiguration.getMessages(id);
             }
             case "get_chat_users": {
                 long id = XmlConfiguration.getInstance().getChatId(command);
-                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getChatUsers(id), "users");
+                return XmlConfiguration.listUserToXml(ModelImpl.getInstance().getChatUsers(id), "users");
             }
             case "ban": {
                 Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
@@ -268,7 +278,7 @@ public class Connection implements Runnable {
                 return XmlConfiguration.getInstance().command(type,map);
             }
             case "getBanList":
-                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getBanList(), "banList");
+                return XmlConfiguration.listUserToXml(ModelImpl.getInstance().getBanList(), "banList");
             case "deleteUser":
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 map = new HashMap<>();

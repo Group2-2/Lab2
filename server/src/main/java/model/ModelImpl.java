@@ -26,7 +26,7 @@ public class ModelImpl implements Model {
         return instance;
     }
 
-    public ModelImpl() {
+    private ModelImpl() {
 
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
@@ -224,8 +224,7 @@ public class ModelImpl implements Model {
 
     @Override
     public List<String> getBanList() {
-        List<String> list = new ArrayList<>();
-        list.addAll(banList);
+        List<String> list = new ArrayList<>(banList);
         return list;
     }
 
