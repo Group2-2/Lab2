@@ -158,10 +158,10 @@ public class Connection implements Runnable {
         String type = XmlConfiguration.getInstance().getTypeOfTheCommand(command);
         switch (type) {
             case "all_users": {
-                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getListUsers());
+                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getListUsers(), "users");
             }
             case "online_users": {
-                return  XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getOnlineListUsers());
+                return  XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getOnlineListUsers(), "onlineUsers");
             }
             case "chats": {
                 String login = XmlConfiguration.getInstance().getSender(command);
@@ -173,7 +173,7 @@ public class Connection implements Runnable {
             }
             case "get_chat_users": {
                 long id = XmlConfiguration.getInstance().getChatId(command);
-                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getChatUsers(id));
+                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getChatUsers(id), "users");
             }
             case "ban":
             case "unban":
@@ -259,7 +259,7 @@ public class Connection implements Runnable {
                 return String.format("<command type=\"getUserName\" name=\"%s\" />", ModelImpl.getInstance().getUserName(login)) ;
             }
             case "getBanList":
-                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getBanList());
+                return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getBanList(), "banList");
             case "deleteUser":
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 map = new HashMap<>();
