@@ -246,6 +246,13 @@ public class ClientControllerImpl implements ClientController {
                         String login = element.getAttribute("user");
                         break;
                     }
+                    case "deleteUser": {
+                        String result = element.getAttribute("result");
+                        if (result.equals("ACCEPTED")) {
+                            JOptionPane.showMessageDialog(null, "User has been deleted!");
+                        }
+                        break;
+                    }
                 }
             }
         } catch (IOException e) {
@@ -807,6 +814,36 @@ public class ClientControllerImpl implements ClientController {
         }finally {
             return readSuccess;
         }
+    }
+
+    /**
+     * prepare command get all users
+     */
+    public void getAllUsers() {
+        //<command type="online_users"></command>
+        String msg = "<command type=\"all_users\"/>";
+        sendXMLString(msg);
+    }
+
+    /**
+     * open window to chose user to delete
+     *
+     * @param chat_id
+     */
+    public void deleteUserSelect(String chat_id) {
+        OnlineUsersView allUsersView = new OnlineUsersView(this, "Select user to delete", "deleteUser", chat_id);
+    }
+
+    /**
+     * prepare command delete user
+     *
+     * @param deleteUser
+     * @return command is sent
+     */
+    public boolean deleteUser(String deleteUser) {
+        //<command type="deleteUser" login = "***"></command>
+        String msg = String.format("<command type=\"deleteUser\" login = \"%s\"/>", deleteUser);
+        return (sendXMLString(msg));
     }
 }
 
