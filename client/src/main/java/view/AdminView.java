@@ -162,5 +162,12 @@ public class AdminView extends GeneralChatView {
                 controller.unBanUserSelect(getChat_id());
             }
         });
+
+        deleteUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.deleteUserSelect(getChat_id());
+            }
+        });
     }
 }

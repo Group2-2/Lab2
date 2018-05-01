@@ -70,14 +70,7 @@ public class OnlineUsersView extends JFrame {
         selectUsersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String val = onlineUsersList.getSelectedValue().toString();
-                if (command.equals("addToPrivateChat"))
-                    controller.addToPrivateChat(val, getChat_id());
-                if (command.equals("banUser"))
-                    controller.banUser(val);
-                if (command.equals("unBanUser"))
-                    controller.unBanUser(val);
-                closeFrame();
+                doAction();
             }
         });
         cancelButton.addActionListener(new ActionListener() {
@@ -91,20 +84,25 @@ public class OnlineUsersView extends JFrame {
             public void mouseClicked(MouseEvent evt) {
                 JList list = (JList) evt.getSource();
                 if (evt.getClickCount() == 2) {
-                    String val = onlineUsersList.getSelectedValue().toString();
-                    if (command.equals("addToPrivateChat"))
-                        controller.addToPrivateChat(val, getChat_id());
-                    if (command.equals("banUser"))
-                        controller.banUser(val);
-                    closeFrame();
-                    if (command.equals("unBanUser"))
-                        controller.unBanUser(val);
-                    closeFrame();
+                    doAction();
                     // Triple-click detected
                     // int index = list.locationToIndex(evt.getPoint());
                 }
             }
         });
+    }
+
+    public void doAction() {
+        String val = onlineUsersList.getSelectedValue().toString();
+        if (command.equals("addToPrivateChat"))
+            controller.addToPrivateChat(val, getChat_id());
+        if (command.equals("banUser"))
+            controller.banUser(val);
+        if (command.equals("unBanUser"))
+            controller.unBanUser(val);
+        if (command.equals("deleteUser"))
+            controller.deleteUser(val);
+        closeFrame();
     }
 
     public void setOnlineUsersList(ArrayList<String> arrList) {
