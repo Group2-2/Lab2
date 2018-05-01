@@ -77,7 +77,6 @@ public class Server implements ServerController {
                 logger.warn("Connection-socket", e);
             }
         }
-        System.out.println("остановился");
     }
 
     /**
@@ -135,7 +134,10 @@ public class Server implements ServerController {
         }
     }
 
-
+    /**
+     * deletes user from map and set offline status
+     * @param conn link on the connection to user
+     */
 
     public void deleteUser(Connection conn){
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
@@ -364,7 +366,6 @@ public class Server implements ServerController {
      * To stop current SERVER and all connections
      */
     private void stop() {
-        //Дописать что именно рассылать пользователями при остановке сервера(кооперация с клиентом)
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, Connection> entry = entries.next();
@@ -377,5 +378,10 @@ public class Server implements ServerController {
         }
         ModelImpl.getInstance().save();
         serverWork = false;
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            logger.debug(e);
+        }
     }
 }

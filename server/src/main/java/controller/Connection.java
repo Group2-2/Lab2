@@ -48,15 +48,16 @@ public class Connection implements Runnable {
                     ModelImpl.getInstance().save();
                 }
             } catch (IOException e) {
-                logger.warn("readlineEx",e);
+                stopConnection();
+                logger.warn("readlineEx from user, while thread running",e);
             }
         }
         try {
             socket.close();
         } catch (IOException e) {
-            logger.warn("Close", e);
+            logger.warn("Close in thread", e);
         }
-
+        writer.close();
     }
 
     /**
@@ -75,6 +76,10 @@ public class Connection implements Runnable {
      * @return false if connection crushed and stopped the thread
      */
     public boolean checkConnection() {
+        if (isWork == false) {
+            Server.getInstance().deleteUser(this);
+            return true;
+        }
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -84,15 +89,20 @@ public class Connection implements Runnable {
         try {
           send("<test></test>");
           String message = reader.readLine(); //just try
-            if (message == null){
+            if (message == null) {
                 isWork = false;
                 Server.getInstance().deleteUser(this);
             }
             return true;
         } catch (Exception e) {
             stopConnection();
-            return false;
         }
+        try {
+            reader.close();
+        } catch (IOException e) {
+            logger.debug(e);
+        }
+        return false;
     }
 
     /**
