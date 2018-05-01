@@ -38,7 +38,7 @@ import java.util.Map;
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
                 if (message == null){
-                    isWork = false;
+                    stopConnection();
                     Server.getInstance().deleteUser(this);
                 }
                 if (message != null && !message.equals("")) {

@@ -35,6 +35,7 @@ public class Server implements ServerController {
      */
 
     private Server(int port) {
+        ModelImpl.getInstance();
         users = new Hashtable<>();
         this.port = port;
         try {
@@ -117,12 +118,17 @@ public class Server implements ServerController {
             Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry<String, Connection> entry = entries.next();
-                if (!entry.getValue().checkConnection()) {
+                if (entry.getValue().checkConnection()) {
                     ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("user",entry.getKey());
+                    map.put("isOnline", false);
+                    Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().command("setOnlineStatus", map), entry.getValue());
                     if (entries.hasNext()) {
                         entries.next();
+                        entries.remove();
                     }
-                    entries.remove();
                     ModelImpl.getInstance().save();
                 }
             }
@@ -146,6 +152,10 @@ public class Server implements ServerController {
             if (conn == entry.getValue()) {
                 if(ModelImpl.getInstance().existUser(entry.getKey())) {
                     ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("user",entry.getKey());
+                    map.put("isOnline", false);
+                    Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().command("setOnlineStatus", map), entry.getValue());
                 }
                 if (entries.hasNext()) {
                     entries.next();
@@ -371,6 +381,7 @@ public class Server implements ServerController {
             Map.Entry<String, Connection> entry = entries.next();
             ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
             entry.getValue().stopConnection();
+
             if (entries.hasNext()) {
                 entries.next();
             }
