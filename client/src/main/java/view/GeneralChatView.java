@@ -201,6 +201,12 @@ public class GeneralChatView extends JFrame {
                 }
             }
         });
+        editMyPasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.changePassWindow(controller.getCurrentUser());
+            }
+        });
     }
 
     /**

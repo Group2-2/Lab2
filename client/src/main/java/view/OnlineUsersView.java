@@ -102,6 +102,8 @@ public class OnlineUsersView extends JFrame {
             controller.unBanUser(val);
         if (command.equals("deleteUser"))
             controller.deleteUser(val);
+        if (command.equals("editUser"))
+            controller.changePassWindow(val);
         closeFrame();
     }
 

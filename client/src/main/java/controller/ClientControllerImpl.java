@@ -41,7 +41,7 @@ public class ClientControllerImpl implements ClientController {
     private GeneralChatView generalChatView;
     private AdminView adminView;
     private LoginView loginView;
-    private RegistrationView registrationView;
+    private ChangePassView registrationView;
     private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
     private static String mainChatID = "0";
     private static final String configPath = "configConection.xml";
@@ -253,21 +253,19 @@ public class ClientControllerImpl implements ClientController {
                         }
                         break;
                     }
+                    case "changePassword": {
+                        String result = element.getAttribute("result");
+                        if (result.equals("ACCEPTED")) {
+                            JOptionPane.showMessageDialog(null, "Password has been changed!");
+                        }
+                        break;
+                    }
                 }
             }
         } catch (IOException e) {
             logger.info("Ошибка при получении сообщения!");
             e.printStackTrace();
         }
-    }
-
-    /**
-     * @param login
-     * @param password
-     */
-    public void openRegistrationView(String login, String password) {
-        RegistrationView registrationView = new RegistrationView(this);
-        registrationView.setLoginPassword(login, password);
     }
 
     /**
@@ -845,6 +843,36 @@ public class ClientControllerImpl implements ClientController {
         String msg = String.format("<command type=\"deleteUser\" login = \"%s\"/>", deleteUser);
         return (sendXMLString(msg));
     }
+
+    /**
+     * open change password window
+     *
+     */
+    public void changePassWindow(String userLogin) {
+        ChangePassView changePassView = new ChangePassView(this, userLogin);
+    }
+
+    /**
+     * prepare command delete user
+     *
+     * @param login, password
+     * @return command is sent
+     */
+    public void changePassword(String login, String password) {
+        //<command type="deleteUser" login = "***"></command>
+        String msg = String.format("<command type=\"changePassword\" login = \"%1$s\"  password =\"%2$s\" />", login, password);
+        sendXMLString(msg);
+    }
+
+    /**
+     * open window to chose user to edit password
+     *
+     * @param chat_id
+     */
+    public void editUserSelect(String chat_id) {
+        OnlineUsersView allUsersView = new OnlineUsersView(this, "Select user to change password", "editUser", chat_id);
+    }
+
 }
 
 

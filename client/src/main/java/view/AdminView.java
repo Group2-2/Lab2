@@ -17,7 +17,6 @@ public class AdminView extends GeneralChatView {
     private JButton unbanUserButton;
     private JList bannedUsersList;
     private DefaultListModel bannedListModel;
-    private JButton editMyPasswordButton;
     private JButton deleteUserButton;
     private JButton editUserButton;
 
@@ -167,6 +166,13 @@ public class AdminView extends GeneralChatView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.deleteUserSelect(getChat_id());
+            }
+        });
+
+        editUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.editUserSelect(getChat_id());
             }
         });
     }

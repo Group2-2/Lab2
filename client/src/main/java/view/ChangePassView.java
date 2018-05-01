@@ -16,22 +16,27 @@ import java.awt.event.ActionListener;
  * Created by Sviatoslav_H on 23.02.2018.
  */
 
-public class RegistrationView extends JFrame {
+public class ChangePassView extends JFrame {
     private JPanel contentPane;
     private JButton buttonConfirm;
     private JButton buttonCancel;
     private JPasswordField passwordField;
-    private JTextField nickNameField;
     private JTextField loginField;
     private ClientControllerImpl controller;
 
-    public RegistrationView(ClientControllerImpl controller) {
-        super("Register new user");
+    public ChangePassView(ClientControllerImpl controller, String login) {
+        super("Change password");
         this.controller = controller;
         createGUI();
+        setLogin(login);
         setContentPane(contentPane);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
+    }
+
+    private void setLogin(String login) {
+        loginField.setText(login);
+        loginField.setEditable(false);
     }
 
     /**
@@ -58,26 +63,20 @@ public class RegistrationView extends JFrame {
         buttonCancel.setText("Cancel");
         panel2.add(buttonCancel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         passwordField = new JPasswordField();
         passwordField.setText("");
-        panel3.add(passwordField, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        nickNameField = new JTextField();
-        nickNameField.setText("");
-        panel3.add(nickNameField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final JLabel label1 = new JLabel();
-        label1.setText("Password");
-        panel3.add(label1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(passwordField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label2 = new JLabel();
-        label2.setText("Nickname");
+        label2.setText("Login");
         panel3.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
-        label3.setText("Login");
+        label3.setText("New password");
         panel3.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         loginField = new JTextField();
         loginField.setText("");
-        panel3.add(loginField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panel3.add(loginField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
 
         setResizable(false);
         setLocationRelativeTo(null);
@@ -104,9 +103,8 @@ public class RegistrationView extends JFrame {
         buttonConfirm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null
-                        && nickNameField.getText() != null && !nickNameField.getText().trim().equals("")) {
-                    controller.registerNewUser(loginField.getText(), nickNameField.getText(), new String(passwordField.getPassword()));
+                if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null) {
+                    controller.changePassword(loginField.getText(), new String(passwordField.getPassword()));
                     closeFrame();
                 }
             }
@@ -118,8 +116,4 @@ public class RegistrationView extends JFrame {
         this.dispose();
     }
 
-    public void setLoginPassword(String login, String password) {
-        loginField.setText(login);
-        passwordField.setText(password);
-    }
 }
