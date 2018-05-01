@@ -77,8 +77,6 @@ public class ClientControllerImpl implements ClientController {
                     String result = element.getAttribute("result");
                     if (type.equals("login")) {
                         if (result.equals("ACCEPTED")) {
-                            String userName = element.getAttribute("name");
-                            setCurrentUser(userName);
                             boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
                             setAdmin(isAdminString);
                             isBanned = Boolean.parseBoolean(element.getAttribute("isInBan"));
@@ -108,8 +106,8 @@ public class ClientControllerImpl implements ClientController {
                     }
                 }
             }
-          /*  //test
-            String msg = "<command type=\"createAdmin\" user = \"Sviat\"/>";
+            /*//test
+            String msg = "<command type=\"createAdmin\" user = \"admin\"/>";
             sendXMLString(msg);
             //*/
 
@@ -648,7 +646,8 @@ public class ClientControllerImpl implements ClientController {
     public void changeOnlineUsers(String login, boolean online) {
         if (online) {
             if (!onlineUsers.contains(login)) onlineUsers.add(login);
-            if (login.equals(currentUser)) sendMessage("@ Join chat", mainChatID);
+            if (login.equals(currentUser) && !isAdmin()) sendMessage("@ Join chat", mainChatID);
+            if (login.equals(currentUser) && isAdmin()) sendMessage("I AM ADMIN! I am in chat now!", mainChatID);
         } else {
             if (onlineUsers.contains(login)) onlineUsers.remove(login);
             if (login.equals(currentUser)) sendMessage("@ Has left chat", mainChatID);
