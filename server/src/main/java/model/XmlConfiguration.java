@@ -33,7 +33,8 @@ public class XmlConfiguration {
         return instance;
     }
 
-    /**
+
+   /* /**
      * Method for configuration server
      * @param command xml command
      * @return answer from server
@@ -175,7 +176,7 @@ public class XmlConfiguration {
         return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
-    public static Document newDocument(String value){
+    private static Document newDocument(String value){
         Document document = null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();

@@ -18,7 +18,7 @@ import java.util.*;
 public class Server implements ServerController {
     private static final Logger logger = Logger.getLogger(Server.class);
     private ServerSocket serverSocket;
-    private int port;
+    private final int port;
     private boolean checkOnlineWork = true;
     private boolean consoleWork = true;
     private static boolean serverWork = true;
@@ -197,7 +197,7 @@ public class Server implements ServerController {
             case 0:
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if(consoleInputIndex() == 1){
-                    if(serverWork==true) {
+                    if(serverWork) {
                         stop();
                     }
                     System.exit(0);
@@ -226,7 +226,7 @@ public class Server implements ServerController {
                 consoleShowUsers(list1);
                 break;
             case 10:
-                if(serverWork==false){
+                if(!serverWork){
                     System.out.println("server is stopped");
                     sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("stop", null), null);
                     return;
@@ -237,7 +237,7 @@ public class Server implements ServerController {
                 }
                 break;
             case 11:
-                if(serverWork == true) {
+                if(serverWork) {
                     System.out.println("Server started");
                 } else {
                     instance = new Server(port);
@@ -245,7 +245,7 @@ public class Server implements ServerController {
                 }
                 break;
             case 12:
-                if(serverWork == false) {
+                if(!serverWork) {
                     sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("restart", null), null);
                     System.out.println("Server is stopped");
                     return;
