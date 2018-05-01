@@ -349,7 +349,7 @@ public class Server implements ServerController {
      * @return int value that user entered, -1 - if user entered smth wrong
      */
     private static int consoleInputIndex() {
-        System.out.print("Enter your choise: ");
+        System.out.print("Enter your choice: ");
         Scanner sc = new Scanner(System.in);
         int  n;
         try {

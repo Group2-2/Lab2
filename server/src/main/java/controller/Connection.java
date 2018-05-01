@@ -1,10 +1,6 @@
 package controller;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import model.*;
 import java.io.*;
 import java.net.*;
@@ -31,7 +27,7 @@ public class Connection implements Runnable {
         try {
             writer = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
-            logger.warn("connectionNewInstanse", e);
+            logger.warn("connectionNewInstance", e);
         }
     }
 
@@ -65,7 +61,7 @@ public class Connection implements Runnable {
 
     /**
      * send message ro this user
-     * @param message
+     * @param message - sended message
      */
     public void send(String message) {
         writer.flush();
@@ -75,6 +71,7 @@ public class Connection implements Runnable {
     }
 
     /**
+     * Method to check the connection
      * @return false if connection crushed and stopped the thread
      */
     public boolean checkConnection() {
@@ -82,20 +79,20 @@ public class Connection implements Runnable {
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("ex in BufferedReader(new InputStreamReader(socket.getInputStream()))", e);
         }
         try {
-                send("<test></test>");
-                String message = reader.readLine(); //just try
-                if (message == null){
-                    isWork = false;
-                    Server.getInstance().deleteUser(this);
-                }
-                return true;
-            } catch (Exception e) {
-                stopConnection();
-               return false;
+          send("<test></test>");
+          String message = reader.readLine(); //just try
+            if (message == null){
+                isWork = false;
+                Server.getInstance().deleteUser(this);
             }
+            return true;
+        } catch (Exception e) {
+            stopConnection();
+            return false;
+        }
     }
 
     /**
@@ -106,7 +103,7 @@ public class Connection implements Runnable {
     }
     /**
      * check login and register, check chat_id for newMessage and chatConfiguration
-     * @param command
+     * @param command - accepted command
      * @return login if user login or register
      */
   /*  private String checkNewUser(String command) {
@@ -142,7 +139,15 @@ public class Connection implements Runnable {
         return "";
     }
     */
-    public String configuration(String command) {
+
+    /**
+     * Methot that get user command and correctly processes:
+     * manages user profiles, adds connections to the map,
+     * sends the necessary commands to the required chats
+     * @param command - accepted command
+     * @return
+     */
+    private String configuration(String command) {
         Map<String, Object> map;
         String type = XmlConfiguration.getInstance().getTypeOfTheCommand(command);
         switch (type) {
