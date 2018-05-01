@@ -38,7 +38,7 @@ public class XmlConfiguration {
      * @param command xml command
      * @return answer from server
      */
-    public String configuration(String command) {
+    /*public String configuration(String command) {
         Document document = newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
         Element element = (Element) nodes.item(0);
@@ -144,7 +144,7 @@ public class XmlConfiguration {
 
         }
     }
-
+*/
     public static String getMessages(long id) {
         XStream xstream = new XStream();
         xstream.alias("message", Message.class);
@@ -168,9 +168,9 @@ public class XmlConfiguration {
         return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
-    public static String listUserToXml(List<String> list) {
+    public static String listUserToXml(List<String> list, String aliasList) {
         XStream xstream = new XStream();
-        xstream.alias("users", List.class);
+        xstream.alias(aliasList, List.class);
         xstream.alias("user", String.class);
         return xstream.toXML(list).replaceAll("\\n", " ");
     }

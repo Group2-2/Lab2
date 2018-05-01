@@ -20,6 +20,11 @@ public class User implements Serializable {
 
     private static final Logger logger = Logger.getLogger(User.class);
 
+    public User(String login, String password) {
+        this.login = login;
+        name  = login;
+        this.password = password;
+    }
 
     public User(String login, String password, String name) {
         this.name = name;
