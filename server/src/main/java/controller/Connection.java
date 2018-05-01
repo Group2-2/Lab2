@@ -147,7 +147,7 @@ public class Connection implements Runnable {
                 boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
                 ModelImpl.getInstance().setOnlineStatus(element.getAttribute("user"), isOnline);
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
-            case "newChatID":/*дальше по имплементации*/
+                break;
             default :
                 break;
         }
@@ -193,7 +193,6 @@ public class Connection implements Runnable {
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 String password = XmlConfiguration.getInstance().getPassword(command);
                 map = new HashMap<>();
-
                 if(ModelImpl.getInstance().login(new User(login, password, ""))){
                     map.put("isAdmin",ModelImpl.getInstance().isAdmin(login) );
                     map.put("isInBan",  ModelImpl.getInstance().isInBan(login));
@@ -206,18 +205,22 @@ public class Connection implements Runnable {
             case "registration": {
                 String login = XmlConfiguration.getInstance().getLogin(command);
                 String password = XmlConfiguration.getInstance().getPassword(command);
-                String name = XmlConfiguration.getInstance().getName(command);
-                if(!ModelImpl.getInstance().register(new User(login, password, name))) {
-                    return "<command type=\"registration\" result =\"NOTACCEPTED\" />";
+                map = new HashMap<>();
+                if(!ModelImpl.getInstance().register(new User(login, password))) {
+                    map.put("result", "NOTACCEPTED");
                 } else {
-                    return String.format("<command type=\"registration\" name=\"%s\" result=\"ACCEPTED\" />", name);
+                    map.put("result", "ACCEPTED");
                 }
+                return XmlConfiguration.getInstance().command(type,map);
             }
             case "newChatID": {
                 String login = XmlConfiguration.getInstance().getSender(command);
                 long id = ModelImpl.getInstance().createChat();
                 ModelImpl.getInstance().addToChat(login, id);
-                return String.format("<command type=\"newChatID\" chat_id=\"%s\" user = \"%s\" />", id, login);
+                map = new HashMap<>();
+                map.put("chat_id", id);
+                map.put("user", login);
+                return XmlConfiguration.getInstance().command(type,map);
             }
             case "addToChat": {
                 String login = XmlConfiguration.getInstance().getLogin(command);
@@ -252,11 +255,15 @@ public class Connection implements Runnable {
             case "isInBan": {
                 String login = XmlConfiguration.getInstance().getUserFromMessage(command);
                 ModelImpl.getInstance().deleteAdmin(login);
-                return String.format("<command type=\"isInBan\" isInBan=\"%s\" />", ModelImpl.getInstance().isInBan(login)) ;
+                map = new HashMap<>();
+                map.put("isInBan", ModelImpl.getInstance().isInBan(login));
+                return XmlConfiguration.getInstance().command(type,map);
             }
             case "getUserName": {
                 String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                return String.format("<command type=\"getUserName\" name=\"%s\" />", ModelImpl.getInstance().getUserName(login)) ;
+                map = new HashMap<>();
+                map.put("name", ModelImpl.getInstance().getUserName(login));
+                return XmlConfiguration.getInstance().command(type,map);
             }
             case "getBanList":
                 return XmlConfiguration.getInstance().listUserToXml(ModelImpl.getInstance().getBanList());
@@ -265,6 +272,7 @@ public class Connection implements Runnable {
                 map = new HashMap<>();
                 ModelImpl.getInstance().deleteUser(login);
                 map.put("result", "ACCEPTED");
+                ModelImpl.getInstance().save();
                 return XmlConfiguration.getInstance().command(type, map);
             case "changePassword":
                 String log = XmlConfiguration.getInstance().getLogin(command);
@@ -276,8 +284,6 @@ public class Connection implements Runnable {
             default:
                 logger.warn("Command not found " + command);
                 return command;
-
-
         }
     }
 }
