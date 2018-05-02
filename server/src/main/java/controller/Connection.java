@@ -85,7 +85,7 @@ import java.util.Map;
             Server.getInstance().deleteUser(this);
             return true;
         }
-        BufferedReader reader = null;
+       // BufferedReader reader = null;
         try {
         /*    reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));*/
             send("<test></test>");
