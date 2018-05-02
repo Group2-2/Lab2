@@ -85,21 +85,22 @@ import java.util.Map;
             Server.getInstance().deleteUser(this);
             return true;
         }
-        BufferedReader reader = null;
+       // BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        /*    reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));*/
             send("<test></test>");
-            String message = reader.readLine(); //just try
+         /*   String message = reader.readLine(); //just try
             if (message == null) {
                 isWork = false;
                 Server.getInstance().deleteUser(this);
-            }
-            choice = true;
-        } catch (NullPointerException | IOException e) {
+                 choice = true;
+            }*/
+
+        } catch (NullPointerException /*| IOException*/ e) {
             stopConnection();
             Server.getInstance().deleteUser(this);
             choice = true;
-        } finally {
+        }/* finally {
             try {
                 if (reader != null) {
                     reader.close();
@@ -107,7 +108,7 @@ import java.util.Map;
             } catch (IOException e) {
                 logger.debug(e);
             }
-        }
+        }*/
         return choice;
     }
 

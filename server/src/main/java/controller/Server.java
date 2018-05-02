@@ -68,10 +68,10 @@ public class Server implements ServerController {
 
     @Override
     public void run() {
-        while (!Thread.interrupted()) {
+        while (Server.getInstance().serverWork) {
             final Socket socket;
             try {
-                socket = serverSocket.accept();
+                socket = Server.getInstance().serverSocket.accept();
                 final Connection connection = new Connection(socket);
                 new Thread(connection).start();
             } catch (IOException e) {
@@ -207,7 +207,7 @@ public class Server implements ServerController {
             case 0:
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if(consoleInputIndex() == 1){
-                    if(serverWork) {
+                    if(Server.getInstance().serverWork) {
                         stop();
                     }
                     System.exit(0);
@@ -236,7 +236,7 @@ public class Server implements ServerController {
                 consoleShowUsers(list1);
                 break;
             case 10:
-                if(!serverWork){
+                if(!Server.getInstance().serverWork){
                     System.out.println("server was stopped");
                       return;
                 }
@@ -252,18 +252,20 @@ public class Server implements ServerController {
                     System.out.println("Server was started");
                 } else {
                     instance = new Server(port);
-                    serverWork = true;
+                    Server.getInstance().serverWork = true;
+                    new Thread(instance).start();
                 }
                 break;
             case 12:
-                if(!serverWork) {
+                if(!Server.getInstance().serverWork) {
                     System.out.println("Server was stopped");
                     return;
                 }
                 sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("restart", null), null);
                 stop();
                 instance = new Server(port);
-                serverWork = true;
+                Server.getInstance().serverWork = true;
+                new Thread(instance).start();
                 break;
             case 13:
                 System.out.println("current port: " + instance.getPort() +"\n");
@@ -388,9 +390,9 @@ public class Server implements ServerController {
             entries.remove();
         }
         ModelImpl.getInstance().save();
-        serverWork = false;
+        Server.getInstance().serverWork = false;
         try {
-            serverSocket.close();
+            Server.getInstance().serverSocket.close();
         } catch (IOException e) {
             logger.debug(e);
         }
