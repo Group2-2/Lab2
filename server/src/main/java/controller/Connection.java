@@ -261,6 +261,7 @@ import java.util.Map;
                 long id = XmlConfiguration.getInstance().getChatId(command);
                 String text = XmlConfiguration.getInstance().getText(command);
                 ModelImpl.getInstance().addMessage(id, new Message(login, text));
+                Server.getInstance().sendToChat(id,command, this);
                 return command;
             }
             case "setOnlineStatus": {
