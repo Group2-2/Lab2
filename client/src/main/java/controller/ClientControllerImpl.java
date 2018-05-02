@@ -169,6 +169,7 @@ public class ClientControllerImpl implements ClientController {
         boolean varSendOnlines = false;
         boolean varLoadMessages = false;
         boolean varSetChatList = false;
+        boolean varSetBanList = false;
         try {
             getOnlineUsers();
             while (isConnected) {
@@ -181,6 +182,9 @@ public class ClientControllerImpl implements ClientController {
                 }
                 if (varGetOnlineUsers && varLoadMessages && varSendOnlines && !varSetChatList) {
                     getChatsList();
+                }
+                if (varGetOnlineUsers && varLoadMessages && varSendOnlines && varSetChatList && isAdmin() && !varSetBanList) {
+                    getBanList();
                 }
                 String line = in.readLine();
                 System.out.println("Get in line " + line);
@@ -212,6 +216,10 @@ public class ClientControllerImpl implements ClientController {
                         setChats(line);
                         varSetChatList = true;
                     }
+                    if (document.getDocumentElement().getNodeName().equals("banList")) {
+                        setBanList(line);
+                        varSetBanList = true;
+                    }
                     continue;
                 }
                 String type = element.getAttribute("type");
@@ -224,12 +232,12 @@ public class ClientControllerImpl implements ClientController {
                         break;
                     }
                     case "ban": {
-                        String login = element.getAttribute("user");
+                        String login = element.getAttribute("login");
                         banUserConfirm(login);
                         break;
                     }
                     case "unban": {
-                        String login = element.getAttribute("user");
+                        String login = element.getAttribute("login");
                         unBanUserConfirm(login);
                         break;
                     }
@@ -385,7 +393,7 @@ public class ClientControllerImpl implements ClientController {
         }
         if (isAdmin()) {
             if (banUsers.contains(login)) banUsers.remove(login);
-            adminView.setBannedList(banUsers);
+            generalChatView.setBannedList(banUsers);
             sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
         }
     }
@@ -567,6 +575,14 @@ public class ClientControllerImpl implements ClientController {
     }
 
     /**
+     * prepare command get ban list
+     */
+    private void getBanList() {
+        String msg = String.format("<command type=\"getBanList\"/>");
+        sendXMLString(msg);
+    }
+
+    /**
      * sent massage/command to output stream
      *
      * @param xmlText
@@ -625,6 +641,27 @@ public class ClientControllerImpl implements ClientController {
                 allUsers.add(nicknameVar);
             }
         }
+    }
+
+    /**
+     * parse input xml and set all users list
+     *
+     * @param line
+     */
+    public void setBanList(String line) {
+        //<banList>   <user>qwerty</user> </banList>
+        banUsers.clear();
+        Document document = getXML(line);
+        NodeList users = document.getElementsByTagName("user");
+        for (int i = 0; i < users.getLength(); i++) {
+            Node node = users.item(i);
+            if (node.getNodeName().equals("user")) {
+                Element element = (Element) node;
+                String nicknameVar = element.getTextContent();
+                banUsers.add(nicknameVar);
+            }
+        }
+        generalChatView.setBannedList(banUsers);
     }
 
     /**
@@ -705,7 +742,8 @@ public class ClientControllerImpl implements ClientController {
      * @param chat_id
      */
     public void unBanUserSelect(String chat_id) {
-        OnlineUsersView OnlineUsersView = new OnlineUsersView(this, "Select user to unban", "unBanUser", chat_id);
+        OnlineUsersView bannedUsersView = new OnlineUsersView(this, "Select user to unban", "unBanUser", chat_id);
+        bannedUsersView.setOnlineUsersList(banUsers);
     }
 
     /**
@@ -714,7 +752,7 @@ public class ClientControllerImpl implements ClientController {
      * @param chat_id
      */
     public void banUserSelect(String chat_id) {
-        OnlineUsersView OnlineUsersView = new OnlineUsersView(this, "Select user to ban", "banUser", chat_id);
+        OnlineUsersView onlineUsersView = new OnlineUsersView(this, "Select user to ban", "banUser", chat_id);
     }
 
     /**

@@ -67,5 +67,20 @@ public interface ClientController {
      */
     boolean sendXMLString(String xmlText);
 
+    /**
+     * command delete user
+     *
+     * @param deleteUser
+     * @return command is sent
+     */
+    boolean deleteUser(String deleteUser);
+
+    /**
+     * command delete user
+     *
+     * @param login, password
+     * @return command is sent
+     */
+    void changePassword(String login, String password);
 
 }
