@@ -36,6 +36,7 @@ public class ClientControllerImpl implements ClientController {
     private ArrayList<String> banUsers = new ArrayList<>();
     private ArrayList<String> allUsers = new ArrayList<>();
     private String currentUser;
+    private String currentUserPassword;
     private boolean isAdmin;
     private boolean isBanned;
     private boolean isConnected;
@@ -65,49 +66,7 @@ public class ClientControllerImpl implements ClientController {
         isConnected = connectServer();
         if (isConnected) {
             loginView = new LoginView(this);
-            while (isConnected) {
-                String line = null;
-                try {
-                    line = in.readLine();
-                    if(line.contains("<test></test>")) {
-                        continue;
-                    }
-                    Document document = getXML(line);
-                    NodeList nodes = document.getElementsByTagName("command");
-                    Element element = (Element) nodes.item(0);
-                    String type = element.getAttribute("type");
-                    String result = element.getAttribute("result");
-                    if (type.equals("login")) {
-                        if (result.equals("ACCEPTED")) {
-                            boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
-                            setAdmin(isAdminString);
-                            isBanned = Boolean.parseBoolean(element.getAttribute("isInBan"));
-                            break;
-                        } else if (result.equals("NOTACCEPTED")) {
-                            JOptionPane.showMessageDialog(null, "Incorrect login/password");
-                            loginView = new LoginView(this);
-                        }
-                    } else if (type.equals("registration")) {
-                        if (result.equals("ACCEPTED")) {
-                            boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
-                            setAdmin(isAdminString);
-                            break;
-                        } else if (result.equals("NOTACCEPTED")) {
-                            JOptionPane.showMessageDialog(null, "Login is alredy used!");
-                            loginView = new LoginView(this);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    isConnected = false;
-                    try {
-                        in.close();
-                        out.close();
-                    } catch (Exception ex) {
-                        logger.info("Потоки не были закрыты!");
-                    }
-                }
-            }
+            readEnterToChat ();
             /*//test
             String msg = "<command type=\"createAdmin\" user = \"admin\"/>";
             sendXMLString(msg);
@@ -131,6 +90,52 @@ public class ClientControllerImpl implements ClientController {
             }
         } else {
             JOptionPane.showMessageDialog(null, "Server not found! Connection settings in file: "+configPath);
+        }
+    }
+
+    public void readEnterToChat (){
+        while (isConnected) {
+            String line = null;
+            try {
+                line = in.readLine();
+                if(line.contains("<test></test>")) {
+                    continue;
+                }
+                Document document = getXML(line);
+                NodeList nodes = document.getElementsByTagName("command");
+                Element element = (Element) nodes.item(0);
+                String type = element.getAttribute("type");
+                String result = element.getAttribute("result");
+                if (type.equals("login")) {
+                    if (result.equals("ACCEPTED")) {
+                        boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
+                        setAdmin(isAdminString);
+                        isBanned = Boolean.parseBoolean(element.getAttribute("isInBan"));
+                        break;
+                    } else if (result.equals("NOTACCEPTED")) {
+                        JOptionPane.showMessageDialog(null, "Incorrect login/password");
+                        loginView = new LoginView(this);
+                    }
+                } else if (type.equals("registration")) {
+                    if (result.equals("ACCEPTED")) {
+                        boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
+                        setAdmin(isAdminString);
+                        break;
+                    } else if (result.equals("NOTACCEPTED")) {
+                        JOptionPane.showMessageDialog(null, "Login is alredy used!");
+                        loginView = new LoginView(this);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                isConnected = false;
+                try {
+                    in.close();
+                    out.close();
+                } catch (Exception ex) {
+                    logger.info("Потоки не были закрыты!");
+                }
+            }
         }
     }
 
@@ -291,11 +296,26 @@ public class ClientControllerImpl implements ClientController {
                         }
                         break;
                     }
+                    case "restart": {
+                        restartClient();
+                        break;                                            
+                    }
                 }
             }
         } catch (IOException e) {
             logger.info("Ошибка при получении сообщения!");
             e.printStackTrace();
+        }
+    }
+
+    private void restartClient() {
+        exitApp();
+        isConnected = connectServer();
+        if (isConnected) {
+            validateUser(getCurrentUser(), getCurrentUserPassword());
+            readEnterToChat ();
+        }else{
+
         }
     }
 
@@ -430,6 +450,23 @@ public class ClientControllerImpl implements ClientController {
     }
 
     /**
+     * getter current user password
+     *
+     * @return currentUser
+     */
+    public String getCurrentUserPassword() {
+        return currentUserPassword;
+    }
+
+    /**
+     * set current user password
+     *
+     * @param currentUserPassword
+     */
+    public void setCurrentUserPassword(String currentUserPassword) {
+        this.currentUserPassword = currentUserPassword;
+    }
+    /**
      * @return isAdmin
      */
     public boolean isAdmin() {
@@ -475,6 +512,7 @@ public class ClientControllerImpl implements ClientController {
         //<addMessage sender = * chat_id = * text = ***/>
         String msg = String.format("<command type=\"registration\" login=\"%1$s\" name = \"%2$s\" password =\"%3$s\"/>", login, nickName, password);
         setCurrentUser(login);
+        setCurrentUserPassword(password);
         return (sendXMLString(msg));
     }
 
@@ -509,6 +547,7 @@ public class ClientControllerImpl implements ClientController {
         //<command type="login" login="log1" password ="pass1"/>
         String msg = String.format("<command type=\"login\" login=\"%1$s\" password =\"%2$s\"/>", login, password);
         setCurrentUser(login);
+        setCurrentUserPassword(password);
         return (sendXMLString(msg));
     }
 
@@ -945,6 +984,7 @@ public class ClientControllerImpl implements ClientController {
         //<command type="deleteUser" login = "***"></command>
         String msg = String.format("<command type=\"changePassword\" login = \"%1$s\"  password =\"%2$s\" />", login, password);
         sendXMLString(msg);
+        setCurrentUserPassword(password);
     }
 
     /**
