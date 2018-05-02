@@ -249,7 +249,7 @@ public class Server implements ServerController {
                 break;
             case 11:
                 if(serverWork) {
-                    System.out.println("Server started");
+                    System.out.println("Server was started");
                 } else {
                     instance = new Server(port);
                     serverWork = true;
@@ -395,6 +395,5 @@ public class Server implements ServerController {
         } catch (IOException e) {
             logger.debug(e);
         }
-        System.out.println("STOP SERVER");
     }
 }

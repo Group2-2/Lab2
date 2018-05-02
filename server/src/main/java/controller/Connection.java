@@ -186,7 +186,9 @@ import java.util.Map;
                 map = new HashMap<>();
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
-                return XmlConfiguration.getInstance().command(type, map);
+                String s = XmlConfiguration.getInstance().command(type, map);
+                Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
+                return s;
             }
             case "unban": {
                 Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
@@ -195,7 +197,9 @@ import java.util.Map;
                 map = new HashMap<>();
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
-                return XmlConfiguration.getInstance().command(type, map);
+                String s = XmlConfiguration.getInstance().command(type, map);
+                Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
+                return s;
             }
             case "login" : {
                 String login = XmlConfiguration.getInstance().getLogin(command);
