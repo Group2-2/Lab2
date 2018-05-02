@@ -33,12 +33,12 @@ import java.util.Map;
 
     @Override
     public void run() {
-        while (isWork) {
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            while (isWork) {
                 String message = reader.readLine();
-                if (message == null){
+                if (message == null) {
                     stopConnection();
                     Server.getInstance().deleteUser(this);
                 }
@@ -48,20 +48,19 @@ import java.util.Map;
                     send(response);
                     ModelImpl.getInstance().save();
                 }
-            } catch (IOException e) {
-                stopConnection();
-                logger.warn("readlineEx from user, while thread running",e);
-            }/*finally {
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                    logger.debug(e);
+            }
+        } catch (IOException e) {
+            stopConnection();
+            logger.warn("readlineEx from user, while thread running",e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
                 }
-            }*/
+            } catch (IOException e) {
+                logger.debug(e);
+            }
         }
-
     }
 
     /**
