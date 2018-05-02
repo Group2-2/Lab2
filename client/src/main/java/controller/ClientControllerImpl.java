@@ -349,6 +349,7 @@ public class ClientControllerImpl implements ClientController {
      * close main chat window
      */
     public void exitChat() {
+        sendMessage("@ Has left chat", mainChatID);
         sendOnline("false");
         exitApp();
     }
@@ -774,7 +775,6 @@ public class ClientControllerImpl implements ClientController {
             if (login.equals(currentUser) && isAdmin()) sendMessage("I AM ADMIN! I am in chat now!", mainChatID);
         } else {
             if (onlineUsers.contains(login)) onlineUsers.remove(login);
-            if (login.equals(currentUser)) sendMessage("@ Has left chat", mainChatID);
         }
         generalChatView.setOnlineUsersList(onlineUsers);
     }
