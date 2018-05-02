@@ -278,6 +278,19 @@ public class ClientControllerImpl implements ClientController {
                         }
                         break;
                     }
+                    case "stop": {
+                        Object[] options = {"OK", "CANCEL"};
+                        int n = JOptionPane
+                                .showOptionDialog(null, "Chat server has been stoped! Close application?",
+                                        "Confirmation", JOptionPane.OK_CANCEL_OPTION,
+                                        JOptionPane.QUESTION_MESSAGE, null, options,
+                                        options[0]);
+                        if (n == 0) {
+                            exitChat();
+                            System.exit(2);
+                        }
+                        break;
+                    }
                 }
             }
         } catch (IOException e) {
