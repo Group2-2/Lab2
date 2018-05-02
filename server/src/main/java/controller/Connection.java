@@ -51,7 +51,7 @@ import java.util.Map;
             } catch (IOException e) {
                 stopConnection();
                 logger.warn("readlineEx from user, while thread running",e);
-            }finally {
+            }/*finally {
                 try {
                     if (reader != null) {
                         reader.close();
@@ -59,7 +59,7 @@ import java.util.Map;
                 } catch (IOException e) {
                     logger.debug(e);
                 }
-            }
+            }*/
         }
 
     }
