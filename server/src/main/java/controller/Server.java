@@ -382,7 +382,6 @@ public class Server implements ServerController {
             Map.Entry<String, Connection> entry = entries.next();
             ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
             entry.getValue().stopConnection();
-
             if (entries.hasNext()) {
                 entries.next();
             }

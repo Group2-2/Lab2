@@ -34,8 +34,9 @@ import java.util.Map;
     @Override
     public void run() {
         while (isWork) {
+            BufferedReader reader = null;
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message = reader.readLine();
                 if (message == null){
                     stopConnection();
@@ -50,14 +51,17 @@ import java.util.Map;
             } catch (IOException e) {
                 stopConnection();
                 logger.warn("readlineEx from user, while thread running",e);
+            }finally {
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    logger.debug(e);
+                }
             }
         }
-        try {
-            socket.close();
-        } catch (IOException e) {
-            logger.warn("Close in thread", e);
-        }
-        writer.close();
+
     }
 
     /**
@@ -76,6 +80,7 @@ import java.util.Map;
      * @return false if connection crushed and stopped the thread
      */
     public boolean checkConnection() {
+        boolean choice = false;
         if (!isWork) {
             Server.getInstance().deleteUser(this);
             return true;
@@ -83,26 +88,27 @@ import java.util.Map;
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (IOException e) {
-            logger.warn("ex in BufferedReader(new InputStreamReader(socket.getInputStream()))", e);
-        }
-        try {
-          send("<test></test>");
-          String message = reader.readLine(); //just try
+            send("<test></test>");
+            String message = reader.readLine(); //just try
             if (message == null) {
                 isWork = false;
                 Server.getInstance().deleteUser(this);
             }
-            return true;
+            choice = true;
         } catch (NullPointerException | IOException e) {
             stopConnection();
+            Server.getInstance().deleteUser(this);
+            choice = true;
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                logger.debug(e);
+            }
         }
-        try {
-            reader.close();
-        } catch (IOException | NullPointerException e ) {
-            logger.debug(e);
-        }
-        return false;
+        return choice;
     }
 
     /**
@@ -110,6 +116,12 @@ import java.util.Map;
      */
     public void stopConnection() {
         isWork = false;
+        try {
+            socket.close();
+        } catch (IOException e) {
+            logger.warn("Close in thread", e);
+        }
+        writer.close();
     }
    /* /**
      * check login and register, check chat_id for newMessage and chatConfiguration
