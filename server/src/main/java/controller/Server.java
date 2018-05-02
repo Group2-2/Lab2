@@ -237,12 +237,13 @@ public class Server implements ServerController {
                 break;
             case 10:
                 if(!serverWork){
-                    System.out.println("server is stopped");
-                    sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("stop", null), null);
-                    return;
+                    System.out.println("server was stopped");
+                      return;
                 }
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if(consoleInputIndex() == 1){
+                    String s1 = XmlConfiguration.getInstance().command("stop", null);
+                    sendToChat(Long.parseLong("0"), s1, null);
                     stop();
                 }
                 break;
@@ -256,10 +257,10 @@ public class Server implements ServerController {
                 break;
             case 12:
                 if(!serverWork) {
-                    sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("restart", null), null);
-                    System.out.println("Server is stopped");
+                    System.out.println("Server was stopped");
                     return;
                 }
+                sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("restart", null), null);
                 stop();
                 instance = new Server(port);
                 serverWork = true;
@@ -394,5 +395,6 @@ public class Server implements ServerController {
         } catch (IOException e) {
             logger.debug(e);
         }
+        System.out.println("STOP SERVER");
     }
 }
