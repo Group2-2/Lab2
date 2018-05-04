@@ -164,8 +164,9 @@ public class Server implements ServerController {
                 }
                 if (entries.hasNext()) {
                     entries.next();
+                    entries.remove();
                 }
-                entries.remove();
+
                 model.save();
             }
         }
