@@ -23,6 +23,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ClientControllerImpl implements ClientController {
     private static final Logger logger = Logger.getLogger(ClientControllerImpl.class);
@@ -308,14 +309,34 @@ public class ClientControllerImpl implements ClientController {
         }
     }
 
+    /**
+     * After server restart try to reconnect to server
+     */
     private void restartClient() {
         exitApp();
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         isConnected = connectServer();
         if (isConnected) {
             validateUser(getCurrentUser(), getCurrentUserPassword());
-            readEnterToChat ();
-        }else{
-
+            readEnterToChat();
+            System.out.println("Server has been restart!");
+            getMessages(mainChatID, "Server has been restart!", "SERVER");
+        } else {
+            logger.error("Не удалось переподключится к серверу!");
+            Object[] options = {"OK", "CANCEL"};
+            int n = JOptionPane
+                    .showOptionDialog(null, "Chat server has been restart! But reconnection failed( Close application?",
+                            "Confirmation", JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, null, options,
+                            options[0]);
+            if (n == 0) {
+                exitChat();
+                System.exit(2);
+            }
         }
     }
 
