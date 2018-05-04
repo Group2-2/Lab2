@@ -220,7 +220,7 @@ import java.util.Map;
                 String login = xml.getLogin(command);
                 String password = xml.getPassword(command);
                 map = new HashMap<>();
-                if (model.login(new User(login, password, ""))) {
+                if (!Server.getInstance().getUsers().containsKey(login) && model.login(new User(login, password, ""))) {
                     map.put("isAdmin", model.isAdmin(login));
                     map.put("isInBan", model.isInBan(login));
                     map.put("result", "ACCEPTED");
