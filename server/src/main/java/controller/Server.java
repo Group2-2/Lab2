@@ -394,8 +394,8 @@ public class Server implements ServerController {
             entry.getValue().stopConnection();
             if (entries.hasNext()) {
                 entries.next();
+                entries.remove();
             }
-            entries.remove();
         }
         model.save();
         Server.getInstance().serverWork = false;
