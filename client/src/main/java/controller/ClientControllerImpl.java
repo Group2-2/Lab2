@@ -151,7 +151,7 @@ public class ClientControllerImpl implements ClientController {
                JOptionPane.showMessageDialog(null, "Delete file or change settings in file: "+configPath);
                logger.error("File with connection config cannot read!");
                return false;
-           };
+           }
             socket = new Socket(getServerAddress(), getPORT());
             logger.info("Connected: " + socket);
             in = new BufferedReader(new InputStreamReader(
