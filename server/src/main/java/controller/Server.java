@@ -22,7 +22,7 @@ public class Server implements ServerController {
     private boolean checkOnlineWork = true;
     private boolean consoleWork = true;
     private static boolean serverWork = true;
-    private ModelImpl model = ModelImpl.getInstance();
+    private static ModelImpl model = ModelImpl.getInstance();
     private XmlConfiguration xml = XmlConfiguration.getInstance();
     /**
      * login - current connection of online users
@@ -86,6 +86,10 @@ public class Server implements ServerController {
      * @param args args
      */
     public static void main(String[] args) {
+        List<String> list = model.getOnlineListUsers();
+        for (String login:list) {
+            model.setOnlineStatus(login, false);
+        }
             while (true) {
                 System.out.print("Enter port: ");
                 int myPort = consoleInputIndex();
