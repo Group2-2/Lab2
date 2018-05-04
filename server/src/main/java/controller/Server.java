@@ -42,7 +42,7 @@ public class Server implements ServerController {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            logger.error("Server - getInstance", e);
+            logger.error("IOEx in Server - getInstance, ServerSocket: " + serverSocket.toString());
         }
         new Thread(this::checkOnline).start();
     }
@@ -76,7 +76,8 @@ public class Server implements ServerController {
                 final Connection connection = new Connection(socket);
                 new Thread(connection).start();
             } catch (IOException e) {
-                logger.warn("Connection-socket", e);
+
+                logger.warn("Connection-socket ServerSocket: " + serverSocket.toString());
             }
         }
     }
@@ -140,7 +141,7 @@ public class Server implements ServerController {
             try {
                 Thread.sleep(60000); // 1 minute
             } catch (InterruptedException e) {
-                logger.warn("CheckOnline, ", e);
+                logger.warn(e);
             }
         }
     }
@@ -403,7 +404,7 @@ public class Server implements ServerController {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            logger.debug(e);
+            logger.debug("IOEx in closing, ServerSocket:" + serverSocket.toString());
         }
     }
 }

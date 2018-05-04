@@ -30,7 +30,7 @@ import java.util.Map;
         try {
             writer = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
-            logger.warn("connectionNewInstance", e);
+            logger.warn("IOExeption when in creatng Connection in socket:" + socket.toString());
         }
     }
 
@@ -54,14 +54,14 @@ import java.util.Map;
             }
         } catch (IOException e) {
             stopConnection();
-            logger.warn("readlineEx from user, while thread running",e);
+            logger.warn("socket: " + socket.toString(),e);
         } finally {
             try {
                 if (reader != null) {
                     reader.close();
                 }
             } catch (IOException e) {
-                logger.debug(e);
+                logger.debug("IOEX in closng reader, socket^" + socket.toString());
             }
         }
     }
@@ -122,7 +122,7 @@ import java.util.Map;
         try {
             socket.close();
         } catch (IOException e) {
-            logger.warn("Close in thread", e);
+            logger.warn("IOEx in closing socket(StopConnection meth), socket" + socket.toString());
         }
         writer.close();
     }
@@ -319,7 +319,7 @@ import java.util.Map;
                 model.changePassword(log,pass);
                 return xml.command(type, map);
             default:
-                logger.warn("Command not found " + command);
+                logger.trace("Command not found " + command);
                 return command;
         }
 
