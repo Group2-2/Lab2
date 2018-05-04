@@ -184,7 +184,7 @@ public class XmlConfiguration {
             document = documentBuilder.parse(new InputSource(new StringReader(value)));
             document.getDocumentElement().normalize();
         } catch (ParserConfigurationException | IOException | SAXException e) {
-            e.printStackTrace();
+            logger.error("error in create xml documents");
         }
         return document;
     }
