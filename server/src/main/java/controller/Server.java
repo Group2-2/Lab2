@@ -22,6 +22,8 @@ public class Server implements ServerController {
     private boolean checkOnlineWork = true;
     private boolean consoleWork = true;
     private static boolean serverWork = true;
+    private ModelImpl model = ModelImpl.getInstance();
+    private XmlConfiguration xml = XmlConfiguration.getInstance();
     /**
      * login - current connection of online users
      */
@@ -35,7 +37,6 @@ public class Server implements ServerController {
      */
 
     private Server(int port) {
-        ModelImpl.getInstance();
         users = new Hashtable<>();
         this.port = port;
         try {
@@ -62,16 +63,16 @@ public class Server implements ServerController {
 
     @Override
     public void setUser(String login, Connection connection) {
-        ModelImpl.getInstance().save();
+        model.save();
         users.put(login, connection);
     }
 
     @Override
     public void run() {
-        while (Server.getInstance().serverWork) {
+        while (serverWork) {
             final Socket socket;
             try {
-                socket = Server.getInstance().serverSocket.accept();
+                socket = serverSocket.accept();
                 final Connection connection = new Connection(socket);
                 new Thread(connection).start();
             } catch (IOException e) {
@@ -101,13 +102,13 @@ public class Server implements ServerController {
 
     @Override
     public void sendToChat(Long chatId, String text, Connection current) {
-        List list = ModelImpl.getInstance().getChatUsers(chatId);
+        List list = model.getChatUsers(chatId);
         users.forEach((login, connection) -> {
             if(list.contains(login) && !connection.equals(current)) {
                 connection.send(text);
             }
         } );
-        ModelImpl.getInstance().save();
+        model.save();
     }
 
     /**
@@ -119,17 +120,17 @@ public class Server implements ServerController {
             while (entries.hasNext()) {
                 Map.Entry<String, Connection> entry = entries.next();
                 if (entry.getValue().checkConnection()) {
-                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
-                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                    model.setOnlineStatus(entry.getKey(), false);
+                    model.setOnlineStatus(entry.getKey(), false);
                     Map<String, Object> map = new HashMap<>();
                     map.put("user",entry.getKey());
                     map.put("isOnline", false);
-                    Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().command("setOnlineStatus", map), entry.getValue());
+                    sendToChat(Long.parseLong("0"),xml.command("setOnlineStatus", map), entry.getValue());
                     if (entries.hasNext()) {
                         entries.next();
                         entries.remove();
                     }
-                    ModelImpl.getInstance().save();
+                    model.save();
                 }
             }
             try {
@@ -150,18 +151,18 @@ public class Server implements ServerController {
         while (entries.hasNext()) {
             Map.Entry<String, Connection> entry = entries.next();
             if (conn == entry.getValue()) {
-                if(ModelImpl.getInstance().existUser(entry.getKey())) {
-                    ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+                if(model.existUser(entry.getKey())) {
+                    model.setOnlineStatus(entry.getKey(), false);
                     Map<String, Object> map = new HashMap<>();
                     map.put("user",entry.getKey());
                     map.put("isOnline", false);
-                    Server.getInstance().sendToChat(Long.parseLong("0"),XmlConfiguration.getInstance().command("setOnlineStatus", map), entry.getValue());
+                    sendToChat(Long.parseLong("0"),xml.command("setOnlineStatus", map), entry.getValue());
                 }
                 if (entries.hasNext()) {
                     entries.next();
                 }
                 entries.remove();
-                ModelImpl.getInstance().save();
+                model.save();
             }
         }
     }
@@ -214,24 +215,24 @@ public class Server implements ServerController {
                 }
                 break;
             case 1:
-                list = ModelImpl.getInstance().getListUsers();
+                list = model.getListUsers();
                 consoleShowUsers(list);
                 break;
             case 2:
-                list = ModelImpl.getInstance().getOnlineListUsers();
+                list = model.getOnlineListUsers();
                 consoleShowUsers(list);
                 break;
             case 3:
-                list = ModelImpl.getInstance().getListUsers();
+                list = model.getListUsers();
                 list.forEach(string -> {
-                    if (ModelImpl.getInstance().isInBan(string)) list1.add(string);
+                    if (model.isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                     break;
             case 4:
-                list = ModelImpl.getInstance().getListUsers();
+                list = model.getListUsers();
                 list.forEach(string -> {
-                    if (!ModelImpl.getInstance().isInBan(string)) list1.add(string);
+                    if (!model.isInBan(string)) list1.add(string);
                 });
                 consoleShowUsers(list1);
                 break;
@@ -242,8 +243,7 @@ public class Server implements ServerController {
                 }
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if(consoleInputIndex() == 1){
-                    String s1 = XmlConfiguration.getInstance().command("stop", null);
-                    sendToChat(Long.parseLong("0"), s1, null);
+                    sendToChat(Long.parseLong("0"), xml.command("stop", null), null);
                     stop();
                 }
                 break;
@@ -291,9 +291,9 @@ public class Server implements ServerController {
             System.out.println("0 - return");
             for (int i = 1; i <= list.size(); i++) {
                 String s = (String) list.get(i-1);
-                System.out.println(i + ": " + s + " - isBan: " + ModelImpl.getInstance().isInBan(s)
-                        + ", isAdmin: " + ModelImpl.getInstance().isAdmin(s)
-                        + ", online: " + ModelImpl.getInstance().isOnline(s));
+                System.out.println(i + ": " + s + " - isBan: " + model.isInBan(s)
+                        + ", isAdmin: " + model.isAdmin(s)
+                        + ", online: " + model.isOnline(s));
             }
             System.out.print("The user you want to change. ");
             int a;
@@ -318,9 +318,9 @@ public class Server implements ServerController {
      * */
      private void consoleChangeUser(String login) {
         while (true) {
-            System.out.println(login + " - isBan: " + ModelImpl.getInstance().isInBan(login)
-                    + ", isAdmin: " + ModelImpl.getInstance().isAdmin(login) + ", online: "
-                    + ModelImpl.getInstance().isOnline(login));
+            System.out.println(login + " - isBan: " + model.isInBan(login)
+                    + ", isAdmin: " + model.isAdmin(login) + ", online: "
+                    + model.isOnline(login));
             System.out.println("0 --- return");
             System.out.println("1 --- ban/unban");
             System.out.println("2 --- setAdmin/no");
@@ -337,20 +337,20 @@ public class Server implements ServerController {
                 case 0:
                     return;
                 case 1:
-                    if (ModelImpl.getInstance().isInBan(login)) {
-                        ModelImpl.getInstance().unban(login);
+                    if (model.isInBan(login)) {
+                        model.unban(login);
                     } else {
-                        ModelImpl.getInstance().ban(login);
+                        model.ban(login);
                     }
-                    ModelImpl.getInstance().save();
+                    model.save();
                     break;
                 case 2:
-                    if (!ModelImpl.getInstance().isAdmin(login)){
-                        ModelImpl.getInstance().createAdmin(login);
+                    if (!model.isAdmin(login)){
+                        model.createAdmin(login);
                     } else {
-                        ModelImpl.getInstance().deleteAdmin(login);
+                        model.deleteAdmin(login);
                     }
-                    ModelImpl.getInstance().save();
+                    model.save();
                     break;
                 default:
                     System.out.println("smth wrong");
@@ -382,17 +382,17 @@ public class Server implements ServerController {
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, Connection> entry = entries.next();
-            ModelImpl.getInstance().setOnlineStatus(entry.getKey(), false);
+            model.setOnlineStatus(entry.getKey(), false);
             entry.getValue().stopConnection();
             if (entries.hasNext()) {
                 entries.next();
             }
             entries.remove();
         }
-        ModelImpl.getInstance().save();
+        model.save();
         Server.getInstance().serverWork = false;
         try {
-            Server.getInstance().serverSocket.close();
+            serverSocket.close();
         } catch (IOException e) {
             logger.debug(e);
         }

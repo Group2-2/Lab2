@@ -17,6 +17,9 @@ import java.util.Map;
 
     final private Socket socket;
     private PrintWriter writer;
+
+    private XmlConfiguration xml = XmlConfiguration.getInstance();
+    private ModelImpl model = ModelImpl.getInstance();
       /**
      * parameter of working this thread, stopped, when it is false
      */
@@ -46,7 +49,7 @@ import java.util.Map;
                     String response = configuration(message);
                     System.out.println(message);
                     send(response);
-                    ModelImpl.getInstance().save();
+                    model.save();
                 }
             }
         } catch (IOException e) {
@@ -129,7 +132,7 @@ import java.util.Map;
      * @return login if user login or register
      */
   /*  private String checkNewUser(String command) {
-        Document document = XmlConfiguration.getInstance().newDocument(command);
+        Document document = xml.newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
         Element element = (Element) nodes.item(0);
         String type = element.getAttribute("type");
@@ -139,7 +142,7 @@ import java.util.Map;
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
                 break;
             case "registration":
-                if(!ModelImpl.getInstance().existUser(element.getAttribute("login"))){
+                if(!model.existUser(element.getAttribute("login"))){
                     return element.getAttribute("login");
                 }
                 break;
@@ -152,7 +155,7 @@ import java.util.Map;
                 break;
             case "setOnlineStatus":
                 boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
-                ModelImpl.getInstance().setOnlineStatus(element.getAttribute("user"), isOnline);
+                model.setOnlineStatus(element.getAttribute("user"), isOnline);
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
                 break;
             default :
@@ -174,141 +177,141 @@ import java.util.Map;
         String type = XmlConfiguration.getTypeOfTheCommand(command);
         switch (type) {
             case "all_users": {
-                return XmlConfiguration.listUserToXml(ModelImpl.getInstance().getListUsers(), "users");
+                return XmlConfiguration.listUserToXml(model.getListUsers(), "users");
             }
             case "online_users": {
-                return  XmlConfiguration.listUserToXml(ModelImpl.getInstance().getOnlineListUsers(), "onlineUsers");
+                return  XmlConfiguration.listUserToXml(model.getOnlineListUsers(), "onlineUsers");
             }
             case "chats": {
-                String login = XmlConfiguration.getInstance().getSender(command);
+                String login = xml.getSender(command);
                 return XmlConfiguration.getChats(login);
             }
             case "get_messages": {
-                long id = XmlConfiguration.getInstance().getChatId(command);
+                long id = xml.getChatId(command);
                 return XmlConfiguration.getMessages(id);
             }
             case "get_chat_users": {
-                long id = XmlConfiguration.getInstance().getChatId(command);
-                return XmlConfiguration.listUserToXml(ModelImpl.getInstance().getChatUsers(id), "users");
+                long id = xml.getChatId(command);
+                return XmlConfiguration.listUserToXml(model.getChatUsers(id), "users");
             }
             case "ban": {
                 Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                ModelImpl.getInstance().ban(login);
+                String login = xml.getUserFromMessage(command);
+                model.ban(login);
                 map = new HashMap<>();
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
-                String s = XmlConfiguration.getInstance().command(type, map);
+                String s = xml.command(type, map);
                 Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
                 return s;
             }
             case "unban": {
                 Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                ModelImpl.getInstance().unban(login);
+                String login = xml.getUserFromMessage(command);
+                model.unban(login);
                 map = new HashMap<>();
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
-                String s = XmlConfiguration.getInstance().command(type, map);
+                String s = xml.command(type, map);
                 Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
                 return s;
             }
             case "login" : {
-                String login = XmlConfiguration.getInstance().getLogin(command);
-                String password = XmlConfiguration.getInstance().getPassword(command);
+                String login = xml.getLogin(command);
+                String password = xml.getPassword(command);
                 map = new HashMap<>();
-                if (ModelImpl.getInstance().login(new User(login, password, ""))) {
-                    map.put("isAdmin", ModelImpl.getInstance().isAdmin(login));
-                    map.put("isInBan", ModelImpl.getInstance().isInBan(login));
+                if (model.login(new User(login, password, ""))) {
+                    map.put("isAdmin", model.isAdmin(login));
+                    map.put("isInBan", model.isInBan(login));
                     map.put("result", "ACCEPTED");
                     Server.getInstance().setUser(login, this);
                 } else {
                     map.put("result", "NOTACCEPTED");
                 }
-                return XmlConfiguration.getInstance().command(type, map);
+                return xml.command(type, map);
             }
             case "registration": {
-                String login = XmlConfiguration.getInstance().getLogin(command);
-                String password = XmlConfiguration.getInstance().getPassword(command);
+                String login = xml.getLogin(command);
+                String password = xml.getPassword(command);
                 map = new HashMap<>();
-                if(!ModelImpl.getInstance().register(new User(login, password))) {
+                if(!model.register(new User(login, password))) {
                     map.put("result", "NOTACCEPTED");
                 } else {
                     map.put("result", "ACCEPTED");
                     Server.getInstance().setUser(login, this);
                 }
-                return XmlConfiguration.getInstance().command(type,map);
+                return xml.command(type,map);
             }
             case "newChatID": {
-                String login = XmlConfiguration.getInstance().getSender(command);
-                long id = ModelImpl.getInstance().createChat();
-                ModelImpl.getInstance().addToChat(login, id);
+                String login = xml.getSender(command);
+                long id = model.createChat();
+                model.addToChat(login, id);
                 map = new HashMap<>();
                 map.put("chat_id", id);
                 map.put("user", login);
-                return XmlConfiguration.getInstance().command(type,map);
+                return xml.command(type,map);
             }
             case "addToChat": {
-                String login = XmlConfiguration.getInstance().getLogin(command);
-                long id = XmlConfiguration.getInstance().getChatId(command);
-                ModelImpl.getInstance().addToChat(login, id);
+                String login = xml.getLogin(command);
+                long id = xml.getChatId(command);
+                model.addToChat(login, id);
                 Server.getInstance().sendToChat(id,command, this);
                 return command;
             }
 
             case "addMessage": {
-                String login = XmlConfiguration.getInstance().getSender(command);
-                long id = XmlConfiguration.getInstance().getChatId(command);
-                String text = XmlConfiguration.getInstance().getText(command);
-                ModelImpl.getInstance().addMessage(id, new Message(login, text));
+                String login = xml.getSender(command);
+                long id = xml.getChatId(command);
+                String text = xml.getText(command);
+                model.addMessage(id, new Message(login, text));
                 Server.getInstance().sendToChat(id,command, this);
                 return command;
             }
             case "setOnlineStatus": {
-                boolean online = XmlConfiguration.getInstance().getOnlineStatus(command);
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                ModelImpl.getInstance().setOnlineStatus(login, online);
+                boolean online = xml.getOnlineStatus(command);
+                String login = xml.getUserFromMessage(command);
+                model.setOnlineStatus(login, online);
                 Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
                 return command;
             }
             case "createAdmin": {
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                ModelImpl.getInstance().createAdmin(login);
+                String login = xml.getUserFromMessage(command);
+                model.createAdmin(login);
                 return command;
             }
             case "deleteAdmin": {
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                ModelImpl.getInstance().deleteAdmin(login);
+                String login = xml.getUserFromMessage(command);
+                model.deleteAdmin(login);
                 return command;
             }
             case "isInBan": {
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
-                ModelImpl.getInstance().deleteAdmin(login);
+                String login = xml.getUserFromMessage(command);
+                model.deleteAdmin(login);
                 map = new HashMap<>();
-                map.put("isInBan", ModelImpl.getInstance().isInBan(login));
-                return XmlConfiguration.getInstance().command(type,map);
+                map.put("isInBan", model.isInBan(login));
+                return xml.command(type,map);
             }
             case "getUserName": {
-                String login = XmlConfiguration.getInstance().getUserFromMessage(command);
+                String login = xml.getUserFromMessage(command);
                 map = new HashMap<>();
-                map.put("name", ModelImpl.getInstance().getUserName(login));
-                return XmlConfiguration.getInstance().command(type,map);
+                map.put("name", model.getUserName(login));
+                return xml.command(type,map);
             }
             case "getBanList":
-                return XmlConfiguration.listUserToXml(ModelImpl.getInstance().getBanList(), "banList");
+                return XmlConfiguration.listUserToXml(model.getBanList(), "banList");
             case "deleteUser":
-                String login = XmlConfiguration.getInstance().getLogin(command);
+                String login = xml.getLogin(command);
                 map = new HashMap<>();
-                ModelImpl.getInstance().deleteUser(login);
+                model.deleteUser(login);
                 map.put("result", "ACCEPTED");
-                return XmlConfiguration.getInstance().command(type, map);
+                return xml.command(type, map);
             case "changePassword":
-                String log = XmlConfiguration.getInstance().getLogin(command);
-                String pass = XmlConfiguration.getInstance().getPassword(command);
+                String log = xml.getLogin(command);
+                String pass = xml.getPassword(command);
                 map = new HashMap<>();
                 map.put("result", "ACCEPTED");
-                ModelImpl.getInstance().changePassword(log,pass);
-                return XmlConfiguration.getInstance().command(type, map);
+                model.changePassword(log,pass);
+                return xml.command(type, map);
             default:
                 logger.warn("Command not found " + command);
                 return command;
