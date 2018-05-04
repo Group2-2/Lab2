@@ -104,7 +104,7 @@ public class Server implements ServerController {
     public void sendToChat(Long chatId, String text, Connection current) {
         List list = model.getChatUsers(chatId);
         users.forEach((login, connection) -> {
-            if(list.contains(login) && !connection.equals(current)) {
+            if(list.contains(login) && !model.isInBan(login) && !connection.equals(current)) {
                 connection.send(text);
             }
         } );
@@ -337,9 +337,13 @@ public class Server implements ServerController {
                 case 0:
                     return;
                 case 1:
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("login", login);
                     if (model.isInBan(login)) {
+                        sendToChat(Long.parseLong("0"), xml.command("unban",map) , null);
                         model.unban(login);
                     } else {
+                        sendToChat(Long.parseLong("0"), xml.command("ban",map) , null);
                         model.ban(login);
                     }
                     model.save();

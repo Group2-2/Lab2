@@ -244,6 +244,9 @@ import java.util.Map;
             }
             case "newChatID": {
                 String login = xml.getSender(command);
+                if(model.isInBan(login)) {
+                    return command;
+                }
                 long id = model.createChat();
                 model.addToChat(login, id);
                 map = new HashMap<>();
@@ -261,6 +264,9 @@ import java.util.Map;
 
             case "addMessage": {
                 String login = xml.getSender(command);
+                if(model.isInBan(login)) {
+                    return command;
+                }
                 long id = xml.getChatId(command);
                 String text = xml.getText(command);
                 model.addMessage(id, new Message(login, text));
