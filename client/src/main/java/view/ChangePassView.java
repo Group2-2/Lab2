@@ -1,11 +1,8 @@
 package view;
 
-
-import controller.ClientController;
 import controller.ClientControllerImpl;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import controller.ClientControllerImpl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +31,10 @@ public class ChangePassView extends JFrame {
         this.pack();
     }
 
+    /**
+     * set login and makes it uneditable.
+     * @param login login
+     */
     private void setLogin(String login) {
         loginField.setText(login);
         loginField.setEditable(false);
@@ -90,7 +91,7 @@ public class ChangePassView extends JFrame {
     }
 
     /**
-     * setButtonListeners
+     * setButtonListeners.
      */
     public void setButtonListeners() {
         buttonCancel.addActionListener(new ActionListener() {

@@ -6,80 +6,80 @@ package controller;
 public interface ClientController {
 
     /**
-     *Start new chat application
+     *Start new chat application.
      */
     void run();
 
     /**
-     * get in out streams
+     * get in out streams.
      * @return boolean successful connected
      */
     boolean connectServer();
 
     /**
-     * prepare command check user login-password
-     * @param login
-     * @param password
-     * @return
+     * prepare command check user login-password.
+     * @param login login
+     * @param password password
+     * @return command has been sent
      */
     boolean validateUser(String login, String password);
 
     /**
-     * prepare command register new user
-     * @param login
-     * @param nickName
-     * @param password
-     * @return success
+     * prepare command register new user.
+     * @param login login
+     * @param nickName name
+     * @param password password
+     * @return success Massage is sent
      */
     boolean registerNewUser(String login, String nickName, String password);
 
     /**
-     * close main chat window
+     * close main chat window.
      */
     void exitChat();
 
     /**
-     * prepare massage for output stream
-     * @param message
-     * @param chatID
-     * @return success
+     * prepare massage for output stream.
+     * @param message message
+     * @param chatId chatId
+     * @return success Massage is sent
      */
-    boolean sendMessage(String message, String chatID);
+    boolean sendMessage(String message, String chatId);
 
     /**
-     * prepare command banned user
-     * @param User
+     * prepare command banned user.
+     * @param user user login
      * @return command is sent
      */
-    boolean banUser(String User);
+    boolean banUser(String user);
 
     /**
-     * prepare command unbanned user
-     * @param User
+     * prepare command unbanned user.
+     * @param user login
      * @return command is sent
      */
-    boolean unBanUser(String User);
+    boolean unBanUser(String user);
 
     /**
-     * sent massage/command to output stream
-     * @param xmlText
+     * sent massage/command to output stream.
+     * @param xmlText string xml
      * @return command is sent
      */
     boolean sendXMLString(String xmlText);
 
     /**
-     * command delete user
+     * command delete user.
      *
-     * @param deleteUser
+     * @param deleteUser login
      * @return command is sent
      */
     boolean deleteUser(String deleteUser);
 
     /**
-     * command delete user
+     * command delete user.
      *
-     * @param login, password
-     * @return command is sent
+     * @param login login
+     * @param password password
      */
     void changePassword(String login, String password);
 

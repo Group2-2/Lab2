@@ -23,13 +23,13 @@ public class OnlineUsersView extends JFrame {
     private ClientControllerImpl controller;
     private String command;
     private DefaultListModel listModel;
-    private String chat_id;
+    private String chatId;
 
-    public OnlineUsersView(ClientControllerImpl controller, String titile, String command, String chat_id) {
+    public OnlineUsersView(ClientControllerImpl controller, String titile, String command, String chatId) {
         super(titile);
         this.controller = controller;
         this.command = command;
-        this.chat_id = chat_id;
+        this.chatId = chatId;
         createGUI();
         controller.getOnlineUsers();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -66,6 +66,10 @@ public class OnlineUsersView extends JFrame {
         setOnlineUsersList(controller.getOnlineUsersList());
     }
 
+    /**
+     * set buttons listeners.
+     *
+     */
     public void setButtonListeners() {
         selectUsersButton.addActionListener(new ActionListener() {
             @Override
@@ -92,10 +96,14 @@ public class OnlineUsersView extends JFrame {
         });
     }
 
+    /**
+     * after selecting do action.
+     *
+     */
     public void doAction() {
         String val = onlineUsersList.getSelectedValue().toString();
         if (command.equals("addToPrivateChat"))
-            controller.addToPrivateChat(val, getChat_id());
+            controller.addToPrivateChat(val, getChatId());
         if (command.equals("banUser"))
             controller.banUser(val);
         if (command.equals("unBanUser"))
@@ -107,6 +115,10 @@ public class OnlineUsersView extends JFrame {
         closeFrame();
     }
 
+    /**
+     * set users list.
+     * @param arrList list with users
+     */
     public void setOnlineUsersList(ArrayList<String> arrList) {
         listModel.clear();
         for (String userName : arrList) {
@@ -114,14 +126,25 @@ public class OnlineUsersView extends JFrame {
         }
     }
 
-    public String getChat_id() {
-        return chat_id;
+    /**
+     * getChatId.
+     * @return chatId
+     */
+    public String getChatId() {
+        return chatId;
     }
 
-    public void setChat_id(String chat_id) {
-        this.chat_id = chat_id;
+    /**
+     * setChatId.
+     * @param chatId chatId
+     */
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 
+    /**
+     * close this frame.
+     */
     public void closeFrame() {
         this.setVisible(false);
         this.dispose();

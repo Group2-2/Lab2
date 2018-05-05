@@ -79,10 +79,17 @@ public class LoginView extends JFrame {
         setUserRegistrationListener();
     }
 
+    /**
+     * set ContentPane.
+     * @param contentPane ContentPane
+     */
     public void setContentPane(Container contentPane) {
         getRootPane().setContentPane(contentPane);
     }
 
+    /**
+     * set listener.
+     */
     public void setValidateUserListener() {
         buttonJoinChat.addActionListener(new ActionListener() {
             @Override
@@ -96,6 +103,9 @@ public class LoginView extends JFrame {
         });
     }
 
+    /**
+     * set listener.
+     */
     public void setUserRegistrationListener() {
         buttonRegister.addActionListener(new ActionListener() {
             @Override
@@ -109,7 +119,7 @@ public class LoginView extends JFrame {
     }
 
     /**
-     * close frame
+     * close frame.
      */
     public void closeFrame() {
         this.setVisible(false);

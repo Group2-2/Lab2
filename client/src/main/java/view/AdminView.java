@@ -4,12 +4,13 @@ package view;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import controller.*;
-import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class AdminView extends GeneralChatView {
@@ -21,8 +22,7 @@ public class AdminView extends GeneralChatView {
     private JButton editUserButton;
 
     /**
-     *
-     * @param controller
+     * @param controller main client controller
      */
     public AdminView(ClientControllerImpl controller) {
         super("ADMIN_General chat");
@@ -129,8 +129,9 @@ public class AdminView extends GeneralChatView {
     }
 
     /**
-     * Set list of banned users
-     * @param arrList
+     * Set list of banned users.
+     *
+     * @param arrList list with banned users
      */
     public void setBannedList(ArrayList<String> arrList) {
         bannedListModel.clear();
@@ -140,12 +141,16 @@ public class AdminView extends GeneralChatView {
     }
 
     @Override
+    /**
+     * print new massage to chat
+     */
     public void printNewMassage(String massage) {
         chatArea.append(massage + "\n");
     }
 
     /**
-     * set buttons listeners
+     * set buttons listeners.
+     *
      */
     public void setAdminButtonListeners() {
         banUserButton.addActionListener(new ActionListener() {

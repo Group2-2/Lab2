@@ -31,8 +31,8 @@ public class GeneralChatView extends JFrame {
 
     /**
      * Create new main chat frame
-     * @param controller
-     * @param titile
+     * @param controller controller
+     * @param titile titile
      */
     public GeneralChatView(ClientControllerImpl controller, String titile) {
         super(titile);
@@ -64,10 +64,10 @@ public class GeneralChatView extends JFrame {
 
     /**
      * setter chat_id
-     * @param chat_id
+     * @param chatId chatId
      */
-    public void setChat_id(String chat_id) {
-        this.chat_id = chat_id;
+    public void setChat_id(String chatId) {
+        this.chat_id = chatId;
     }
 
     /**
