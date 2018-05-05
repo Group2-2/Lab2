@@ -44,7 +44,6 @@ public class ClientControllerImpl implements ClientController {
     private GeneralChatView generalChatView;
     private AdminView adminView;
     private LoginView loginView;
-    private ChangePassView registrationView;
     private LinkedHashMap<String, PrivateChatView> privateChatsList = new LinkedHashMap<>();
     private static String mainChatID = "0";
     private static final String configPath = "configConection.xml";
@@ -67,7 +66,7 @@ public class ClientControllerImpl implements ClientController {
         isConnected = connectServer();
         if (isConnected) {
             loginView = new LoginView(this);
-            readEnterToChat ();
+            readEnterToChat();
             /*//test
             String msg = "<command type=\"createAdmin\" user = \"admin\"/>";
             sendXMLString(msg);
@@ -83,17 +82,15 @@ public class ClientControllerImpl implements ClientController {
 
             readInputStream();
 
-            try {
-                in.close();
-                out.close();
-            } catch (Exception e) {
-                logger.info("Потоки не были закрыты!");
-            }
         } else {
             JOptionPane.showMessageDialog(null, "Server not found! Connection settings in file: "+configPath);
+            exitApp();
         }
     }
 
+    /**
+     * read input stream user login in application
+     */
     public void readEnterToChat (){
         while (isConnected) {
             String line = null;
@@ -129,13 +126,7 @@ public class ClientControllerImpl implements ClientController {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                isConnected = false;
-                try {
-                    in.close();
-                    out.close();
-                } catch (Exception ex) {
-                    logger.info("Потоки не были закрыты!");
-                }
+                exitApp();
             }
         }
     }
@@ -306,6 +297,7 @@ public class ClientControllerImpl implements ClientController {
         } catch (IOException e) {
             logger.info("Ошибка при получении сообщения!");
             e.printStackTrace();
+            exitApp();
         }
     }
 
@@ -360,7 +352,6 @@ public class ClientControllerImpl implements ClientController {
                 getMassagesInChat(chat_id);
                 privateChatsList.put(chat_id, privateChatView);
                 privateChatView.setPrivateChatsList(chatsListInForm);
-            } else {
             }
         }
         return true;
@@ -383,6 +374,7 @@ public class ClientControllerImpl implements ClientController {
             isConnected = false;
             in.close();
             out.close();
+            socket.close();
         } catch (Exception e) {
             logger.error("Chat exit failed! ", e);
         }
