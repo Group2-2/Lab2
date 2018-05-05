@@ -153,8 +153,8 @@ public class XmlConfiguration {
         xstream.aliasField("sender", Message.class, "sender");
         xstream.aliasField("text", Message.class, "text");
         xstream.alias("messages", List.class);
-        List<Message>list = model.getMessages(id);
-        String s =  xstream.toXML(list).replaceAll("\\n", " ")
+        List<Message> list = model.getMessages(id);
+        String s = xstream.toXML(list).replaceAll("\\n", " ")
                 .replaceAll("message ", String.format("message chat_id=\"%s\" ", "" + id));
         System.out.println(s);
         return s;
@@ -175,7 +175,7 @@ public class XmlConfiguration {
         return xstream.toXML(list).replaceAll("\\n", " ");
     }
 
-    private static Document newDocument(String value){
+    private static Document newDocument(String value) {
         Document document = null;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();

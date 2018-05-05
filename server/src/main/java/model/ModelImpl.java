@@ -229,7 +229,7 @@ public class ModelImpl implements Model {
 
 
     @Override
-    public void changePassword(String login, String password){
+    public void changePassword(String login, String password) {
         User user = findByLogin(login);
         user.setPassword(password);
     }

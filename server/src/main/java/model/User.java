@@ -14,7 +14,7 @@ public class User implements Serializable {
     private String name;
     private String login;
     private String password;
-    private boolean online= false;
+    private boolean online = false;
     private boolean admin = false;
     private List<Long> chats = new ArrayList<>();
 
