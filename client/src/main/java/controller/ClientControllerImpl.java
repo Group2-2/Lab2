@@ -79,12 +79,13 @@ public class ClientControllerImpl implements ClientController {
                 generalChatView = new GeneralChatView(this, getCurrentUser().concat(": Main chat"));
                 generalChatView.blockBanedUser(isBanned);
             }
-
+            logger.info("Client start working");
             readInputStream();
 
         } else {
             JOptionPane.showMessageDialog(null, "Server not found! Connection settings in file: "+configPath);
             exitApp();
+            logger.error("Server not found!");
         }
     }
 
@@ -125,6 +126,7 @@ public class ClientControllerImpl implements ClientController {
                     }
                 }
             } catch (IOException e) {
+                logger.error("Failed to read input stream for access!");
                 e.printStackTrace();
                 exitApp();
             }
@@ -144,14 +146,15 @@ public class ClientControllerImpl implements ClientController {
                return false;
            }
             socket = new Socket(getServerAddress(), getPORT());
-            logger.info("Connected: " + socket);
             in = new BufferedReader(new InputStreamReader(
                     socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
+            logger.info("Connected: " + socket);
         } catch (UnknownHostException e) {
             logger.error("Host unknown: ", e);
             return false;
         } catch (IOException e) {
+            logger.error("Failed to read connection config ", e);
             return false;
         }
         return true;
@@ -295,8 +298,8 @@ public class ClientControllerImpl implements ClientController {
                 }
             }
         } catch (IOException e) {
-            logger.info("Ошибка при получении сообщения!");
             e.printStackTrace();
+            logger.error("Ошибка при получении сообщения!");
             exitApp();
         }
     }
@@ -310,6 +313,7 @@ public class ClientControllerImpl implements ClientController {
             TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            logger.error("Wait for restart failed ", e);
         }
         isConnected = connectServer();
         if (isConnected) {
@@ -317,6 +321,7 @@ public class ClientControllerImpl implements ClientController {
             readEnterToChat();
             System.out.println("Server has been restart!");
             getMessages(mainChatID, "Server has been restart!", "SERVER");
+            logger.info("Client and Server has been restart!");
         } else {
             logger.error("Не удалось переподключится к серверу!");
             Object[] options = {"OK", "CANCEL"};
@@ -375,8 +380,10 @@ public class ClientControllerImpl implements ClientController {
             in.close();
             out.close();
             socket.close();
+            logger.info("Closed resources and exit application");
         } catch (Exception e) {
-            logger.error("Chat exit failed! ", e);
+            e.printStackTrace();
+            logger.error("Application exit failed! ", e);
         }
     }
 
@@ -419,6 +426,7 @@ public class ClientControllerImpl implements ClientController {
             JOptionPane.showMessageDialog(null, "Admine has banned you");
             isBanned = true;
             generalChatView.blockBanedUser(isBanned);
+            logger.info("Admine has banned you");
         }
         if (isAdmin()) {
             if (!banUsers.contains(login)) banUsers.add(login);
@@ -437,6 +445,7 @@ public class ClientControllerImpl implements ClientController {
             JOptionPane.showMessageDialog(null, "Admine has unbanned you");
             isBanned = false;
             generalChatView.blockBanedUser(isBanned);
+            logger.info("Admine has unbanned you");
         }
         if (isAdmin()) {
             if (banUsers.contains(login)) banUsers.remove(login);
@@ -837,6 +846,7 @@ public class ClientControllerImpl implements ClientController {
             document.getDocumentElement().normalize();
         } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
+            logger.error("Failed to read input XML", e);
         }
         return document;
     }
@@ -936,12 +946,16 @@ public class ClientControllerImpl implements ClientController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error("IO exception in reading file with config!");
         } catch (TransformerException e) {
             e.printStackTrace();
+            logger.error("Transformer exception in reading file with config!");
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
+            logger.error("Parser exception in reading file with config!");
         } catch (SAXException e) {
             e.printStackTrace();
+            logger.error("SAX exception in reading file with config!");
         }finally {
             return readSuccess;
         }
