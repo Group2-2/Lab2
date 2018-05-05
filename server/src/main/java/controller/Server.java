@@ -16,6 +16,7 @@ import java.util.*;
  * Creates new Connections on demand.
  * Checks for crush connections
  * Supports console for admin control
+ * Class is singletone.
  * @see controller.ServerController
  * @see controller.Connection
  */
@@ -41,17 +42,17 @@ public class Server implements ServerController {
      */
     private boolean consoleWork = true;
     /**
-     * for working current insatance of the server works.
+     * for working current insatanse of the server works.
      */
     private static boolean serverWork = true;
     /**
      * instance of model for control.
      */
-    private static ModelImpl model = ModelImpl.getInstance();
+    private static final ModelImpl model = ModelImpl.getInstance();
     /**
      * instance for parsing commands.
      */
-    private XmlConfiguration xml = XmlConfiguration.getInstance();
+    private static final XmlConfiguration xml = XmlConfiguration.getInstance();
     /**
      * login - current connection of online users.
      * (login, connection for login)

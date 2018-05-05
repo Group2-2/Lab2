@@ -224,8 +224,7 @@ public class ModelImpl implements Model {
 
     @Override
     public List<String> getBanList() {
-        List<String> list = new ArrayList<>(banList);
-        return list;
+        return new ArrayList<>(banList);
     }
 
 

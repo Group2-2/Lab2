@@ -36,18 +36,18 @@ import org.apache.log4j.Logger;
     /**
      * instance for parsing xml.
      */
-    private XmlConfiguration xml = XmlConfiguration.getInstance();
+    private final XmlConfiguration xml = XmlConfiguration.getInstance();
     /**
      * instance for model configuration.
      */
-    private ModelImpl model = ModelImpl.getInstance();
+    private final ModelImpl model = ModelImpl.getInstance();
       /**
      * parameter of working this thread, stopped, when it is false.
      */
     private boolean isWork = true;
 
     /**
-     * Constructor. Inits writer.
+     * Constructor. Init writer.
      * @param socket init current socket
      */
     Connection(Socket socket) {
@@ -55,7 +55,7 @@ import org.apache.log4j.Logger;
         try {
             writer = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
-            logger.warn("IOExeption when in creatng Connection in socket:" + socket.toString());
+            logger.warn("IOException when in creating Connection in socket:" + socket.toString());
         }
     }
 
@@ -86,14 +86,14 @@ import org.apache.log4j.Logger;
                     reader.close();
                 }
             } catch (IOException e) {
-                logger.debug("IOEX in closng reader, socket^" + socket.toString());
+                logger.debug("IOEX in closing reader, socket^" + socket.toString());
             }
         }
     }
 
     /**
      * send message ro this user
-     * @param message - sended message
+     * @param message - sent message
      */
     public void send(String message) {
         writer.flush();
@@ -136,7 +136,7 @@ import org.apache.log4j.Logger;
     }
 
     /**
-     * Methot that get user command and correctly processes:
+     * Method that get user command and correctly processes:
      * manages user profiles, adds connections to the map,
      * sends the necessary commands to the required chats
      * @param command - accepted command

@@ -8,7 +8,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.security.auth.login.Configuration;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class for parse xml command and configuration server
+ * Class for parse xml command and configuration server.
  * Class is singletone
  */
 public class XmlConfiguration {
