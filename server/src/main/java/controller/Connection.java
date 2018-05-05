@@ -203,6 +203,7 @@ import java.util.Map;
                 map.put("result", "ACCEPTED");
                 String s = xml.command(type, map);
                 Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
+                Server.getInstance().sendToUser(login, s);
                 return s;
             }
             case "unban": {
@@ -214,6 +215,7 @@ import java.util.Map;
                 map.put("result", "ACCEPTED");
                 String s = xml.command(type, map);
                 Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
+                Server.getInstance().sendToUser(login, s);
                 return s;
             }
             case "login" : {

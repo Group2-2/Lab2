@@ -117,6 +117,19 @@ public class Server implements ServerController {
     }
 
     /**
+     *
+     * Sends command by connection for special user
+     * @param login - login of special user
+     * @param command for this user
+     */
+    public void sendToUser(String login, String command) {
+        if(users.containsKey(login)) {
+            users.get(login).send(command);
+        }
+        model.save();
+    }
+
+    /**
      * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
      */
     private void checkOnline() {
