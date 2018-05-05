@@ -72,7 +72,6 @@ import org.apache.log4j.Logger;
                 }
                 if (message != null && !message.equals("")) {
                     String response = configuration(message);
-                    System.out.println(message);
                     send(response);
                     model.save();
                 }
@@ -99,7 +98,6 @@ import org.apache.log4j.Logger;
         writer.flush();
         writer.println(message);
         writer.flush();
-        System.out.println(message);
     }
 
     /**
