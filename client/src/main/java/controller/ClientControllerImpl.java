@@ -185,6 +185,9 @@ public class ClientControllerImpl implements ClientController {
                     getBanList();
                 }
                 String line = in.readLine();
+                if (line.contains("<test></test>")) {
+                    continue;
+                }
                 System.out.println("Get in line " + line);
                 if (line.equals("</messages>") || line.equals("<messages/>")) {
                     varLoadMessages = true;
@@ -532,13 +535,12 @@ public class ClientControllerImpl implements ClientController {
      * prepare command register new user
      *
      * @param login login
-     * @param nickName Name
      * @param password password
      * @return success Massage is sent
      */
-    public boolean registerNewUser(String login, String nickName, String password) {
+    public boolean registerNewUser(String login, String password) {
         //<addMessage sender = * chat_id = * text = ***/>
-        String msg = String.format("<command type=\"registration\" login=\"%1$s\" name = \"%2$s\" password =\"%3$s\"/>", login, nickName, password);
+        String msg = String.format("<command type=\"registration\" login=\"%1$s\" password =\"%2$s\"/>", login, password);
         setCurrentUser(login);
         setCurrentUserPassword(password);
         return (sendXMLString(msg));
