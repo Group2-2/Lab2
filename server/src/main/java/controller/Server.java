@@ -1,37 +1,73 @@
 package controller;
 
+import model.XmlConfiguration;
 import org.apache.log4j.Logger;
-import model.*;
+import model.ModelImpl;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import java.util.*;
 
+
 /**
- * Creates new Connections on demand
+ * Creates new Connections on demand.
  * Checks for crush connections
  * Supports console for admin control
  * @see controller.ServerController
  * @see controller.Connection
  */
 public class Server implements ServerController {
+    /**
+     * logger for this class.
+     */
     private static final Logger logger = Logger.getLogger(Server.class);
+    /**
+     * Used for getting sockets to connection.
+     */
     private ServerSocket serverSocket;
+    /**
+     * current server port.
+     */
     private final int port;
+    /**
+     * when it's true - thread checkOnline works.
+     */
     private boolean checkOnlineWork = true;
+    /**
+     * when it's true - console of the server works.
+     */
     private boolean consoleWork = true;
+    /**
+     * for working current insatance of the server works.
+     */
     private static boolean serverWork = true;
+    /**
+     * instance of model for control.
+     */
     private static ModelImpl model = ModelImpl.getInstance();
+    /**
+     * instance for parsing commands.
+     */
     private XmlConfiguration xml = XmlConfiguration.getInstance();
     /**
-     * login - current connection of online users
+     * login - current connection of online users.
+     * (login, connection for login)
      */
-    private Map<String, Connection> users; //login/connection
+    private Map<String, Connection> users;
+    /**
+     * current instance of server.
+     */
     private static Server instance;
 
     /**
-     * initializes port, map, ServerSocket and started new Thread with checkOnline method
+     * milliseconds in period of meth that checks online users.
+     */
+    private final int period  = 60000;
+    /**
+     * initializes port, map, ServerSocket and started new Thread with checkOnline method.
      * @see Server#checkOnline
      * @param port port
      */
@@ -57,6 +93,10 @@ public class Server implements ServerController {
         return users;
     }
 
+    /**
+     * for current instance.
+     * @return current instance
+     */
     public static Server getInstance() {
         return instance;
     }
@@ -83,7 +123,7 @@ public class Server implements ServerController {
     }
 
     /**
-     * The main method, starts the Thread
+     * The main method, starts the Thread.
      * @param args args
      */
     public static void main(String[] args) {
@@ -109,28 +149,28 @@ public class Server implements ServerController {
     public void sendToChat(Long chatId, String text, Connection current) {
         List list = model.getChatUsers(chatId);
         users.forEach((login, connection) -> {
-            if(list.contains(login) && !connection.equals(current)) {
+            if (list.contains(login) && !connection.equals(current)) {
                 connection.send(text);
             }
-        } );
+        });
         model.save();
     }
 
     /**
-     *
-     * Sends command by connection for special user
+     * Sends command by connection for special user.
      * @param login - login of special user
      * @param command for this user
      */
     public void sendToUser(String login, String command) {
-        if(users.containsKey(login)) {
+        if (users.containsKey(login)) {
             users.get(login).send(command);
         }
         model.save();
     }
 
     /**
-     * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no
+     * Checks crush connections.
+     * method for thread, every SomePeriodOfTIme checks all users, was connection crush or no.
      */
     private void checkOnline() {
         while (checkOnlineWork) {
@@ -141,9 +181,9 @@ public class Server implements ServerController {
                     model.setOnlineStatus(entry.getKey(), false);
                     model.setOnlineStatus(entry.getKey(), false);
                     Map<String, Object> map = new HashMap<>();
-                    map.put("user",entry.getKey());
+                    map.put("user", entry.getKey());
                     map.put("isOnline", false);
-                    sendToChat(Long.parseLong("0"),xml.command("setOnlineStatus", map), entry.getValue());
+                    sendToChat(Long.parseLong("0"), xml.command("setOnlineStatus", map), entry.getValue());
                     if (entries.hasNext()) {
                         entries.next();
                         entries.remove();
@@ -152,7 +192,7 @@ public class Server implements ServerController {
                 }
             }
             try {
-                Thread.sleep(60000); // 1 minute
+                Thread.sleep(period); // 1 minute
             } catch (InterruptedException e) {
                 logger.warn(e);
             }
@@ -160,21 +200,21 @@ public class Server implements ServerController {
     }
 
     /**
-     * deletes user from map and set offline status
+     * deletes user from map and set offline status.
      * @param conn link on the connection to user
      */
 
-    public void deleteUser(Connection conn){
+    public void deleteUser(Connection conn) {
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, Connection> entry = entries.next();
             if (conn == entry.getValue()) {
-                if(model.existUser(entry.getKey())) {
+                if (model.existUser(entry.getKey())) {
                     model.setOnlineStatus(entry.getKey(), false);
                     Map<String, Object> map = new HashMap<>();
-                    map.put("user",entry.getKey());
+                    map.put("user", entry.getKey());
                     map.put("isOnline", false);
-                    sendToChat(Long.parseLong("0"),xml.command("setOnlineStatus", map), entry.getValue());
+                    sendToChat(Long.parseLong("0"), xml.command("setOnlineStatus", map), entry.getValue());
                 }
                 if (entries.hasNext()) {
                     entries.next();
@@ -186,7 +226,7 @@ public class Server implements ServerController {
         }
     }
     /**
-     * The method for Admin Console Configuration - run() in Thread
+     * The method for Admin Console Configuration - run() in Thread.
      */
     private void consoleStart() {
         while (consoleWork) {
@@ -195,13 +235,13 @@ public class Server implements ServerController {
     }
 
     /**
-     * gives us a list of users by status
+     * gives us a list of users by status.
      * @see Server#consoleChangeUser(String)
      */
     private void consoleMenu() {
         int count = 13;
         System.out.println("0 --- EXIT APP");
-        if(serverWork) {
+        if (serverWork) {
             System.out.println("10 --- STOP SERVER");
             System.out.println("12 --- OVERLOAD SERVER");
         } else {
@@ -215,7 +255,7 @@ public class Server implements ServerController {
         int a;
         while (true) {
             a = consoleInputIndex();
-            if(a < 0 || a > count) {
+            if (a < 0 || a > count) {
                 System.out.println("wrong");
                 continue;
             }
@@ -226,8 +266,8 @@ public class Server implements ServerController {
         switch (a) {
             case 0:
                 System.out.print("Are you sure to stop server? Enter 1: ");
-                if(consoleInputIndex() == 1){
-                    if(Server.getInstance().serverWork) {
+                if (consoleInputIndex() == 1) {
+                    if (Server.getInstance().serverWork) {
                         stop();
                     }
                     System.exit(0);
@@ -244,30 +284,34 @@ public class Server implements ServerController {
             case 3:
                 list = model.getListUsers();
                 list.forEach(string -> {
-                    if (model.isInBan(string)) list1.add(string);
+                    if (model.isInBan(string)) {
+                        list1.add(string);
+                    }
                 });
                 consoleShowUsers(list1);
                     break;
             case 4:
                 list = model.getListUsers();
                 list.forEach(string -> {
-                    if (!model.isInBan(string)) list1.add(string);
+                    if (!model.isInBan(string)) {
+                        list1.add(string);
+                    }
                 });
                 consoleShowUsers(list1);
                 break;
             case 10:
-                if(!Server.getInstance().serverWork){
+                if (!Server.getInstance().serverWork) {
                     System.out.println("server was stopped");
                       return;
                 }
                 System.out.print("Are you sure to stop server? Enter 1: ");
-                if(consoleInputIndex() == 1){
+                if (consoleInputIndex() == 1) {
                     sendToChat(Long.parseLong("0"), xml.command("stop", null), null);
                     stop();
                 }
                 break;
             case 11:
-                if(serverWork) {
+                if (serverWork) {
                     System.out.println("Server was started");
                 } else {
                     instance = new Server(port);
@@ -276,18 +320,18 @@ public class Server implements ServerController {
                 }
                 break;
             case 12:
-                if(!Server.getInstance().serverWork) {
+                if (!Server.getInstance().serverWork) {
                     System.out.println("Server was stopped");
                     return;
                 }
-                sendToChat(Long.parseLong("0"), XmlConfiguration.getInstance().command("restart", null), null);
+                sendToChat(Long.parseLong("0"), xml.command("restart", null), null);
                 stop();
                 instance = new Server(port);
                 Server.getInstance().serverWork = true;
                 new Thread(instance).start();
                 break;
             case 13:
-                System.out.println("current port: " + instance.getPort() +"\n");
+                System.out.println("current port: " + instance.getPort() + "\n");
                 break;
             default:
                     System.out.println("smth wrong");
@@ -295,7 +339,8 @@ public class Server implements ServerController {
         }
     }
 
-    /** called in consoleMenu
+    /**
+     *  called in consoleMenu.
      * show users in current list and call consoleChangeUser
      * @see Server#consoleChangeUser(String)
      * @see Server#consoleMenu()
@@ -309,7 +354,7 @@ public class Server implements ServerController {
             }
             System.out.println("0 - return");
             for (int i = 1; i <= list.size(); i++) {
-                String s = (String) list.get(i-1);
+                String s = (String) list.get(i - 1);
                 System.out.println(i + ": " + s + " - isBan: " + model.isInBan(s)
                         + ", isAdmin: " + model.isAdmin(s)
                         + ", online: " + model.isOnline(s));
@@ -324,13 +369,15 @@ public class Server implements ServerController {
                 }
                 break;
             }
-            if (a == 0) return;
+            if (a == 0) {
+                return;
+            }
             consoleChangeUser((String) list.get(a - 1));
         }
      }
 
     /**
-     * show all user information, gives the opportunity to change BAN/UNBAN, isAdmin/no called in
+     * show all user information, gives the opportunity to change BAN/UNBAN, isAdmin/no called in.
      * consoleShowUsers
      * @param login of current user
      * @see Server#consoleShowUsers(List)
@@ -359,16 +406,16 @@ public class Server implements ServerController {
                     Map<String, Object> map = new HashMap<>();
                     map.put("login", login);
                     if (model.isInBan(login)) {
-                        sendToChat(Long.parseLong("0"), xml.command("unban",map) , null);
+                        sendToChat(Long.parseLong("0"), xml.command("unban", map), null);
                         model.unban(login);
                     } else {
-                        sendToChat(Long.parseLong("0"), xml.command("ban",map) , null);
+                        sendToChat(Long.parseLong("0"), xml.command("ban", map), null);
                         model.ban(login);
                     }
                     model.save();
                     break;
                 case 2:
-                    if (!model.isAdmin(login)){
+                    if (!model.isAdmin(login)) {
                         model.createAdmin(login);
                     } else {
                         model.deleteAdmin(login);
@@ -383,7 +430,7 @@ public class Server implements ServerController {
      }
 
     /**
-     * method for menu, user has to enter int value above 0
+     * method for menu, user has to enter int value above 0.
      * @return int value that user entered, -1 - if user entered smth wrong
      */
     private static int consoleInputIndex() {
@@ -399,7 +446,7 @@ public class Server implements ServerController {
     }
 
     /**
-     * To stop current SERVER and all connections
+     * To stop current SERVER and all connections.
      */
     private void stop() {
         Iterator<Map.Entry<String, Connection>> entries = users.entrySet().iterator();

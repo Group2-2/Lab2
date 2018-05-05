@@ -1,31 +1,56 @@
 package controller;
 
-import org.apache.log4j.Logger;
-import model.*;
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import model.Message;
+import model.ModelImpl;
+import model.User;
+import model.XmlConfiguration;
+
+import org.apache.log4j.Logger;
+
 /**
- * Class wraps current connection
- * Fully communicates with the user, receives the message and sends back
- */
-    class Connection implements Runnable {
-
+* Class wraps current connection.
+* Fully communicates with the user, receives the message and sends back.
+*/
+ class Connection implements Runnable {
+    /**
+     * logger for class.
+     */
     private static final Logger logger = Logger.getLogger(Connection.class);
-
-    final private Socket socket;
+    /**
+     * used to getInputStream.
+     */
+    private final Socket socket;
+    /**
+     * current writer.
+     */
     private PrintWriter writer;
-
+    /**
+     * instance for parsing xml.
+     */
     private XmlConfiguration xml = XmlConfiguration.getInstance();
+    /**
+     * instance for model configuration.
+     */
     private ModelImpl model = ModelImpl.getInstance();
       /**
-     * parameter of working this thread, stopped, when it is false
+     * parameter of working this thread, stopped, when it is false.
      */
     private boolean isWork = true;
 
-    public Connection(Socket socket) {
+    /**
+     * Constructor. Inits writer.
+     * @param socket init current socket
+     */
+    Connection(Socket socket) {
         this.socket = socket;
         try {
             writer = new PrintWriter(socket.getOutputStream(), true);
@@ -54,7 +79,7 @@ import java.util.Map;
             }
         } catch (IOException e) {
             stopConnection();
-            logger.warn("socket: " + socket.toString(),e);
+            logger.warn("socket: " + socket.toString(), e);
         } finally {
             try {
                 if (reader != null) {
@@ -87,30 +112,13 @@ import java.util.Map;
             Server.getInstance().deleteUser(this);
             return true;
         }
-       // BufferedReader reader = null;
         try {
-        /*    reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));*/
             send("<test></test>");
-         /*   String message = reader.readLine(); //just try
-            if (message == null) {
-                isWork = false;
-                Server.getInstance().deleteUser(this);
-                 choice = true;
-            }*/
-
-        } catch (NullPointerException /*| IOException*/ e) {
+        } catch (NullPointerException e) {
             stopConnection();
             Server.getInstance().deleteUser(this);
             choice = true;
-        }/* finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                logger.debug(e);
-            }
-        }*/
+        }
         return choice;
     }
 
@@ -126,44 +134,6 @@ import java.util.Map;
         }
         writer.close();
     }
-   /* /**
-     * check login and register, check chat_id for newMessage and chatConfiguration
-     * @param command - accepted command
-     * @return login if user login or register
-     */
-  /*  private String checkNewUser(String command) {
-        Document document = xml.newDocument(command);
-        NodeList nodes = document.getElementsByTagName("command");
-        Element element = (Element) nodes.item(0);
-        String type = element.getAttribute("type");
-        switch (type) {
-            case "ban":
-            case "unban":
-                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
-                break;
-            case "registration":
-                if(!model.existUser(element.getAttribute("login"))){
-                    return element.getAttribute("login");
-                }
-                break;
-            case "login" :
-                return element.getAttribute("login");
-            case "addMessage":
-            case "addToChat":
-                long id = Long.parseLong(element.getAttribute("chat_id"));
-                Server.getInstance().sendToChat(id,command, this);
-                break;
-            case "setOnlineStatus":
-                boolean isOnline = Boolean.parseBoolean(element.getAttribute("isOnline"));
-                model.setOnlineStatus(element.getAttribute("user"), isOnline);
-                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
-                break;
-            default :
-                break;
-        }
-        return "";
-    }
-    */
 
     /**
      * Methot that get user command and correctly processes:
@@ -202,7 +172,7 @@ import java.util.Map;
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
                 String s = xml.command(type, map);
-                Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
+                Server.getInstance().sendToChat(Long.parseLong("0"), s, this);
                 Server.getInstance().sendToUser(login, s);
                 return s;
             }
@@ -214,8 +184,7 @@ import java.util.Map;
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
                 String s = xml.command(type, map);
-                Server.getInstance().sendToChat(Long.parseLong("0"), s , this);
-                Server.getInstance().sendToUser(login, s);
+                Server.getInstance().sendToChat(Long.parseLong("0"), s, this);
                 return s;
             }
             case "login" : {
@@ -236,17 +205,17 @@ import java.util.Map;
                 String login = xml.getLogin(command);
                 String password = xml.getPassword(command);
                 map = new HashMap<>();
-                if(!model.register(new User(login, password))) {
+                if (!model.register(new User(login, password))) {
                     map.put("result", "NOTACCEPTED");
                 } else {
                     map.put("result", "ACCEPTED");
                     Server.getInstance().setUser(login, this);
                 }
-                return xml.command(type,map);
+                return xml.command(type, map);
             }
             case "newChatID": {
                 String login = xml.getSender(command);
-                if(model.isInBan(login)) {
+                if (model.isInBan(login)) {
                     return command;
                 }
                 long id = model.createChat();
@@ -254,32 +223,32 @@ import java.util.Map;
                 map = new HashMap<>();
                 map.put("chat_id", id);
                 map.put("user", login);
-                return xml.command(type,map);
+                return xml.command(type, map);
             }
             case "addToChat": {
                 String login = xml.getLogin(command);
                 long id = xml.getChatId(command);
                 model.addToChat(login, id);
-                Server.getInstance().sendToChat(id,command, this);
+                Server.getInstance().sendToChat(id, command, this);
                 return command;
             }
 
             case "addMessage": {
                 String login = xml.getSender(command);
-                if(model.isInBan(login)) {
+                if (model.isInBan(login)) {
                     return command;
                 }
                 long id = xml.getChatId(command);
                 String text = xml.getText(command);
                 model.addMessage(id, new Message(login, text));
-                Server.getInstance().sendToChat(id,command, this);
+                Server.getInstance().sendToChat(id, command, this);
                 return command;
             }
             case "setOnlineStatus": {
                 boolean online = xml.getOnlineStatus(command);
                 String login = xml.getUserFromMessage(command);
                 model.setOnlineStatus(login, online);
-                Server.getInstance().sendToChat(Long.parseLong("0"),command, this);
+                Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
                 return command;
             }
             case "createAdmin": {
@@ -297,13 +266,13 @@ import java.util.Map;
                 model.deleteAdmin(login);
                 map = new HashMap<>();
                 map.put("isInBan", model.isInBan(login));
-                return xml.command(type,map);
+                return xml.command(type, map);
             }
             case "getUserName": {
                 String login = xml.getUserFromMessage(command);
                 map = new HashMap<>();
                 map.put("name", model.getUserName(login));
-                return xml.command(type,map);
+                return xml.command(type, map);
             }
             case "getBanList":
                 return XmlConfiguration.listUserToXml(model.getBanList(), "banList");
@@ -318,7 +287,7 @@ import java.util.Map;
                 String pass = xml.getPassword(command);
                 map = new HashMap<>();
                 map.put("result", "ACCEPTED");
-                model.changePassword(log,pass);
+                model.changePassword(log, pass);
                 return xml.command(type, map);
             default:
                 logger.trace("Command not found " + command);
