@@ -293,6 +293,9 @@ public class ClientControllerImpl implements ClientController {
                         restartClient();
                         break;                                            
                     }
+                    default:
+                        logger.trace("Command type not found " + type);
+                        break;
                 }
             }
         } catch (IOException e) {
