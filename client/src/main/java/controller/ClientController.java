@@ -27,11 +27,10 @@ public interface ClientController {
     /**
      * prepare command register new user.
      * @param login login
-     * @param nickName name
      * @param password password
      * @return success Massage is sent
      */
-    boolean registerNewUser(String login, String nickName, String password);
+    boolean registerNewUser(String login, String password);
 
     /**
      * close main chat window.

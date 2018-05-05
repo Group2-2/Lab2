@@ -111,7 +111,7 @@ public class LoginView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (loginField.getText() != null && !loginField.getText().trim().equals("") && passwordField != null) {
-                    controller.registerNewUser(loginField.getText(), loginField.getText(), new String(passwordField.getPassword()));
+                    controller.registerNewUser(loginField.getText(), new String(passwordField.getPassword()));
                     closeFrame();
                 }
             }
