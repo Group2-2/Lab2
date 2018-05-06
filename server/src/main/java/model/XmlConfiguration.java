@@ -156,7 +156,6 @@ public class XmlConfiguration {
         List<Message> list = model.getMessages(id);
         String s = xstream.toXML(list).replaceAll("\\n", " ")
                 .replaceAll("message ", String.format("message chat_id=\"%s\" ", "" + id));
-        System.out.println(s);
         return s;
     }
 
