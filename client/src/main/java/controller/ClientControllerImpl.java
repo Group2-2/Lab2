@@ -188,7 +188,7 @@ public class ClientControllerImpl implements ClientController {
                 if (line.contains("<test></test>")) {
                     continue;
                 }
-                System.out.println("Get in line " + line);
+                //System.out.println("Get in line " + line);
                 if (line.equals("</messages>") || line.equals("<messages/>")) {
                     varLoadMessages = true;
                     continue;
@@ -323,7 +323,7 @@ public class ClientControllerImpl implements ClientController {
         if (isConnected) {
             validateUser(getCurrentUser(), getCurrentUserPassword());
             readEnterToChat();
-            System.out.println("Server has been restart!");
+            //System.out.println("Server has been restart!");
             getMessages(mainChatID, "Server has been restart!", "SERVER");
             logger.info("Client and Server has been restart!");
         } else {
@@ -672,7 +672,7 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        System.out.println("OUT " + xmlText);
+        //System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
