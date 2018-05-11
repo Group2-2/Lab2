@@ -71,8 +71,12 @@ import org.apache.log4j.Logger;
                     Server.getInstance().deleteUser(this);
                 }
                 if (message != null && !message.equals("")) {
+                    System.out.println("get: " + message);
                     String response = configuration(message);
-                    send(response);
+                    if(!"".equals(response)) {
+                        send(response);
+                    }
+                    System.out.println("response: " + message);
                     model.save();
                 }
             }
@@ -197,6 +201,7 @@ import org.apache.log4j.Logger;
                 } else {
                     map.put("result", "NOTACCEPTED");
                 }
+              //  System.out.println();
                 return xml.command(type, map);
             }
             case "registration": {
@@ -246,8 +251,12 @@ import org.apache.log4j.Logger;
                 boolean online = xml.getOnlineStatus(command);
                 String login = xml.getUserFromMessage(command);
                 model.setOnlineStatus(login, online);
-                Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
-                return command;
+                if(!online) {
+                    Server.getInstance().deleteUser(this);
+                } else {
+                    Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
+                }
+                return "";
             }
             case "createAdmin": {
                 String login = xml.getUserFromMessage(command);

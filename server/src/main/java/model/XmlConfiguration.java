@@ -287,12 +287,11 @@ public class XmlConfiguration {
         String value = "";
         if (attributes != null) {
             for (Map.Entry<String, Object> item: attributes.entrySet()) {
-                String buf = String.format("%s=\"%s\"", item.getKey(), item.getValue());
+                String buf = String.format("%s=\"%s\"", item.getKey(), item.getValue().toString());
                 builder.append(buf).append(" ");
             }
             value = builder.toString().trim();
         }
-
         return String.format("<command type=\"%s\" %s />", command, value);
     }
 }
