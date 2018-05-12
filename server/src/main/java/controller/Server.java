@@ -187,10 +187,10 @@ public class Server implements ServerController {
                     map.put("user", entry.getKey());
                     map.put("isOnline", false);
                     sendToChat(Long.parseLong("0"), xml.command("setOnlineStatus", map), entry.getValue());
-                    if (entries.hasNext()) {
-                        entries.next();
+                 //   if (entries.hasNext()) {
+                 //       entries.next();
                         entries.remove();
-                    }
+                //    }
                     model.save();
                 }
             }
@@ -220,10 +220,9 @@ public class Server implements ServerController {
                     sendToChat(Long.parseLong("0"), xml.command("setOnlineStatus", map), entry.getValue());
                     entry.getValue().stopConnection();
                 }
-                if (entries.hasNext()) {
-                    entries.next();
+              //  if (entries.hasNext()) {
                     entries.remove();
-                }
+           //     }
                 model.save();
             }
         }
@@ -460,10 +459,10 @@ public class Server implements ServerController {
             Map.Entry<String, Connection> entry = entries.next();
             model.setOnlineStatus(entry.getKey(), false);
             entry.getValue().stopConnection();
-            if (entries.hasNext()) {
-                entries.next();
+          //  if (entries.hasNext()) {
+          //      entries.next();
                 entries.remove();
-            }
+         //   }
         }
         model.save();
         Server.getInstance().serverWork = false;
