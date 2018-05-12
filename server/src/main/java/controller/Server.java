@@ -104,8 +104,8 @@ public class Server implements ServerController {
 
     @Override
     public void setUser(String login, Connection connection) {
-        model.save();
         users.put(login, connection);
+        model.save();
     }
 
     @Override
@@ -154,6 +154,7 @@ public class Server implements ServerController {
                 connection.send(text);
             }
         });
+       // System.out.println("send to chat " + chatId + " - " + text);
         model.save();
     }
 
@@ -167,6 +168,7 @@ public class Server implements ServerController {
             users.get(login).send(command);
         }
         model.save();
+      //  System.out.println("send to " + login + "- " + command);
     }
 
     /**
@@ -185,10 +187,10 @@ public class Server implements ServerController {
                     map.put("user", entry.getKey());
                     map.put("isOnline", false);
                     sendToChat(Long.parseLong("0"), xml.command("setOnlineStatus", map), entry.getValue());
-                    if (entries.hasNext()) {
-                        entries.next();
+                 //   if (entries.hasNext()) {
+                 //       entries.next();
                         entries.remove();
-                    }
+                //    }
                     model.save();
                 }
             }
@@ -216,12 +218,11 @@ public class Server implements ServerController {
                     map.put("user", entry.getKey());
                     map.put("isOnline", false);
                     sendToChat(Long.parseLong("0"), xml.command("setOnlineStatus", map), entry.getValue());
+                    entry.getValue().stopConnection();
                 }
-                if (entries.hasNext()) {
-                    entries.next();
+              //  if (entries.hasNext()) {
                     entries.remove();
-                }
-
+           //     }
                 model.save();
             }
         }
@@ -373,7 +374,10 @@ public class Server implements ServerController {
             if (a == 0) {
                 return;
             }
-            consoleChangeUser((String) list.get(a - 1));
+            if(consoleChangeUser((String) list.get(a - 1))) {
+                System.out.println("You changed user setting, upload..");
+                return;
+            }
         }
      }
 
@@ -383,7 +387,7 @@ public class Server implements ServerController {
      * @param login of current user
      * @see Server#consoleShowUsers(List)
      * */
-     private void consoleChangeUser(String login) {
+     private boolean consoleChangeUser(String login) {
         while (true) {
             System.out.println(login + " - isBan: " + model.isInBan(login)
                     + ", isAdmin: " + model.isAdmin(login) + ", online: "
@@ -402,7 +406,7 @@ public class Server implements ServerController {
             }
             switch (a) {
                 case 0:
-                    return;
+                    return false;
                 case 1:
                     Map<String, Object> map = new HashMap<>();
                     map.put("login", login);
@@ -414,7 +418,7 @@ public class Server implements ServerController {
                         model.ban(login);
                     }
                     model.save();
-                    break;
+                    return true;
                 case 2:
                     if (!model.isAdmin(login)) {
                         model.createAdmin(login);
@@ -422,10 +426,10 @@ public class Server implements ServerController {
                         model.deleteAdmin(login);
                     }
                     model.save();
-                    break;
+                    return true;
                 default:
                     System.out.println("smth wrong");
-                    break;
+                    return true;
             }
         }
      }
@@ -455,10 +459,10 @@ public class Server implements ServerController {
             Map.Entry<String, Connection> entry = entries.next();
             model.setOnlineStatus(entry.getKey(), false);
             entry.getValue().stopConnection();
-            if (entries.hasNext()) {
-                entries.next();
+          //  if (entries.hasNext()) {
+          //      entries.next();
                 entries.remove();
-            }
+         //   }
         }
         model.save();
         Server.getInstance().serverWork = false;
