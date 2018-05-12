@@ -283,19 +283,33 @@ import org.apache.log4j.Logger;
             }
             case "getBanList":
                 return XmlConfiguration.listUserToXml(model.getBanList(), "banList");
-            case "deleteUser":
+            case "deleteUser": {
                 String login = xml.getLogin(command);
                 map = new HashMap<>();
                 model.deleteUser(login);
+                map.put("login", login);
                 map.put("result", "ACCEPTED");
-                return xml.command(type, map);
-            case "changePassword":
+                String result = xml.command(type, map);
+                Server.getInstance().sendToChat(Long.parseLong("0"), result, null);
+                return "";
+            }
+            case "changePassword": {
                 String log = xml.getLogin(command);
                 String pass = xml.getPassword(command);
                 map = new HashMap<>();
                 map.put("result", "ACCEPTED");
                 model.changePassword(log, pass);
                 return xml.command(type, map);
+            }
+            case "leaveChat": {
+                Long chatId = xml.getChatId(command);
+                String login = xml.getLogin(command);
+                model.leaveChat(login, chatId);
+                map = new HashMap<>();
+                map.put("login", login);
+                map.put("chat_id", chatId);
+                return "";
+            }
             default:
                 logger.trace("Command not found " + command);
                 return command;

@@ -89,6 +89,7 @@ public class ModelImpl implements Model {
         writeObject(listUsers, FilePath.LIST_USER.getPath());
         writeObject(groups, FilePath.GROUPS.getPath());
         writeObject(banList, FilePath.BAN_LIST.getPath());
+        //System.out.println();
     }
 
     @Override
@@ -278,4 +279,6 @@ public class ModelImpl implements Model {
     }
 
 
+    public void leaveChat(String login, Long chatId) {
+    }
 }
