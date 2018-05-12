@@ -249,8 +249,9 @@ public class ModelImpl implements Model {
 
     private <T> T read(String path) {
         T result = null;
+        BufferedReader bufferedReader = null;
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
+            bufferedReader = new BufferedReader(new FileReader(new File(path)));
             StringBuilder builder = new StringBuilder();
             String thisLine = "";
             while ((thisLine = bufferedReader.readLine()) != null) {
@@ -265,6 +266,12 @@ public class ModelImpl implements Model {
             bufferedReader.close();
         } catch (IOException e) {
             logger.debug("File " + path + " not found");
+        } finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }
