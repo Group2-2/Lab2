@@ -164,4 +164,11 @@ public interface Model {
      */
     void changePassword(String login, String password);
 
+    /**
+     * Method for leave user from chat
+     * @param login login of user
+     * @param chatId id of chat
+     */
+    void leaveChat(String login, Long chatId);
+
 }

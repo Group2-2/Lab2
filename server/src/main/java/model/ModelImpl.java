@@ -280,5 +280,10 @@ public class ModelImpl implements Model {
 
 
     public void leaveChat(String login, Long chatId) {
+        User user = findByLogin(login);
+        if (user != null) {
+            user.getChats().remove(chatId);
+            chats.get(chatId).remove(login);
+        }
     }
 }
