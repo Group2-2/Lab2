@@ -251,7 +251,7 @@ import org.apache.log4j.Logger;
                 boolean online = xml.getOnlineStatus(command);
                 String login = xml.getUserFromMessage(command);
                 model.setOnlineStatus(login, online);
-                if(!online) {
+                if (!online) {
                     Server.getInstance().deleteUser(this);
                 } else {
                     Server.getInstance().sendToChat(Long.parseLong("0"), command, this);

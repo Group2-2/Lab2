@@ -374,7 +374,7 @@ public class Server implements ServerController {
             if (a == 0) {
                 return;
             }
-            if(consoleChangeUser((String) list.get(a - 1))) {
+            if (consoleChangeUser((String) list.get(a - 1))) {
                 System.out.println("You changed user setting, upload..");
                 return;
             }
