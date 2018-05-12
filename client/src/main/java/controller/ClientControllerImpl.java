@@ -361,6 +361,7 @@ public class ClientControllerImpl implements ClientController {
         }
         if (!addTo && login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chatId))) {
             openPrivateChatWindow(chatId);
+            addToPrivateChatSelect(chatId);
         }
         return true;
     }
