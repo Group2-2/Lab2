@@ -245,13 +245,13 @@ public class ClientControllerImpl implements ClientController {
                     case "newChatID": {
                         String chatId = element.getAttribute("chat_id");
                         String login = element.getAttribute("user");
-                        openPrivateChat(login, chatId);
+                        openPrivateChat(login, chatId, false);
                         break;
                     }
                     case "addToChat": {
                         String chatId = element.getAttribute("chat_id");
                         String login = element.getAttribute("login");
-                        openPrivateChat(login, chatId);
+                        openPrivateChat(login, chatId, true);
                         break;
                     }
                     case "addMessage": {
@@ -344,26 +344,38 @@ public class ClientControllerImpl implements ClientController {
     /**
      * @param login login
      * @param chatId chatId
+     * @param addTo start new or add to exist chat
      * @return chat is opened
      */
-    public boolean openPrivateChat(String login, String chatId) {
+    public boolean openPrivateChat(String login, String chatId, boolean addTo) {
         if (login.equals(getCurrentUser()) && (!chatsListInForm.contains(chatId))) {
             chatsListInForm.add(chatId);
             generalChatView.setPrivateChatsList(chatsListInForm);
         }
-        if (login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chatId))) {
+        if (addTo && login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chatId))) {
             int dialogButton = JOptionPane.YES_NO_OPTION;
             int dialogResult = JOptionPane.showConfirmDialog(null, "Open private chat window?", "Join private chat", dialogButton);
             if (dialogResult == 0) {
-                PrivateChatView privateChatView = new PrivateChatView(this);
-                privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
-                privateChatView.setChat_id(chatId);
-                getMassagesInChat(chatId);
-                privateChatsList.put(chatId, privateChatView);
-                privateChatView.setPrivateChatsList(chatsListInForm);
+                openPrivateChatWindow(chatId);
             }
         }
+        if (!addTo && login.equals(getCurrentUser()) && (!privateChatsList.containsKey(chatId))) {
+            openPrivateChatWindow(chatId);
+        }
         return true;
+    }
+
+    /**
+     * open private chat window.
+     * * @param chatId chatId
+     */
+    public void openPrivateChatWindow(String chatId) {
+        PrivateChatView privateChatView = new PrivateChatView(this);
+        privateChatView.setTitle(getCurrentUser().concat(": Private chat room"));
+        privateChatView.setChat_id(chatId);
+        getMassagesInChat(chatId);
+        privateChatsList.put(chatId, privateChatView);
+        privateChatView.setPrivateChatsList(chatsListInForm);
     }
 
     /**
