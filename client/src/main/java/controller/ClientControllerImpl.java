@@ -188,7 +188,7 @@ public class ClientControllerImpl implements ClientController {
                 if (line.contains("<test></test>")) {
                     continue;
                 }
-                //System.out.println("Get in line " + line);
+                System.out.println("Get in line " + line);
                 if (line.equals("</messages>") || line.equals("<messages/>")) {
                     varLoadMessages = true;
                     continue;
@@ -386,8 +386,7 @@ public class ClientControllerImpl implements ClientController {
             socket.close();
             logger.info("Closed resources and exit application");
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Application exit failed! ", e);
+            logger.error("Application exit failed!");
         }
     }
 
@@ -402,6 +401,22 @@ public class ClientControllerImpl implements ClientController {
             privateChatsList.remove(chatId);
         }
     }
+
+    /**
+     * close and leave private chat.
+     *
+     * @param chatId chatId
+     */
+    public void leaveForeverPrivateChat(String chatId) {
+        leavePrivateChat(chatId);
+        if (chatsListInForm.contains(chatId)) {
+            chatsListInForm.remove(chatId);
+            generalChatView.setPrivateChatsList(chatsListInForm);
+        }
+        String msg = String.format("<command type=\"leaveChat\" chat_id=\"%1$s\" login = \"%2$s\" />", chatId, getCurrentUser());
+        sendXMLString(msg);
+    }
+
 
     /**
      * print input massage into wright window.
@@ -672,7 +687,7 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        //System.out.println("OUT " + xmlText);
+        System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }

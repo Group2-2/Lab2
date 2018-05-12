@@ -25,6 +25,7 @@ public class GeneralChatView extends JFrame {
     protected JPanel mainPanel;
     protected JButton addNewUserButton;
     protected JButton editMyPasswordButton;
+    protected JButton leaveThisChatButton;
     protected DefaultListModel listModel;
     protected DefaultListModel listModelChats;
     private String chat_id;
@@ -147,8 +148,7 @@ public class GeneralChatView extends JFrame {
      */
     public void removePrivateChatButton() {
         mainPanel.remove(privateChatButton);
-        mainPanel.remove(privateChatButton);
-        mainPanel.remove(privateChatButton);
+        mainPanel.remove(openPrivateChatButton);
         addNewUserButton = new JButton();
         addNewUserButton.setText("Add new friend to chat");
         mainPanel.add(addNewUserButton, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -156,6 +156,16 @@ public class GeneralChatView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.addToPrivateChatSelect(getChat_id());
+            }
+        });
+        leaveThisChatButton = new JButton();
+        leaveThisChatButton.setText("Leave this chat");
+        mainPanel.add(leaveThisChatButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        leaveThisChatButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               controller.leaveForeverPrivateChat(getChat_id());
+               dispose();
             }
         });
     }
