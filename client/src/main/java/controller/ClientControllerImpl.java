@@ -188,7 +188,7 @@ public class ClientControllerImpl implements ClientController {
                 if (line.contains("<test></test>")) {
                     continue;
                 }
-                System.out.println("Get in line " + line);
+                //System.out.println("Get in line " + line);
                 if (line.equals("</messages>") || line.equals("<messages/>")) {
                     varLoadMessages = true;
                     continue;
@@ -268,7 +268,9 @@ public class ClientControllerImpl implements ClientController {
                     case "deleteUser": {
                         String result = element.getAttribute("result");
                         if (result.equals("ACCEPTED")) {
-                            JOptionPane.showMessageDialog(null, "User has been deleted!");
+                            String login = element.getAttribute("login");
+                            deleteUserConfirm(login);
+                            break;
                         }
                         break;
                     }
@@ -323,7 +325,6 @@ public class ClientControllerImpl implements ClientController {
         if (isConnected) {
             validateUser(getCurrentUser(), getCurrentUserPassword());
             readEnterToChat();
-            //System.out.println("Server has been restart!");
             getMessages(mainChatID, "Server has been restart!", "SERVER");
             logger.info("Client and Server has been restart!");
         } else {
@@ -488,6 +489,32 @@ public class ClientControllerImpl implements ClientController {
             generalChatView.setBannedList(banUsers);
             sendMessage("@ADMIN has Unbanned ".concat(login), mainChatID);
         }
+    }
+
+    /**
+     *  user is deleted.
+     *
+     * @param login login
+     */
+    private void deleteUserConfirm(String login) {
+        if (login.equals(getCurrentUser())) {
+            logger.info("Admin delete you from chat");
+            Object[] options = {"OK", "CANCEL"};
+            int n = JOptionPane
+                    .showOptionDialog(null, "Admin delete you from chat! Application will be closed",
+                            "Confirmation", JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, null, options,
+                            options[0]);
+
+                exitChat();
+                System.exit(2);
+
+        }
+        if (isAdmin()) {
+            JOptionPane.showMessageDialog(null, "User has been deleted!");
+            sendMessage("@ADMIN has delete ".concat(login), mainChatID);
+        }
+        changeOnlineUsers(login, false);
     }
 
     /**
@@ -700,7 +727,7 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        System.out.println("OUT " + xmlText);
+        //System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
@@ -874,8 +901,7 @@ public class ClientControllerImpl implements ClientController {
             document = documentBuilder.parse(new InputSource(new StringReader(value)));
             document.getDocumentElement().normalize();
         } catch (ParserConfigurationException | IOException | SAXException e) {
-            e.printStackTrace();
-            logger.error("Failed to read input XML", e);
+            logger.error("Failed to read input XML");
         }
         return document;
     }
