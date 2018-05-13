@@ -268,9 +268,9 @@ public class ModelImpl implements Model {
             logger.debug("File " + path + " not found");
         } finally {
             try {
-                bufferedReader.close();
+                if (bufferedReader != null)
+                    bufferedReader.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         return result;
