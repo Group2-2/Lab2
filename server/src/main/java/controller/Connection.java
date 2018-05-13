@@ -71,12 +71,10 @@ import org.apache.log4j.Logger;
                     Server.getInstance().deleteUser(this);
                 }
                 if (message != null && !message.equals("")) {
-                    System.out.println("get: " + message);
                     String response = configuration(message);
                     if(!"".equals(response)) {
                         send(response);
                     }
-                    System.out.println("response: " + message);
                     model.save();
                 }
             }
