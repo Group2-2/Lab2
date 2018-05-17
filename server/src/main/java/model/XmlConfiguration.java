@@ -4,6 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -12,6 +13,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -187,11 +190,20 @@ public class XmlConfiguration {
         return document;
     }
 
-    private static String getValue(String command, String attribute) {
+    public static String getValue(String command, String attribute) {
         Document document = newDocument(command);
         NodeList nodes = document.getElementsByTagName("command");
         Element element = (Element) nodes.item(0);
         return element.getAttribute(attribute);
+    }
+
+    /**
+     * Method for get type of command
+     * @param command command from user
+     * @return type of command
+     */
+    public static String getAttributeResult(String command) {
+        return getValue(command, "result");
     }
 
     /**
@@ -292,5 +304,94 @@ public class XmlConfiguration {
             value = builder.toString().trim();
         }
         return String.format("<command type=\"%s\" %s />", command, value);
+    }
+
+    /**
+     * Method to get node name of command
+     * @param line xml line
+     * @return node name of command
+     */
+    public String getNodeNameFromXML(String line) {
+        Document document = newDocument(line);
+        return document.getDocumentElement().getNodeName();
+    }
+
+    /**
+     * Method to get element from command
+     * @param line xml line
+     * @return element from command
+     */
+    public Element getElementFromXML(String line) {
+        Document document = newDocument(line);
+        NodeList nodes = document.getElementsByTagName("command");
+        Element element = (Element) nodes.item(0);
+        return element;
+    }
+
+    /**
+     * Method parse input xml and set in list users.
+     * @param line xml string
+     * @param usersList ArrayList with users
+     */
+    public void setUserListFromXML(String line, ArrayList<String> usersList) {
+        usersList.clear();
+        Document document = newDocument(line);
+        NodeList users = document.getElementsByTagName("user");
+        for (int i = 0; i < users.getLength(); i++) {
+            Node node = users.item(i);
+            if (node.getNodeName().equals("user")) {
+                Element element = (Element) node;
+                String nicknameVar = element.getTextContent();
+                usersList.add(nicknameVar);
+            }
+        }
+    }
+
+    /**
+     * Method parse input xml and set in list users.
+     * @param line xml string
+     * @param chatsListInForm ArrayList with users
+     */
+    public void setChatsListFromXML(String line, ArrayList<String> chatsListInForm) {
+        Document document = newDocument(line);
+        NodeList chatIdLong = document.getElementsByTagName("long");
+        for (int i = 0; i < chatIdLong.getLength(); i++) {
+            Node node = chatIdLong.item(i);
+            if (node.getNodeName().equals("long")) {
+                Element element = (Element) node;
+                String chatStringID = element.getTextContent();
+                if (chatStringID.equals("0")) continue;
+                if (!chatsListInForm.contains(chatStringID)) {
+                    chatsListInForm.add(chatStringID);
+                }
+            }
+        }
+    }
+
+    /**
+     * Method return list with massages from xml.
+     * @param line xml string
+     * @return list with massages in HashMap
+     */
+    public ArrayList getAllMassages(String line) {
+        ArrayList arrayList = new ArrayList<>();
+        Document document = newDocument(line);
+        NodeList messageList = document.getElementsByTagName("message");
+        for (int i = 0; i < messageList.getLength(); i++) {
+            Node node = messageList.item(i);
+            if (node.getNodeName().equals("message")) {
+                Element element = (Element) node;
+                String sender = element.getAttribute("sender");
+                String text = element.getAttribute("text");
+                String chatId = element.getAttribute("chat_id");
+
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("chatId", chatId);
+                map.put("text", text);
+                map.put("sender", sender);
+                arrayList.add(map);
+            }
+        }
+        return arrayList;
     }
 }

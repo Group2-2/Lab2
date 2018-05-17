@@ -71,6 +71,11 @@
             <artifactId>forms_rt</artifactId>
             <version>7.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>group.2.2</groupId>
+            <artifactId>server</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
     </dependencies>
 

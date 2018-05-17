@@ -6,7 +6,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
@@ -21,9 +20,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import model.XmlConfiguration;
+
 
 public class ClientControllerImpl implements ClientController {
     private static final Logger logger = Logger.getLogger(ClientControllerImpl.class);
@@ -48,6 +48,7 @@ public class ClientControllerImpl implements ClientController {
     private static String mainChatID = "0";
     private static final String configPath = "configConnection.xml";
     private OnlineUsersView allUsersView;
+    private final XmlConfiguration xml = XmlConfiguration.getInstance();
 
     /**
      * @param args args
@@ -65,10 +66,6 @@ public class ClientControllerImpl implements ClientController {
         if (isConnected) {
             loginView = new LoginView(this);
             readEnterToChat();
-            /*//test
-            String msg = "<command type=\"createAdmin\" user = \"admin\"/>";
-            sendXMLString(msg);
-            //*/
 
             if (isAdmin()) {
                 generalChatView = new AdminView(this);
@@ -98,16 +95,13 @@ public class ClientControllerImpl implements ClientController {
                 if (line.contains("<test></test>")) {
                     continue;
                 }
-                Document document = getXML(line);
-                NodeList nodes = document.getElementsByTagName("command");
-                Element element = (Element) nodes.item(0);
-                String type = element.getAttribute("type");
-                String result = element.getAttribute("result");
+                String type = XmlConfiguration.getTypeOfTheCommand(line);
+                String result = XmlConfiguration.getAttributeResult(line);
                 if (type.equals("login")) {
                     if (result.equals("ACCEPTED")) {
-                        boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
+                        boolean isAdminString = Boolean.parseBoolean(XmlConfiguration.getValue(line,"isAdmin"));
                         setAdmin(isAdminString);
-                        isBanned = Boolean.parseBoolean(element.getAttribute("isInBan"));
+                        isBanned = Boolean.parseBoolean(XmlConfiguration.getValue(line,"isInBan"));
                         break;
                     } else if (result.equals("NOTACCEPTED")) {
                         JOptionPane.showMessageDialog(null, "Incorrect login/password");
@@ -115,7 +109,7 @@ public class ClientControllerImpl implements ClientController {
                     }
                 } else if (type.equals("registration")) {
                     if (result.equals("ACCEPTED")) {
-                        boolean isAdminString = Boolean.parseBoolean(element.getAttribute("isAdmin"));
+                        boolean isAdminString = Boolean.parseBoolean(XmlConfiguration.getValue(line,"isAdmin"));
                         setAdmin(isAdminString);
                         break;
                     } else if (result.equals("NOTACCEPTED")) {
@@ -125,7 +119,6 @@ public class ClientControllerImpl implements ClientController {
                 }
             } catch (IOException e) {
                 logger.error("Failed to read input stream for access!");
-                e.printStackTrace();
                 exitApp();
             }
         }
@@ -188,7 +181,6 @@ public class ClientControllerImpl implements ClientController {
                 if (line.contains("<test></test>")) {
                     continue;
                 }
-                //System.out.println("Get in line " + line);
                 if (line.equals("</messages>") || line.equals("<messages/>")) {
                     varLoadMessages = true;
                     continue;
@@ -198,84 +190,84 @@ public class ClientControllerImpl implements ClientController {
                     continue;
                 }
 
-                Document document = getXML(line);
-                NodeList nodes = document.getElementsByTagName("command");
-                Element element = (Element) nodes.item(0);
+                String nodeName = xml.getNodeNameFromXML(line);
+                Element element = xml.getElementFromXML(line);
                 if (element == null) {
-                    if (document.getDocumentElement().getNodeName().equals("onlineUsers")) {
+                    if (nodeName.equals("onlineUsers")) {
                         setOnlineUsers(line);
                         varGetOnlineUsers = true;
                     }
-                    if (document.getDocumentElement().getNodeName().equals("users")) {
+                    if (nodeName.equals("users")) {
                         setAllUsers(line);
                     }
-                    if (document.getDocumentElement().getNodeName().equals("messages")) {
+                    if (nodeName.equals("messages")) {
                         setAllMassages(line);
                         varLoadMessages = true;
                     }
-                    if (document.getDocumentElement().getNodeName().equals("chats")) {
+                    if (nodeName.equals("chats")) {
                         setChats(line);
                         varSetChatList = true;
                     }
-                    if (document.getDocumentElement().getNodeName().equals("banList")) {
+                    if (nodeName.equals("banList")) {
                         setBanList(line);
                         varSetBanList = true;
                     }
                     continue;
                 }
-                String type = element.getAttribute("type");
+
+                String type = XmlConfiguration.getTypeOfTheCommand(line);
 
                 switch (type) {
                     case "setOnlineStatus": {
-                        String login = element.getAttribute("user");
-                        boolean online = Boolean.parseBoolean(element.getAttribute("isOnline"));
+                        String login = xml.getUserFromMessage(line);
+                        boolean online = xml.getOnlineStatus(line);
                         changeOnlineUsers(login, online);
                         break;
                     }
                     case "ban": {
-                        String login = element.getAttribute("login");
+                        String login = xml.getLogin(line);
                         banUserConfirm(login);
                         break;
                     }
                     case "unban": {
-                        String login = element.getAttribute("login");
+                        String login = xml.getLogin(line);
                         unBanUserConfirm(login);
                         break;
                     }
                     case "newChatID": {
-                        String chatId = element.getAttribute("chat_id");
-                        String login = element.getAttribute("user");
+                        String chatId = XmlConfiguration.getValue(line,"chat_id");
+                        String login = xml.getUserFromMessage(line);
                         openPrivateChat(login, chatId, false);
                         break;
                     }
                     case "addToChat": {
-                        String chatId = element.getAttribute("chat_id");
-                        String login = element.getAttribute("login");
+                        String chatId = XmlConfiguration.getValue(line,"chat_id");
+                        String login = xml.getLogin(line);
                         openPrivateChat(login, chatId, true);
                         break;
                     }
                     case "addMessage": {
-                        String sender = element.getAttribute("sender");
-                        String chatId = element.getAttribute("chat_id");
-                        String text = element.getAttribute("text");
+                        String sender = xml.getSender(line);
+                        String chatId = XmlConfiguration.getValue(line,"chat_id");
+                        String text = xml.getText(line);
                         getMessages(chatId, text, sender);
                         break;
                     }
                     case "isInBan": {
-                        String login = element.getAttribute("user");
+                        String login = xml.getUserFromMessage(line);
                         break;
                     }
                     case "deleteUser": {
-                        String result = element.getAttribute("result");
+                        String result = XmlConfiguration.getAttributeResult(line);
                         if (result.equals("ACCEPTED")) {
-                            String login = element.getAttribute("login");
+                            String login = xml.getLogin(line);
                             deleteUserConfirm(login);
                             break;
                         }
                         break;
                     }
                     case "changePassword": {
-                        String result = element.getAttribute("result");
+                        String result = XmlConfiguration.getAttributeResult(line);
                         if (result.equals("ACCEPTED")) {
                             JOptionPane.showMessageDialog(null, "Password has been changed!");
                         }
@@ -304,7 +296,6 @@ public class ClientControllerImpl implements ClientController {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
             logger.error("Ошибка при получении сообщения!");
             exitApp();
         }
@@ -318,8 +309,7 @@ public class ClientControllerImpl implements ClientController {
         try {
             TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            logger.error("Wait for restart failed ", e);
+           logger.error("Wait for restart failed ", e);
         }
         isConnected = connectServer();
         if (isConnected) {
@@ -427,6 +417,7 @@ public class ClientControllerImpl implements ClientController {
             chatsListInForm.remove(chatId);
             generalChatView.setPrivateChatsList(chatsListInForm);
         }
+
         String msg = String.format("<command type=\"leaveChat\" chat_id=\"%1$s\" login = \"%2$s\" />", chatId, getCurrentUser());
         sendXMLString(msg);
     }
@@ -727,7 +718,6 @@ public class ClientControllerImpl implements ClientController {
      * @return command is sent
      */
     public boolean sendXMLString(String xmlText) {
-        //System.out.println("OUT " + xmlText);
         out.println(xmlText); //test
         return true;
     }
@@ -747,7 +737,7 @@ public class ClientControllerImpl implements ClientController {
      */
     public void setOnlineUsers(String line) {
         //<online_users>   <user>qwerty</user> </online_users>
-        setUsersList(line, onlineUsers);
+        xml.setUserListFromXML(line, onlineUsers);
         generalChatView.setOnlineUsersList(onlineUsers);
     }
 
@@ -758,7 +748,7 @@ public class ClientControllerImpl implements ClientController {
      */
     public void setAllUsers(String line) {
         //<users>   <user>qwerty</user> </users>
-        setUsersList(line, allUsers);
+        xml.setUserListFromXML(line, allUsers);
     }
 
     /**
@@ -768,31 +758,9 @@ public class ClientControllerImpl implements ClientController {
      */
     public void setBanList(String line) {
         //<banList>   <user>qwerty</user> </banList>
-        setUsersList(line, banUsers);
+        xml.setUserListFromXML(line, banUsers);
         generalChatView.setBannedList(banUsers);
     }
-
-    /**
-     * Common parse input xml and set in list users.
-     *
-     * @param line xml string
-     * @param usersList ArrayList with users
-     */
-    public void setUsersList(String line, ArrayList<String> usersList) {
-        //<banList>   <user>qwerty</user> </banList>
-        usersList.clear();
-        Document document = getXML(line);
-        NodeList users = document.getElementsByTagName("user");
-        for (int i = 0; i < users.getLength(); i++) {
-            Node node = users.item(i);
-            if (node.getNodeName().equals("user")) {
-                Element element = (Element) node;
-                String nicknameVar = element.getTextContent();
-                usersList.add(nicknameVar);
-            }
-        }
-    }
-
 
     /**
      * parse input xml and set private chats.
@@ -802,19 +770,7 @@ public class ClientControllerImpl implements ClientController {
     public void setChats(String line) {
         //<chats>   <long>0</long>   <long>1</long> </chats>
         chatsListInForm.clear();
-        Document document = getXML(line);
-        NodeList chatIDlong = document.getElementsByTagName("long");
-        for (int i = 0; i < chatIDlong.getLength(); i++) {
-            Node node = chatIDlong.item(i);
-            if (node.getNodeName().equals("long")) {
-                Element element = (Element) node;
-                String chatStringID = element.getTextContent();
-                if (chatStringID.equals("0")) continue;
-                if (!chatsListInForm.contains(chatStringID)) {
-                    chatsListInForm.add(chatStringID);
-                }
-            }
-        }
+        xml.setChatsListFromXML(line, chatsListInForm);
         generalChatView.setPrivateChatsList(chatsListInForm);
     }
 
@@ -825,17 +781,16 @@ public class ClientControllerImpl implements ClientController {
      */
     public void setAllMassages(String line) {
         //<messages>   <message chat_id="0" sender="q" text="ff"/>
-        Document document = getXML(line);
-        NodeList messageList = document.getElementsByTagName("message");
-        for (int i = 0; i < messageList.getLength(); i++) {
-            Node node = messageList.item(i);
-            if (node.getNodeName().equals("message")) {
-                Element element = (Element) node;
-                String sender = element.getAttribute("sender");
-                String text = element.getAttribute("text");
-                String chatId = element.getAttribute("chat_id");
-                getMessages(chatId, text, sender);
-            }
+        ArrayList<HashMap<String,String>> listMassages = xml.getAllMassages(line);
+        for ( HashMap<String, String> map:listMassages) {
+            Set<Map.Entry<String, String>> set = map.entrySet();
+            String chatId = "", text = "", sender = "";
+                for (Map.Entry<String, String> me : set) {
+                    if(me.getKey().equals("chatId")) chatId = me.getValue();
+                    if(me.getKey().equals("sender")) sender = me.getValue();
+                    if(me.getKey().equals("text")) text = me.getValue();
+                }
+            getMessages(chatId, text, sender);
         }
     }
 
@@ -883,27 +838,6 @@ public class ClientControllerImpl implements ClientController {
      */
     public void banUserSelect(String chatId) {
         OnlineUsersView onlineUsersView = new OnlineUsersView(this, "Select user to ban", "banUser", chatId);
-    }
-
-    /**
-     * parse string with XML.
-     *
-     * @param value stringXML
-     * @return document XML
-     */
-
-    private Document getXML(String value) {
-        value = value.replaceAll("\\n", " ");
-        Document document = null;
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            document = documentBuilder.parse(new InputSource(new StringReader(value)));
-            document.getDocumentElement().normalize();
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            logger.error("Failed to read input XML");
-        }
-        return document;
     }
 
     /**
@@ -1000,16 +934,12 @@ public class ClientControllerImpl implements ClientController {
                 readSuccess = true;
             }
         } catch (IOException e) {
-            e.printStackTrace();
             logger.error("IO exception in reading file with config!");
         } catch (TransformerException e) {
-            e.printStackTrace();
             logger.error("Transformer exception in reading file with config!");
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
             logger.error("Parser exception in reading file with config!");
         } catch (SAXException e) {
-            e.printStackTrace();
             logger.error("SAX exception in reading file with config!");
         } finally {
             return readSuccess;
