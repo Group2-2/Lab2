@@ -161,6 +161,7 @@ public class ClientControllerImpl implements ClientController {
         boolean varLoadMessages = false;
         boolean varSetChatList = false;
         boolean varSetBanList = false;
+
         try {
             getOnlineUsers();
             while (isConnected) {
@@ -176,6 +177,7 @@ public class ClientControllerImpl implements ClientController {
                 }
                 if (varGetOnlineUsers && varLoadMessages && varSendOnlines && varSetChatList && isAdmin() && !varSetBanList) {
                     getBanList();
+                    getAllUsers();
                 }
                 String line = in.readLine();
                 if (line.contains("<test></test>")) {
