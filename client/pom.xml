@@ -15,7 +15,6 @@
 
     <packaging>jar</packaging>
     <build>
-        <finalName>client</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
