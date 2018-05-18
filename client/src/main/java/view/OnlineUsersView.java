@@ -122,7 +122,9 @@ public class OnlineUsersView extends JFrame {
     public void setOnlineUsersList(ArrayList<String> arrList) {
         listModel.clear();
         for (String userName : arrList) {
-            listModel.addElement(userName);
+            if(!userName.equals(controller.getCurrentUser())) {
+                listModel.addElement(userName);
+            }
         }
     }
 
