@@ -256,7 +256,7 @@ import org.apache.log4j.Logger;
                 } else {
                     server.sendToChat(Long.parseLong("0"), command, this);
                 }
-                return "";
+                return command;
             }
             case "createAdmin": {
                 String login = xml.getUserFromMessage(command);
