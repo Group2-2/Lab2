@@ -170,7 +170,6 @@ public class ClientControllerImpl implements ClientController {
                 }
                 if (varGetOnlineUsers && varLoadMessages && !varSendOnlines) {
                     sendOnline("true");
-                    varSendOnlines = true;
                 }
                 if (varGetOnlineUsers && varLoadMessages && varSendOnlines && !varSetChatList) {
                     getChatsList();
