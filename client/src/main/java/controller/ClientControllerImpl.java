@@ -506,6 +506,7 @@ public class ClientControllerImpl implements ClientController {
         if (isAdmin()) {
             JOptionPane.showMessageDialog(null, "User has been deleted!");
             sendMessage("@ADMIN has delete ".concat(login), mainChatID);
+            if (allUsers.contains(login)) allUsers.remove(login);
         }
         changeOnlineUsers(login, false);
     }
