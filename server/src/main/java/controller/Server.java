@@ -128,6 +128,7 @@ public class Server implements ServerController {
      * @param args args
      */
     public static void main(String[] args) {
+        model.readStory();
         List<String> list = model.getOnlineListUsers();
         for (String login:list) {
             model.setOnlineStatus(login, false);
@@ -269,7 +270,7 @@ public class Server implements ServerController {
             case 0:
                 System.out.print("Are you sure to stop server? Enter 1: ");
                 if (consoleInputIndex() == 1) {
-                    if (Server.getInstance().serverWork) {
+                    if (serverWork) {
                         stop();
                     }
                     System.exit(0);
@@ -302,7 +303,7 @@ public class Server implements ServerController {
                 consoleShowUsers(list1);
                 break;
             case 10:
-                if (!Server.getInstance().serverWork) {
+                if (!serverWork) {
                     System.out.println("server was stopped");
                       return;
                 }
@@ -317,19 +318,19 @@ public class Server implements ServerController {
                     System.out.println("Server was started");
                 } else {
                     instance = new Server(port);
-                    Server.getInstance().serverWork = true;
+                    serverWork = true;
                     new Thread(instance).start();
                 }
                 break;
             case 12:
-                if (!Server.getInstance().serverWork) {
+                if (!serverWork) {
                     System.out.println("Server was stopped");
                     return;
                 }
                 sendToChat(Long.parseLong("0"), xml.command("restart", null), null);
                 stop();
                 instance = new Server(port);
-                Server.getInstance().serverWork = true;
+                serverWork = true;
                 new Thread(instance).start();
                 break;
             case 13:
@@ -465,7 +466,7 @@ public class Server implements ServerController {
          //   }
         }
         model.save();
-        Server.getInstance().serverWork = false;
+        serverWork = false;
         try {
             serverSocket.close();
         } catch (IOException e) {

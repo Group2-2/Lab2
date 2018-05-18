@@ -46,6 +46,8 @@ import org.apache.log4j.Logger;
      */
     private boolean isWork = true;
 
+    private Server server = Server.getInstance();
+
     /**
      * Constructor. Init writer.
      * @param socket init current socket
@@ -116,7 +118,7 @@ import org.apache.log4j.Logger;
             send("<test></test>");
         } catch (NullPointerException e) {
             stopConnection();
-            Server.getInstance().deleteUser(this);
+            server.deleteUser(this);
             choice = true;
         }
         return choice;
@@ -172,8 +174,8 @@ import org.apache.log4j.Logger;
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
                 String s = xml.command(type, map);
-                Server.getInstance().sendToChat(Long.parseLong("0"), s, this);
-                Server.getInstance().sendToUser(login, s);
+                server.sendToChat(Long.parseLong("0"), s, this);
+                server.sendToUser(login, s);
                 return s;
             }
             case "unban": {
@@ -184,7 +186,7 @@ import org.apache.log4j.Logger;
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
                 String s = xml.command(type, map);
-                Server.getInstance().sendToChat(Long.parseLong("0"), s, this);
+                server.sendToChat(Long.parseLong("0"), s, this);
                 return s;
             }
             case "login" : {
@@ -195,7 +197,7 @@ import org.apache.log4j.Logger;
                     map.put("isAdmin", model.isAdmin(login));
                     map.put("isInBan", model.isInBan(login));
                     map.put("result", "ACCEPTED");
-                    Server.getInstance().setUser(login, this);
+                    server.setUser(login, this);
                 } else {
                     map.put("result", "NOTACCEPTED");
                 }
@@ -210,7 +212,7 @@ import org.apache.log4j.Logger;
                     map.put("result", "NOTACCEPTED");
                 } else {
                     map.put("result", "ACCEPTED");
-                    Server.getInstance().setUser(login, this);
+                    server.setUser(login, this);
                 }
                 return xml.command(type, map);
             }
@@ -230,7 +232,7 @@ import org.apache.log4j.Logger;
                 String login = xml.getLogin(command);
                 long id = xml.getChatId(command);
                 model.addToChat(login, id);
-                Server.getInstance().sendToChat(id, command, this);
+                server.sendToChat(id, command, this);
                 return command;
             }
 
@@ -242,7 +244,7 @@ import org.apache.log4j.Logger;
                 long id = xml.getChatId(command);
                 String text = xml.getText(command);
                 model.addMessage(id, new Message(login, text));
-                Server.getInstance().sendToChat(id, command, this);
+                server.sendToChat(id, command, this);
                 return command;
             }
             case "setOnlineStatus": {
@@ -250,9 +252,9 @@ import org.apache.log4j.Logger;
                 String login = xml.getUserFromMessage(command);
                 model.setOnlineStatus(login, online);
                 if (!online) {
-                    Server.getInstance().deleteUser(this);
+                    server.deleteUser(this);
                 } else {
-                    Server.getInstance().sendToChat(Long.parseLong("0"), command, this);
+                    server.sendToChat(Long.parseLong("0"), command, this);
                 }
                 return "";
             }
@@ -288,7 +290,7 @@ import org.apache.log4j.Logger;
                 map.put("login", login);
                 map.put("result", "ACCEPTED");
                 String result = xml.command(type, map);
-                Server.getInstance().sendToChat(Long.parseLong("0"), result, null);
+                server.sendToChat(Long.parseLong("0"), result, null);
                 return "";
             }
             case "changePassword": {

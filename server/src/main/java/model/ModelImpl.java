@@ -28,6 +28,18 @@ public class ModelImpl implements Model {
 
     private ModelImpl() {
 
+    }
+
+
+    @Override
+    public List<String> getListUsers() {
+        List<String> list = new ArrayList<>();
+        listUsers.forEach(user -> list.add(user.getLogin()));
+        return list;
+    }
+
+    @Override
+    public void readStory() {
         chats = read(FilePath.CHATS.getPath());
         if (chats == null) {
             chats = new Hashtable<>();
@@ -54,14 +66,6 @@ public class ModelImpl implements Model {
             writeObject(listUsers, FilePath.BAN_LIST.getPath());
             logger.warn("banList file is empty");
         }
-    }
-
-
-    @Override
-    public List<String> getListUsers() {
-        List<String> list = new ArrayList<>();
-        listUsers.forEach(user -> list.add(user.getLogin()));
-        return list;
     }
 
     @Override

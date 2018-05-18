@@ -13,6 +13,11 @@ public interface Model {
     List<String> getListUsers();
 
     /**
+     * Read story of chats
+     */
+    void readStory();
+
+    /**
      * Method for get list of online users.
      * @return list of online users
      */
